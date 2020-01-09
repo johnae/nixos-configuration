@@ -1,0 +1,4 @@
+[submodule "metadata"]
+	path = metadata
+	url = git@github.com:johnae/nixos-metadata
+	branch = master

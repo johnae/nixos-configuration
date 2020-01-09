@@ -14,6 +14,11 @@ DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
 # 5. You want to not care about atime and you want
 #    to compress your fs using zstd
 
+if ! ping -c 1 www.google.com; then
+    echo No network - please set it up, then exit
+    bash
+fi
+
 ## on servers we might want additional btrfs subvolumes
 ## for use with kubernetes local volume provisioner
 ADDITIONAL_VOLUMES="${ADDITIONAL_VOLUMES:-}"
