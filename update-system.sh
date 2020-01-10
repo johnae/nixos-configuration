@@ -8,6 +8,7 @@ pathToConfig="$(./build-system.sh $@)"
 
 echo Ensuring nix-channel set in git repo is used
 sudo nix-channel --add "$(cat nixos-channel | tr -d '\n')" nixos
+sudo nix-channel --update
 
 echo Updating system profile
 sudo nix-env -p "$profile" --set "$pathToConfig"
