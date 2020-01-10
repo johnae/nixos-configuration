@@ -39,7 +39,7 @@ in
 
     ${lib.concatMapStringsSep "\n"
       (s: "export ${s}")
-      (lib.mapAttrsToList (name: value: "${name}=\"${value}\"") env)}
+      (lib.mapAttrsToList (name: value: "${name}=\"${value}\"") isoConf)}
 
     sudo --preserve-env=DISK_PASSWORD,ADDITIONAL_VOLUMES,ADDITIONAL_DISK \
           /etc/install.sh
