@@ -7,7 +7,7 @@ in
 {
   imports = [
     ../defaults/server.nix
-    /etc/nixos/hardware-configuration.nix
+    ./hyperion/hardware-configuration.nix
   ];
 
   nix.trustedUsers = [ "root" "${meta.user.name}" ];

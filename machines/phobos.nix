@@ -8,8 +8,8 @@ in
 {
   imports = [
     ../defaults/laptop.nix
-    #"${nixos-hardware}/dell/xps/13-9370"
-    /etc/nixos/hardware-configuration.nix
+    "${nixos-hardware}/dell/xps/13-9360"
+    ./phobos/hardware-configuration.nix
     #wireguard
   ];
 
