@@ -15,7 +15,13 @@ DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
 #    to compress your fs using zstd
 
 if ! ping -c 1 www.google.com; then
-    echo No network - please set it up, then exit
+    cat<<EOF
+No network - please set it up, then exit the shell to continue.
+For example, on a laptop, you might want to run something like:
+
+wpa_supplicant -B -i INTERFACE -c <(wpa_passphrase 'NETWORK' 'PASSWORD')
+
+EOF
     bash
 fi
 
