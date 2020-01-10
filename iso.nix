@@ -4,14 +4,13 @@ let
   pkgs = import ./nixpkgs.nix;
   nixosFunc = import (pkgs.path + "/nixos");
   configuration = builtins.getEnv "NIXOS_SYSTEM_CONFIG";
-  confDir = builtins.dirOf configuration;
+  metadataDir = toString ./metadata;
   confName = lib.removeSuffix ".nix" (builtins.baseNameOf configuration);
   isoConf = with builtins;
-    let conf = "${confDir}/${confName}/isoconf.json";
-    in if pathExists conf then fromJSON (readFile conf) else {};
+    let conf = "${metadataDir}/${confName}/isoconf.json";
+    in if pathExists conf then extraBuiltins.sops conf else {};
   additionalVolumes = builtins.getEnv "ADDITIONAL_VOLUMES";
   additionalDisk = builtins.getEnv "ADDITIONAL_DISK";
-  diskPassword = builtins.extraBuiltins.sops;
   buildConfig = config:
     (nixosFunc { configuration = config; }).system;
   system-closure = buildConfig configuration;
@@ -36,6 +35,17 @@ in
 
   environment.etc."profile.local".text = ''
     echo "nameserver 8.8.8.8" | sudo tee -a /etc/resolv.conf
+
+    if ! ping -c 1 www.google.com; then
+        cat<<EOF
+    No network - please set it up, then exit the shell to continue.
+    For example, on a laptop, you might want to run something like:
+
+    wpa_supplicant -B -i INTERFACE -c <(wpa_passphrase 'NETWORK' 'PASSWORD')
+
+    EOF
+        bash
+    fi
 
     ${lib.concatMapStringsSep "\n"
       (s: "export ${s}")
