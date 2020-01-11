@@ -3,8 +3,14 @@
 set -euo pipefail
 
 profile=/nix/var/nix/profiles/system
+hostname="$(hostname)"
 
-pathToConfig="$(./build-system.sh $@)"
+configuration=${1:-}
+if [ -z "$configuration" ]; then
+    configuration=machines/"$hostname".nix
+fi
+
+pathToConfig="$(./build-system.sh "$configuration")"
 
 echo Ensuring nix-channel set in git repo is used
 sudo nix-channel --add "$(cat nixos-channel | tr -d '\n')" nixos
