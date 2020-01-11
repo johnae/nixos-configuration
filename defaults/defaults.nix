@@ -18,7 +18,7 @@
 
   nixpkgs.config.allowUnfree = true;
   nixpkgs.overlays = [
-    (import ../overlays/packages.nix)
+    (import ../overlays/pkgs.nix)
   ];
 
   environment.shells = [ pkgs.bashInteractive pkgs.zsh pkgs.fish ];
