@@ -57,7 +57,7 @@ in
   services.avahi.enable = true;
   services.avahi.nssmdns = true;
   services.gvfs.enable = true;
-  services.gnome3.gnome-keyring.enable = true;
+  #services.gnome3.gnome-keyring.enable = true;
   services.gnome3.sushi.enable = true;
   services.openssh.enable = true;
 
