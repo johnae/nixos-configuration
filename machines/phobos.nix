@@ -2,7 +2,7 @@
 
 let
   meta = builtins.extraBuiltins.sops ../metadata/phobos/meta.json;
-  nixos-hardware = (import ../nixos-hardware.nix).nixos-hardware;
+  nixos-hardware = import ../nixos-hardware.nix;
 in
 
 {

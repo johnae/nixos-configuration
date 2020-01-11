@@ -3,7 +3,7 @@
 let
   meta = builtins.extraBuiltins.sops ../metadata/europa/meta.json;
   wireguard = builtins.extraBuiltins.sops ../metadata/europa/wireguard.json;
-  nixos-hardware = (import ../nixos-hardware.nix).nixos-hardware;
+  nixos-hardware = import ../nixos-hardware.nix;
 in
 
 {
