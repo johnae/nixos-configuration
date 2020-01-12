@@ -1,7 +1,7 @@
-let
-  nixpkgs = import ./nixpkgs.nix;
-in
-with nixpkgs;
+{pkgs ? import <nixpkgs> { }, ... }:
+
+with pkgs;
+
 let
   diskname = "testdisk.img";
   altdiskname = "testdiskalt.img";
@@ -25,17 +25,11 @@ let
     EOF
   '';
 
-  updateNixosChannel = writeShellScriptBin "update-nixos-channel" ''
+  updateNixosChannels = writeShellScriptBin "update-nixos-channels" ''
     export PATH=${curl}/bin:${gnugrep}/bin:${gawk}/bin:$PATH
     curl -sS -I https://nixos.org/channels/nixos-unstable | grep Location: | awk '{printf "%s",$2}' | tr -d '\r\n' > nixos-channel
     nixpkgsUrl="$(cat nixos-channel)"/nixexprs.tar.xz
-    sha="$(nix-prefetch-url "$nixpkgsUrl" --unpack)"
-    cat<<JSON>nixpkgs-metadata.json
-    {
-      "url": "$nixpkgsUrl",
-      "sha256": "$sha"
-    }
-    JSON
+    nix-prefetch-github --rev master nixos nixos-hardware | jq -r '"https://github.com/\(.owner)/\(.repo)/archive/\(.rev).tar.gz"' > nixos-hardware-channel
   '';
 
   bootVmFromIso = pkgs.writeShellScriptBin "boot-vm-from-iso" ''
@@ -74,6 +68,6 @@ let
 in
 
   pkgs.mkShell {
-    buildInputs = [ qemu bootVm bootVmFromIso sops updateK3s updateNixosChannel ];
+    buildInputs = [ qemu bootVm bootVmFromIso sops updateK3s updateNixosChannels ];
     SOPS_PGP_FP = "06CAFD66CE7222C7FB0CA84314B5564DEB730BF5";
   }

@@ -2,15 +2,13 @@
 
 let
   meta = builtins.extraBuiltins.sops ../metadata/phobos/meta.json;
-  nixos-hardware = import ../nixos-hardware.nix;
 in
 
 {
   imports = [
     ../defaults/laptop.nix
-    "${nixos-hardware}/dell/xps/13-9360"
+    <nixos-hardware/dell/xps/13-9360>
     ./phobos/hardware-configuration.nix
-    #wireguard
   ];
 
   nix.trustedUsers = [ "root" "${meta.user.name}" ];

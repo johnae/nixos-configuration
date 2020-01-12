@@ -1,7 +1,6 @@
 { config, pkgs, lib, ... }:
 
 let
-  pkgs = import ./nixpkgs.nix;
   nixosFunc = import (pkgs.path + "/nixos");
   configuration = builtins.getEnv "NIXOS_SYSTEM_CONFIG";
   metadataDir = toString ./metadata;
@@ -17,8 +16,8 @@ let
 in
 {
   imports = [
-    <nixpkgs/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix>
-    <nixpkgs/nixos/modules/installer/cd-dvd/channel.nix>
+    "<nixpkgs>/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix")
+    "<nixpkgs>/nixos/modules/installer/cd-dvd/channel.nix")
   ];
 
   environment.etc = {

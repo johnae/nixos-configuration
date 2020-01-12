@@ -1,11 +1,8 @@
 { config, lib, pkgs, ... }:
 
-let
-  nixos-hardware = import ../nixos-hardware.nix;
-in
 {
   imports = [
-    "${nixos-hardware}/common/pc/ssd"
+    <nixos-hardware/common/pc/ssd>
     ../modules
     ./defaults.nix
   ];

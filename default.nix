@@ -1,13 +1,15 @@
-{ ... }:
+{ pkgs ? import <nixpkgs> { }, ... }:
 
 let
-  pkgs = import ./nixpkgs.nix;
+  lib = pkgs.lib;
   nixosFunc = import (pkgs.path + "/nixos");
 
   buildConfig = config:
     (nixosFunc { configuration = config; }).system;
+
 in
-{
+
+rec {
   machines = pkgs.recurseIntoAttrs {
     europa = buildConfig ./machines/europa.nix;
     phobos = buildConfig ./machines/phobos.nix;

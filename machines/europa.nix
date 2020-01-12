@@ -3,13 +3,12 @@
 let
   meta = builtins.extraBuiltins.sops ../metadata/europa/meta.json;
   wireguard = builtins.extraBuiltins.sops ../metadata/europa/wireguard.json;
-  nixos-hardware = import ../nixos-hardware.nix;
 in
 
 {
   imports = [
     ../defaults/laptop.nix
-    "${nixos-hardware}/dell/xps/13-9370"
+    <nixos-hardware/dell/xps/13-9370>
     ./europa/hardware-configuration.nix
     wireguard
   ];
