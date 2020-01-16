@@ -1,13 +1,13 @@
 { config, pkgs, lib, ... }:
 
 let
-  meta = builtins.extraBuiltins.sops ../metadata/hyperion/meta.json;
+  meta = builtins.extraBuiltins.sops ../metadata/titan/meta.json;
 in
 
 {
   imports = [
-    ../defaults/server.nix
-    ./hyperion/hardware-configuration.nix
+    ../../defaults/server.nix
+    ./hardware-configuration.nix
   ];
 
   nix.trustedUsers = [ "root" "${meta.user.name}" ];

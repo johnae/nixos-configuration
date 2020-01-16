@@ -8,4 +8,4 @@ set -euo pipefail
 f=$(mktemp)
 trap "rm $f" EXIT
 sops -d "$1" > $f
-nix-instantiate --eval -E "builtins.fromJSON (builtins.readFile $f)"
+nix-instantiate --eval -E "builtins.readFile $f"
