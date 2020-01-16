@@ -4,12 +4,10 @@ let
   nixosFunc = import (pkgs.path + "/nixos");
   configuration = builtins.getEnv "NIXOS_SYSTEM_CONFIG";
   metadataDir = toString ./metadata;
-  confName = lib.removeSuffix ".nix" (builtins.baseNameOf configuration);
+  confName = with builtins; (baseNameOf (dirOf configuration));
   isoConf = with builtins;
     let conf = "${metadataDir}/${confName}/isoconf.json";
-    in if pathExists conf then extraBuiltins.sops conf else {};
-  additionalVolumes = builtins.getEnv "ADDITIONAL_VOLUMES";
-  additionalDisk = builtins.getEnv "ADDITIONAL_DISK";
+    in if pathExists conf then fromJSON (extraBuiltins.sops conf) else {};
   buildConfig = config:
     (nixosFunc { configuration = config; }).system;
   system-closure = buildConfig configuration;
