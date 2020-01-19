@@ -29,7 +29,6 @@ let
     export PATH=${curl}/bin:${gnugrep}/bin:${gawk}/bin:$PATH
     curl -sS -I https://nixos.org/channels/nixos-unstable | grep Location: | awk '{printf "%s",$2}' | tr -d '\r\n' > nixos-channel
     nixpkgsUrl="$(cat nixos-channel)"/nixexprs.tar.xz
-    nix-prefetch-github --rev master nixos nixos-hardware | jq -r '"https://github.com/\(.owner)/\(.repo)/archive/\(.rev).tar.gz"' > nixos-hardware-channel
   '';
 
   bootVmFromIso = pkgs.writeShellScriptBin "boot-vm-from-iso" ''
