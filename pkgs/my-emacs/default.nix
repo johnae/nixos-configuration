@@ -96,15 +96,15 @@ let
   };
 
 
-  ra-emacs-meta = builtins.fromJSON(builtins.readFile ../rust-analyzer/metadata.json);
-  ra-emacs-lsp = emacsPackages.melpaBuild {
-    pname = "ra-emacs-lsp";
+  rust-analyzer-meta = builtins.fromJSON(builtins.readFile ../rust-analyzer/metadata.json);
+  rust-analyzer = emacsPackages.melpaBuild {
+    pname = "rust-analyzer";
     version = "20200112";
-    src = fetchFromGitHub ra-emacs-meta;
+    src = fetchFromGitHub rust-analyzer-meta;
 
-    recipe = writeText "ra-emacs-lsp-recipe" ''
-      (ra-emacs-lsp :repo "rust-analyzer/rust-analyzer" :fetcher github
-                 :files ("editors/emacs/ra-emacs-lsp.el"))
+    recipe = writeText "rust-analyzer-recipe" ''
+      (rust-analyzer :repo "rust-analyzer/rust-analyzer" :fetcher github
+                 :files ("editors/emacs/rust-analyzer.el"))
     '';
   };
 
@@ -329,7 +329,7 @@ in
     poly-org
 
     # Rust
-    rust-mode cargo flycheck-rust racer ra-emacs-lsp
+    rust-mode cargo flycheck-rust racer rust-analyzer
 
     # Nix
     # nix-buffer nixos-options company-nixos-options nix-sandbox
