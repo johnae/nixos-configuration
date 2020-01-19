@@ -4,6 +4,8 @@ let
 
   hostName = "europa";
 
+  nixos-hardware = import ../../nixos-hardware.nix;
+
   ## some of the important values come from secrets as they are
   ## sensitive - otherwise works like any module.
   secretConfig = with builtins;
@@ -19,7 +21,7 @@ in
 {
   imports = [
     ../../defaults/laptop.nix
-    <nixos-hardware/dell/xps/13-9370>
+    "${nixos-hardware}/dell/xps/13-9370"
     ./hardware-configuration.nix
     secretConfig
   ];

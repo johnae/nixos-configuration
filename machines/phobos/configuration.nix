@@ -4,6 +4,8 @@ let
 
   hostName = "phobos";
 
+  nixos-hardware = import ../../nixos-hardware.nix;
+
   ## some of the important values come from secrets as they are
   ## sensitive - otherwise works like any module.
   secretConfig = with builtins;
@@ -19,7 +21,7 @@ in
 {
   imports = [
     ../../defaults/laptop.nix
-    <nixos-hardware/dell/xps/13-9360>
+    "${nixos-hardware}/dell/xps/13-9360"
     ./hardware-configuration.nix
     secretConfig
   ];
@@ -69,6 +71,7 @@ in
     shell = pkgs.fish;
   };
 
+  home-manager.useUserPackages = true;
   home-manager.users."${userName}" = { ... }: {
     home.packages = with pkgs;
       [
@@ -77,9 +80,10 @@ in
         swayidle
         swaylock
         mako
-        my-emacs
         i3status-rust
+        my-emacs
       ];
+
     programs.fish = {
       enable = true;
       shellInit = ''
