@@ -2,6 +2,8 @@
 
 let
 
+  lib = pkgs.callPackage ./../../lib.nix { };
+
   hostName = "phobos";
 
   nixos-hardware = import ../../nixos-hardware.nix;
@@ -18,7 +20,7 @@ let
       secretConfig.users.extraUsers ));
 in
 
-{
+with lib; {
   imports = [
     ../../defaults/laptop.nix
     "${nixos-hardware}/dell/xps/13-9360"
@@ -71,27 +73,31 @@ in
     shell = pkgs.fish;
   };
 
-  home-manager.useUserPackages = true;
-  home-manager.users."${userName}" = { ... }: {
-    home.packages = with pkgs;
-      [
-        sway
-        swaybg
-        swayidle
-        swaylock
-        mako
-        i3status-rust
-        my-emacs
-      ];
+  ## WIP
+  #home-manager.useUserPackages = true;
+  #home-manager.users."${userName}" = { ... }: {
+  #  home.packages = with pkgs;
+  #    [
+  #      sway
+  #      swaybg
+  #      swayidle
+  #      swaylock
+  #      mako
+  #      i3status-rust
+  #      my-emacs
+  #    ];
 
-    programs.fish = {
-      enable = true;
-      shellInit = ''
-        if test "$DISPLAY" = ""; and test (tty) = /dev/tty1; and test "$XDG_SESSION_TYPE" = "tty"
-          exec sway
-        end
-      '';
-    };
-  };
+  #  xdg.enable = true;
+  #  xdg.configFile."sway/config".source = pkgs.callPackage ../../sway-config.nix { };
+  #  programs.command-not-found.enable = true;
+  #  programs.fish = {
+  #    enable = true;
+  #    shellInit = ''
+  #      if test "$DISPLAY" = ""; and test (tty) = /dev/tty1; and test "$XDG_SESSION_TYPE" = "tty"
+  #        exec sway
+  #      end
+  #    '';
+  #  };
+  #};
 
 }

@@ -11,7 +11,7 @@ let
   ## determine what username we're using so we define it in one
   ## place
   userName = with lib;
-    head ( attrNames ( filterAttrs (_: value: value.uid == 1337)
+    head ( attrNames ( filterAttrs (_: value: hasAttr "uid" value && value.uid == 1337)
       secretConfig.users.extraUsers ));
 in
 
@@ -32,7 +32,7 @@ in
   services.k3s = {
     enable = true;
     nodeName = hostName;
-  }
+  };
 
   users.defaultUserShell = pkgs.fish;
   users.mutableUsers = false;

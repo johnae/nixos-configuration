@@ -3,6 +3,7 @@ self: super: rec {
   system-san-francisco-font = super.callPackage ../pkgs/system-san-francisco-font { };
   san-francisco-mono-font = super.callPackage ../pkgs/san-francisco-mono-font { };
   office-code-pro-font = super.callPackage ../pkgs/office-code-pro-font { };
+  jet-brains-mono-font = super.callPackage ../pkgs/jet-brains-mono-font { };
   btr-snap = super.callPackage ../pkgs/btr-snap { };
   redshift-wl = super.callPackage ../pkgs/redshift {
     inherit (super.python3Packages) python pygobject3 pyxdg wrapPython;

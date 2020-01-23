@@ -1,42 +1,44 @@
 { config, pkgs, lib, ... }:
 
 let
-  meta = builtins.extraBuiltins.sops ../metadata/titan/meta.json;
+  hostName = "titan";
+
+  ## some of the important values come from secrets as they are
+  ## sensitive - otherwise works like any module.
+  secretConfig = with builtins;
+    fromJSON (extraBuiltins.sops ../../metadata/rhea/meta.json);
+
+  ## determine what username we're using so we define it in one
+  ## place
+  userName = with lib;
+    head ( attrNames ( filterAttrs (_: value: hasAttr "uid" value && value.uid == 1337)
+      secretConfig.users.extraUsers ));
 in
 
 {
   imports = [
     ../../defaults/server.nix
     ./hardware-configuration.nix
+    secretConfig
   ];
 
-  nix.trustedUsers = [ "root" "${meta.user.name}" ];
+  nix.trustedUsers = [ "root" userName ];
 
-  networking = rec {
-    inherit (meta) hostName hostId;
-    extraHosts = "127.0.0.1 ${hostName}";
+  networking = {
+    inherit hostName;
+    extraHosts = "127.0.1.1 ${hostName}";
   };
 
-  networking.interfaces.eth1.ipv4.addresses = [
-    { address = meta.ipv4; prefixLength = 24; }
-  ];
-  networking.defaultGateway = meta.defaultGateway;
-
-  services.k3s = meta.k3s;
+  services.k3s = {
+    enable = true;
+    nodeName = hostName;
+  };
 
   users.defaultUserShell = pkgs.fish;
   users.mutableUsers = false;
-  users.extraUsers.root = {
-    inherit (meta.user) hashedPassword;
-  };
-  users.groups."${meta.user.name}".gid = 1337;
-  users.extraUsers."${meta.user.name}" = {
-    isNormalUser = true;
-    uid = 1337;
-    extraGroups = [ "wheel" "docker" "video" "audio" ];
+  users.groups."${userName}".gid = 1337;
+  users.extraUsers."${userName}" = {
     shell = pkgs.fish;
-    home = "/home/${meta.user.name}";
-    inherit (meta.user) openssh description hashedPassword;
   };
 
 }
