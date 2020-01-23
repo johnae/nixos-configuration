@@ -25,7 +25,7 @@ let
     EOF
   '';
 
-  updateNixosChannels = pkgs.writeShellScriptBin "update-nixos-channels" ''
+  updateNixos = pkgs.writeShellScriptBin "update-nixos" ''
     export PATH=${pkgs.curl}/bin:${pkgs.gnugrep}/bin:${pkgs.gawk}/bin:$PATH
     curl -sS -I https://nixos.org/channels/nixos-unstable | grep Location: | awk '{printf "%s",$2}' | tr -d '\r\n' > nixos-channel
     nixpkgsUrl="$(cat nixos-channel)"/nixexprs.tar.xz
@@ -36,6 +36,20 @@ let
       "sha256": "$hash"
     }
     EOF
+  '';
+
+  updateHomeManager = pkgs.writeShellScriptBin "update-home-manager" ''
+    nix-prefetch-github --rev master rycee home-manager > modules/home-manager.json
+  '';
+
+  updateNixosHardware = pkgs.writeShellScriptBin "update-nixos-hardware" ''
+    nix-prefetch-github --rev master nixos nixos-hardware > nixos-hardware.json
+  '';
+
+  updateAll = pkgs.writeShellScriptBin "update-all" ''
+    ${updateNixos}/bin/update-nixos
+    ${updateNixosHardware}/bin/update-nixos-hardware
+    ${updateHomeManager}/bin/update-home-manager
   '';
 
   bootVmFromIso = pkgs.writeShellScriptBin "boot-vm-from-iso" ''
@@ -74,6 +88,7 @@ let
 in
 
   pkgs.mkShell {
-    buildInputs = with pkgs; [ qemu bootVm bootVmFromIso sops updateK3s updateNixosChannels ];
+    buildInputs = with pkgs; [ qemu bootVm bootVmFromIso sops updateK3s
+                               updateNixos updateHomeManager updateNixosHardware updateAll ];
     SOPS_PGP_FP = "06CAFD66CE7222C7FB0CA84314B5564DEB730BF5";
   }
