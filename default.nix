@@ -37,7 +37,7 @@ let
 
         environment.etc."profile.local".text = ''
           echo "nameserver 8.8.8.8" | sudo tee -a /etc/resolv.conf
-
+          sleep 15
           if ! ping -c 1 www.google.com; then
               cat<<EOF
           No network - please set it up, then exit the shell to continue.
@@ -56,6 +56,8 @@ let
           sudo --preserve-env=DISK_PASSWORD,ADDITIONAL_VOLUMES,ADDITIONAL_DISK \
                 /etc/install.sh
 
+          echo Rebooting in 10 seconds
+          sleep 10
           sudo shutdown -h now
         '';
       };
