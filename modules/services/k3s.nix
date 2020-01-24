@@ -5,7 +5,7 @@ with lib;
 let
 
   cfg = config.services.k3s;
-  isAgent = cfg.masterUrl == null;
+  isAgent = cfg.masterUrl != null;
 
 in
 {
@@ -74,7 +74,7 @@ in
                               --kubelet-arg "volume-plugin-dir=/var/lib/k3s/libexec/kubernetes/kubelet-plugins/volume/exec" \
                               --kube-controller-arg "flex-volume-plugin-dir=/var/lib/k3s/libexec/kubernetes/kubelet-plugins/volume/exec" \
                               ${lib.concatStringsSep " " (map (v: "--node-label ${v}") cfg.labels)}
-          '' 
+          ''
       );
 
       serviceConfig = {
