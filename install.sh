@@ -3,6 +3,13 @@
 
 set -euo pipefail
 
+debug() {
+    echo "$@"
+    ########
+    echo Waiting 5 seconds before continuing
+    sleep 5
+}
+
 DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
 
 ## This script bootstraps a nixos install. The assumptions are:
@@ -34,6 +41,16 @@ fi
 if [ -n "$DISK_PASSWORD" ]; then
     echo -n "$DISK_PASSWORD" > /disk_password
     CRYPTKEYFILE=/disk_password
+fi
+
+if [ ! -e "$CRYPTKEYFILE" ]; then
+    debug "$CRYPTKEYFILE not found, aborting"
+    exit 1
+fi
+
+if [ "$(stat -c %s "$CRYPTKEYFILE")" -lt 2 ]; then
+    debug "$CRYPTKEYFILE too small, less than 2 bytes"
+    exit 1
 fi
 
 DISK=/dev/nvme0n1
@@ -98,7 +115,10 @@ sgdisk -p "$DISK"
 partprobe "$DISK"
 fdisk -l "$DISK"
 
+debug "$DISK wiped and formatted"
+
 if [ -n "$ADDITIONAL_DISK" ]; then
+    echo "Formatting disk '$ADDITIONAL_DISK'"
     wipefs -fa "$ADDITIONAL_DISK"
     sgdisk -Z "$ADDITIONAL_DISK"
     sgdisk -og "$ADDITIONAL_DISK"
@@ -109,6 +129,8 @@ if [ -n "$ADDITIONAL_DISK" ]; then
     sgdisk -p "$ADDITIONAL_DISK"
     partprobe "$ADDITIONAL_DISK"
     fdisk -l "$ADDITIONAL_DISK"
+
+    debug "$ADDITIONAL_DISK wiped and formatted"
 fi
 
 # create a disk for the key used to decrypt the other volumes
@@ -123,6 +145,8 @@ cryptsetup luksOpen --key-file="$CRYPTKEYFILE" "$DISK_CRYPTKEY" "$ENC_DISK_CRYPT
 # dump random data into what will be our key
 echo Writing random data to /dev/mapper/"$ENC_DISK_CRYPTKEY_LABEL"
 dd if=$DEVRANDOM of=/dev/mapper/"$ENC_DISK_CRYPTKEY_LABEL" bs=1024 count=14000 || true
+
+debug "$DISK_CRYPTKEY wiped, formatted and written to"
 
 # create encrypted swap partition
 echo Creating encrypted swap
@@ -139,6 +163,8 @@ mkswap -L "$DISK_SWAP_LABEL" /dev/mapper/"$ENC_DISK_SWAP_LABEL"
 
 echo Opening encrypted root using keyfile
 cryptsetup luksOpen --key-file=/dev/mapper/"$ENC_DISK_CRYPTKEY_LABEL" "$DISK_ROOT" "$ENC_DISK_ROOT_LABEL"
+
+debug "$DISK_SWAP and $DISK_ROOT wiped and formatted"
 
 echo Creating btrfs filesystem on /dev/mapper/"$DISK_ROOT_LABEL"
 mkfs.btrfs -L "$DISK_ROOT_LABEL" /dev/mapper/"$ENC_DISK_ROOT_LABEL"
@@ -167,8 +193,13 @@ mkdir -p "@/boot" "@/home" "@/var"
 btrfs sub create @home
 btrfs sub create @var
 
+debug "Btrfs subvolumes etc created on $DISK_ROOT, swap turned on, efi mounted at /mnt/boot etc"
+
 if [ -n "$ADDITIONAL_VOLUMES" ]; then
   echo Creating additional btrfs subvolumes
+  cd /mnt
+  mkdir -p "@/mnt/disks/cow"
+  mkdir -p "@/mnt/disks/nocow"
 
   if [ -n "$DISK_EXTRA" ] && [ -e "$DISK_EXTRA" ]; then
 
@@ -194,20 +225,23 @@ if [ -n "$ADDITIONAL_VOLUMES" ]; then
       cd /mnt
 
       umount @/mnt/disks
+
+      debug "$DISK_EXTRA encrypted, formatted with btrfs fs and mounted"
   else
       for i in $(seq 1 20); do btrfs sub create "@local-disk-$i"; done
       for i in $(seq 1 20); do
           btrfs sub create "@local-disk-nocow-$i"
           chattr +C "@local-disk-nocow-$i"
       done
+      debug "No extra disk, created btrfs subvolumes"
   fi
-  cd /mnt
-  mkdir -p "@/mnt/disks/cow"
-  mkdir -p "@/mnt/disks/nocow"
+
   for i in $(seq 1 20); do mkdir -p "@/mnt/disks/cow/local-disk-$i"; done
   for i in $(seq 1 20); do mkdir -p "@/mnt/disks/nocow/local-disk-$i"; done
 
+  debug "Created all mount points for additional volumes"
 fi
+
 cd "$DIR"
 # umount the "real" root and mount those subvolumes in place instead
 echo Unmounting /mnt
@@ -232,10 +266,12 @@ echo Mounting var subvolume at /mnt/var
 mount -o rw,noatime,compress=zstd,ssd,space_cache,subvol=@var \
       /dev/disk/by-label/"$DISK_ROOT_LABEL" /mnt/var
 
+debug "Mounted the default volumes"
+
 if [ -n "$ADDITIONAL_VOLUMES" ]; then
   DISK_LABEL="$DISK_ROOT_LABEL"
   if [ -e "$ADDITIONAL_DISK" ]; then
-      DISK_UUID="$DISK_EXTRA_LABEL"
+      DISK_LABEL="$DISK_EXTRA_LABEL"
   fi
   echo Mounting additional subvolumes
   for i in $(seq 1 20); do
@@ -244,11 +280,16 @@ if [ -n "$ADDITIONAL_VOLUMES" ]; then
       mount -o rw,noatime,compress=zstd,ssd,space_cache,subvol="@local-disk-nocow-$i" \
         /dev/disk/by-label/"$DISK_LABEL" "/mnt/mnt/disks/nocow/local-disk-$i"
   done
+  debug "Mounted the additional volumes from $DISK_LABEL"
 fi
 
 # and mount the boot partition
 echo Mounting boot partition
 mount /dev/disk/by-label/"$DISK_EFI_LABEL" /mnt/boot
 
+debug "Mounted the boot volumes from $DISK_EFI_LABEL"
+
 #nix copy --from file:///etc/system $(cat /etc/system-closure-path) --option binary-caches "" --no-check-sigs
 nixos-install --no-root-passwd --option binary-caches "" --system $(cat /etc/system-closure-path)
+
+debug "Install completed, exiting..."
