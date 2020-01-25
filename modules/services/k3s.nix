@@ -40,7 +40,7 @@ in
 
     docker = mkOption {
       type = types.bool;
-      default = virtualisation.docker.enable;
+      default = config.virtualisation.docker.enable;
       description = ''
         Whether to use docker instead of containerd.
       '';
