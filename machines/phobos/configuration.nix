@@ -74,30 +74,38 @@ with lib; {
   };
 
   ## WIP
-  #home-manager.useUserPackages = true;
-  #home-manager.users."${userName}" = { ... }: {
-  #  home.packages = with pkgs;
-  #    [
-  #      sway
-  #      swaybg
-  #      swayidle
-  #      swaylock
-  #      mako
-  #      i3status-rust
-  #      my-emacs
-  #    ];
+  home-manager.useUserPackages = true;
+  home-manager.users."${userName}" = { ... }: {
+    imports = [
+      ../../modules/sway.nix
+    ];
+    home.packages = with pkgs;
+      [
+        sway
+        swaybg
+        swayidle
+        swaylock
+        mako
+        i3status-rust
+        my-emacs
+      ];
 
-  #  xdg.enable = true;
-  #  xdg.configFile."sway/config".source = pkgs.callPackage ../../sway-config.nix { };
-  #  programs.command-not-found.enable = true;
-  #  programs.fish = {
-  #    enable = true;
-  #    shellInit = ''
-  #      if test "$DISPLAY" = ""; and test (tty) = /dev/tty1; and test "$XDG_SESSION_TYPE" = "tty"
-  #        exec sway
-  #      end
-  #    '';
-  #  };
-  #};
+    xdg.enable = true;
+    #xdg.configFile."sway/config".source = pkgs.callPackage ../../sway-config.nix { };
+    programs.command-not-found.enable = true;
+    programs.sway.enable = true;
+    programs.sway.config = rec {
+      fonts = [ "Roboto" "Font Awesome 5 Free" "Font Awesome 5 Brands" "Arial" "sans-serif" "Bold 10" ];
+      modifier = "Mod4";
+    };
+    programs.fish = {
+      enable = true;
+      shellInit = ''
+        if test "$DISPLAY" = ""; and test (tty) = /dev/tty1; and test "$XDG_SESSION_TYPE" = "tty"
+          exec sway
+        end
+      '';
+    };
+  };
 
 }

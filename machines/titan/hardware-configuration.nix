@@ -271,7 +271,7 @@
     };
 
   fileSystems."/mnt/backup" =
-    { device = "/dev/disk/by-label/backup";
+    { device = "/dev/disk/by-label/external";
       fsType = "btrfs";
       options = [ "rw" "noatime" "compress=zstd" "space_cache" ];
     };

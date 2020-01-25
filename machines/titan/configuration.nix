@@ -6,7 +6,7 @@ let
   ## some of the important values come from secrets as they are
   ## sensitive - otherwise works like any module.
   secretConfig = with builtins;
-    fromJSON (extraBuiltins.sops ../../metadata/rhea/meta.json);
+    fromJSON (extraBuiltins.sops ../../metadata/titan/meta.json);
 
   ## determine what username we're using so we define it in one
   ## place
@@ -29,6 +29,7 @@ in
     extraHosts = "127.0.1.1 ${hostName}";
   };
 
+  virtualisation.docker.enable = true;
   services.k3s = {
     enable = true;
     nodeName = hostName;

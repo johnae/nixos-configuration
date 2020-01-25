@@ -38,6 +38,14 @@ in
       '';
     };
 
+    docker = mkOption {
+      type = types.bool;
+      default = virtualisation.docker.enable;
+      description = ''
+        Whether to use docker instead of containerd.
+      '';
+    };
+
     masterUrl = mkOption {
       type = types.nullOr (types.strMatching "https:\/\/[0-9a-zA-Z.]+.*");
       example = "https://1.2.3.4:6332";
@@ -63,13 +71,13 @@ in
       script = (
         if isAgent then
           ''
-          exec ${k3s}/bin/k3s agent -d /var/lib/k3s/data \
+          exec ${k3s}/bin/k3s agent -d /var/lib/k3s/data ${if cfg.docker then "--docker" else ""}\
                               --kubelet-arg "volume-plugin-dir=/var/lib/k3s/libexec/kubernetes/kubelet-plugins/volume/exec" \
                               ${lib.concatStringsSep " " (map (v: "--node-label ${v}") cfg.labels)}
           ''
         else
           ''
-          exec ${k3s}/bin/k3s server --no-deploy=traefik --no-deploy=servicelb --no-deploy=local-storage -d /var/lib/k3s/data \
+          exec ${k3s}/bin/k3s server --no-deploy=traefik --no-deploy=servicelb --no-deploy=local-storage -d /var/lib/k3s/data ${if cfg.docker then "--docker" else ""} \
                               -o /kubeconfig.yml \
                               --kubelet-arg "volume-plugin-dir=/var/lib/k3s/libexec/kubernetes/kubelet-plugins/volume/exec" \
                               --kube-controller-arg "flex-volume-plugin-dir=/var/lib/k3s/libexec/kubernetes/kubelet-plugins/volume/exec" \

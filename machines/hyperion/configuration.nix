@@ -29,6 +29,7 @@ in
     extraHosts = "127.0.1.1 ${hostName}";
   };
 
+  virtualisation.docker.enable = true;
   services.k3s = {
     enable = true;
     nodeName = hostName;
