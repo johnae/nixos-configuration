@@ -33,6 +33,10 @@ in
   services.k3s = {
     enable = true;
     nodeName = hostName;
+    flannelBackend = "none";
+    extraManifests = [
+      ../../modules/services/k3s/calico.yaml
+    ];
   };
 
   users.defaultUserShell = pkgs.fish;
