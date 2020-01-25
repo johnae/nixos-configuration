@@ -6,6 +6,9 @@ let
 
   cfg = config.services.k3s;
   isAgent = cfg.masterUrl != null;
+  isMaster = !isAgent;
+  k3sDir = "/var/lib/k3s";
+  k3sDataDir = "${k3sDir}/data";
 
 in
 {
@@ -46,6 +49,23 @@ in
       '';
     };
 
+    flannelBackend = mkOption {
+      type = with types; nullOr (enum [ "none" "vxlan" "ipsec" "wireguard" ]);
+      default = "vxlan";
+      description = ''
+        The type of flannel networking to use. If set to none, you are free to
+        use your own network plugin.
+      '';
+    };
+
+    extraManifests = mkOption {
+      type = types.listOf types.path;
+      default = [];
+      description = ''
+        A list of paths to kubernetes manifests to automatically apply.
+      '';
+    };
+
     masterUrl = mkOption {
       type = types.nullOr (types.strMatching "https:\/\/[0-9a-zA-Z.]+.*");
       example = "https://1.2.3.4:6332";
@@ -71,19 +91,33 @@ in
       script = (
         if isAgent then
           ''
-          exec ${k3s}/bin/k3s agent -d /var/lib/k3s/data ${if cfg.docker then "--docker" else ""}\
-                              --kubelet-arg "volume-plugin-dir=/var/lib/k3s/libexec/kubernetes/kubelet-plugins/volume/exec" \
+          exec ${k3s}/bin/k3s agent -d ${k3sDataDir} ${if cfg.docker then "--docker" else ""}\
+                              --kubelet-arg "volume-plugin-dir=${k3sDir}/libexec/kubernetes/kubelet-plugins/volume/exec" \
+                              --kubelet-arg "cni-bin-dir=${k3sDir}/opt/cni/bin" \
                               ${lib.concatStringsSep " " (map (v: "--node-label ${v}") cfg.labels)}
           ''
         else
           ''
-          exec ${k3s}/bin/k3s server --no-deploy=traefik --no-deploy=servicelb --no-deploy=local-storage -d /var/lib/k3s/data ${if cfg.docker then "--docker" else ""} \
-                              -o /kubeconfig.yml \
-                              --kubelet-arg "volume-plugin-dir=/var/lib/k3s/libexec/kubernetes/kubelet-plugins/volume/exec" \
-                              --kube-controller-arg "flex-volume-plugin-dir=/var/lib/k3s/libexec/kubernetes/kubelet-plugins/volume/exec" \
+          exec ${k3s}/bin/k3s server --no-deploy=traefik --no-deploy=servicelb --no-deploy=local-storage -d ${k3sDataDir} ${if cfg.docker then "--docker" else ""} \
+                              -o /kubeconfig.yml --flannel-backend=${cfg.flannelBackend} \
+                              --kubelet-arg "volume-plugin-dir=${k3sDir}/libexec/kubernetes/kubelet-plugins/volume/exec" \
+                              --kubelet-arg "cni-bin-dir=${k3sDir}/opt/cni/bin" \
+                              --kube-controller-arg "flex-volume-plugin-dir=${k3sDir}/libexec/kubernetes/kubelet-plugins/volume/exec" \
                               ${lib.concatStringsSep " " (map (v: "--node-label ${v}") cfg.labels)}
           ''
       );
+
+      postStart = (if isMaster then ''
+        echo Applying extra kubernetes manifests
+        set -x
+        ${lib.concatStringsSep "\n"
+          (map
+            (m:
+              "${kubectl}/bin/kubectl --kubeconfig /kubeconfig.yml apply -f ${m}"
+            ) cfg.extraManifests
+          )
+         }
+      '' else "");
 
       serviceConfig = {
         Type = if isAgent then "exec" else "notify";
