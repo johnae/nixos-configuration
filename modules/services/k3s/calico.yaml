@@ -613,6 +613,9 @@ spec:
             # Auto-detect the BGP IP address.
             - name: IP
               value: "autodetect"
+            ## for wireguard, something like this?
+            #- name: IP_AUTODETECTION_METHOD
+            #  value: interface=wg.*
             # Enable IPIP
             - name: CALICO_IPV4POOL_IPIP
               value: "Always"
