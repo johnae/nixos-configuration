@@ -25,6 +25,7 @@ in
   networking.firewall.enable = false;
 
   programs.fish.enable = true;
+  security.sudo.wheelNeedsPassword = false;
 
   system.stateVersion = "19.03";
 
