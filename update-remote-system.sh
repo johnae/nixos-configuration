@@ -3,6 +3,13 @@
 set -euo pipefail
 
 machine=${1:-}
+reboot=${2:-}
+
+after_update=
+
+if [ -n "$reboot" ]; then
+    after_update="$after_update sudo shutdown -r now"
+fi
 
 profile=/nix/var/nix/profiles/system
 pathToConfig="$(./build.sh -A machines."$machine")"
@@ -30,5 +37,7 @@ if ! sudo '$pathToConfig'/bin/switch-to-configuration switch; then
     echo "warning: error(s) occurred while switching to the new configuration" >&2
     exit 1
 fi
+
+$after_update
 
 SSH
