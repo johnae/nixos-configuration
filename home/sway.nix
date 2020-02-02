@@ -169,7 +169,6 @@ in
          "${modifier}+q"           = ''layout stacking'';
          "${modifier}+o"           = ''move absolute position center'';
          "${modifier}+a"           = ''focus parent'';
-         "${modifier}+0"           = ''workspace number 10'';
        };
 
        startup = [
