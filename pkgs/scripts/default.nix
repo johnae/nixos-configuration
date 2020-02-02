@@ -11,8 +11,7 @@
  , alacritty, libnotify, hostname
  , maim, slop, killall, wget, procps
  , openssh, kubectl, diffutils
- , browser, chromium, settings
- , nix-prefetch-github, signal-desktop
+ , chromium, nix-prefetch-github, signal-desktop
  , ...
 }:
 
@@ -153,23 +152,6 @@ let
     ${maim}/bin/maim -s --format="$fmt $output_dir/$name.$fmt"
   '';
 
-  browse = writeStrictShellScriptBin "browse" ''
-    exec ${browser} -P default-nightly "$@"
-  '';
-
-  slacks = writeStrictShellScriptBin "slacks" ''
-    WS=''${1:-${settings.default-slackws}}
-    if [ -z "$WS" ]; then
-      echo Please provide a workspace as argument
-      exit 1
-    fi
-    exec ${browser} -P default-nightly --new-window "https://$WS.slack.com"
-  '';
-
-  spotifyweb = writeStrictShellScriptBin "spotifyweb" ''
-    exec ${browser} -P default-nightly --new-window "https://open.spotify.com"
-  '';
-
   browse-chromium = writeStrictShellScriptBin "browse-chromium" ''
     export GDK_BACKEND=x11
     exec ${chromium}/bin/chromium
@@ -192,11 +174,6 @@ let
       ${alacritty}/bin/alacritty --config-file "$CONFIG" $@
     fi
   '';
-
-  #symbols = writeTextFile {
-  #   name = "program-symbols";
-  #   text = setToStringSep "\n" settings.program-symbols (name: symbol: "${name} ${symbol}");
-  #};
 
   launch = writeStrictShellScriptBin "launch" ''
     cmd=$*
@@ -400,27 +377,6 @@ let
     echo "$HOME"/Pictures/wallpaper.jpg
   '';
 
-  start-sway = writeStrictShellScriptBin "start-sway" ''
-    #export _TERMEMU=termite
-    export XDG_SESSION_TYPE=wayland
-    export GDK_BACKEND=wayland
-    export GTK_THEME="${settings.dconf."org/gnome/desktop/interface".gtk-theme}"
-    export QT_STYLE_OVERRIDE=gtk
-    export _JAVA_AWT_WM_NONREPARENTING=1
-    export VISUAL=edi
-    export EDITOR=$VISUAL
-    export PROJECTS=~/Development
-    if [ -e .config/syncthing/config.xml ]; then
-       SYNCTHING_API_KEY=$(grep apikey < .config/syncthing/config.xml | \
-                                awk -F">|</" '{print $2}')
-       if [ "$SYNCTHING_API_KEY" != "" ]; then
-          export SYNCTHING_API_KEY
-       fi
-    fi
-
-    exec dbus-launch --exit-with-session sway "$@"
-  '';
-
   mail = writeStrictShellScriptBin "mail" ''
     export TERMINAL_CONFIG=
     exec ${terminal}/bin/terminal -e ${edi}/bin/edi -e '(mu4e)'
@@ -582,9 +538,9 @@ in
               terminal launch csp
               git-credential-pass
               sk-sk sk-run sk-window sk-passmenu
-              browse slacks spotifyweb browse-chromium signal
+              browse-chromium signal
               rename-workspace screenshot
-              start-sway random-background random-name
+              random-background random-name
               random-picsum-background
               add-wifi-network update-wifi-networks
               update-user-nixpkg update-user-nixpkgs update-wireguard-keys

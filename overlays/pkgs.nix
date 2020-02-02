@@ -45,10 +45,9 @@ rec {
   inherit (super.callPackage ../pkgs/strictShellScript.nix { })
     writeStrictShellScript writeStrictShellScriptBin;
 
-  inherit ((super.callPackage ../pkgs/scripts {
-    browser = "${self.latest.firefox-nightly-bin}/bin/firefox";
-    settings = {};
-  }).paths)
+  initInstall = super.callPackage ../pkgs/initInstall.nix { };
+
+  inherit ((super.callPackage ../pkgs/scripts { }).paths)
     edit edi #ed emacs-run
     emacs-server
     fzf-fzf project-select
@@ -56,9 +55,9 @@ rec {
     fzf-passmenu rofi-passmenu
     fzf-run fzf-window
     sk-sk sk-run sk-window sk-passmenu
-    browse slacks browse-chromium
+    browse-chromium
     rename-workspace screenshot
-    start-sway random-background random-name
+    random-background random-name
     random-picsum-background
     add-wifi-network update-wifi-networks
     update-user-nixpkg update-user-nixpkgs update-wireguard-keys
