@@ -70,25 +70,25 @@ in
       "hyperion" = {
         hostname = "192.168.240.122";
         forwardAgent = true;
-        #requestTTY = "force";
         extraOptions = {
           inherit remoteCommand;
+          requestTTY = "yes";
         };
       };
       "rhea" = {
         hostname = "192.168.240.133";
         forwardAgent = true;
-        #requestTTY = "force";
         extraOptions = {
           inherit remoteCommand;
+          requestTTY = "yes";
         };
       };
       "titan" = {
         hostname = "192.168.240.144";
         forwardAgent = true;
-        #requestTTY = "force";
         extraOptions = {
           inherit remoteCommand;
+          requestTTY = "yes";
         };
       };
     };
