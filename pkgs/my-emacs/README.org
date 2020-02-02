@@ -497,7 +497,7 @@ Helps with the fringe? :-)
 Direnv integration for emacs.
 See: [[https://github.com/wbolster/emacs-direnv][https://github.com/wbolster/emacs-direnv]]
 and ofc
-[[https://direnv.net/][https://direnv.net/]]
+https://direnv.net/]]
 
 #+BEGIN_SRC elisp :tangle default.el
 (use-package direnv
@@ -682,7 +682,7 @@ Mode for groovy.
 #+END_SRC
 
 
-[[http://company-mode.github.io/][Company]] is a text completion framework for Emacs. The name stands for "complete anything". It uses pluggable back-ends
+Company]] is a text completion framework for Emacs. The name stands for "complete anything". It uses pluggable back-ends
 and front-ends to retrieve and display completion candidates.
 
 It comes with several back-ends such as Elisp, Clang, Semantic, Eclim, Ropemacs, Ispell, CMake, BBDB, Yasnippet, dabbrev,
@@ -740,7 +740,7 @@ This allows me to toggle between snake case, camel case etc.
 #+END_SRC
 
 
-[[http://www.flycheck.org/en/latest/][Flycheck]] is "Syntax checking for emacs".
+Flycheck]] is "Syntax checking for emacs".
 
 #+BEGIN_SRC elisp :tangle default.el
 (use-package flycheck

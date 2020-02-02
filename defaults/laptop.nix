@@ -7,7 +7,6 @@ in
 {
   imports = [
     "${nixos-hardware}/common/pc/ssd"
-    ../modules
     ./defaults.nix
   ];
 
@@ -41,9 +40,9 @@ in
 
   virtualisation.docker.enable = true;
 
-  programs.gnupg.agent.enable = true;
-  programs.gnupg.agent.enableSSHSupport = true;
-  programs.gnupg.dirmngr.enable = true;
+  #programs.gnupg.agent.enable = true;
+  #programs.gnupg.agent.enableSSHSupport = true;
+  #programs.gnupg.dirmngr.enable = true;
 
   programs.ssh.startAgent = false;
 
@@ -53,7 +52,7 @@ in
   services.kbfs.enable = true;
   services.keybase.enable = true;
 
-  services.pcscd.enable = true;
+  #services.pcscd.enable = true;
   services.cron.enable = true;
   services.avahi.enable = true;
   services.avahi.nssmdns = true;
@@ -65,13 +64,18 @@ in
   services.interception-tools.enable = true;
 
   services.printing.enable = true;
-  services.printing.drivers = [ pkgs.gutenprint ];
+  services.printing.drivers = [ pkgs.gutenprint pkgs.hplip pkgs.gutenprintBin ];
 
   services.dbus.packages = with pkgs; [ gnome2.GConf gnome3.gcr gnome3.dconf gnome3.sushi ];
   services.udev.packages = with pkgs; [ gnome3.gnome-settings-daemon ];
 
   services.logind.lidSwitch = "suspend-then-hibernate";
   environment.etc."systemd/sleep.conf".text = "HibernateDelaySec=8h";
+
+  #Bus 001 Device 002: ID 1050:0407 Yubico.com Yubikey 4 OTP+U2F+CCID
+  services.udev.extraRules = ''
+    ACTION=="add", SUBSYSTEM=="usb", ENV{ID_VENDOR_ID}=="1050", ENV{ID_MODEL_ID}=="0407", MODE="660", GROUP="scard"
+  '';
 
   ## the NixOS module doesn't work well when logging in from console
   ## which is the case when running sway - a wayland compositor (eg. no x11 yay)
@@ -101,17 +105,17 @@ in
 
   fonts.fonts = with pkgs; [
      google-fonts
-     source-code-pro
-     office-code-pro-font
-     system-san-francisco-font
-     san-francisco-mono-font
+     #source-code-pro
+     #office-code-pro-font
+     #system-san-francisco-font
+     #san-francisco-mono-font
      jet-brains-mono-font
      font-awesome_5
      powerline-fonts
      roboto
-     fira-code
-     fira-code-symbols
-     nerdfonts
+     #fira-code
+     #fira-code-symbols
+     #nerdfonts
   ];
 
 }

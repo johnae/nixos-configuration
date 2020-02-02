@@ -39,11 +39,11 @@ let
   '';
 
   updateHomeManager = pkgs.writeShellScriptBin "update-home-manager" ''
-    nix-prefetch-github --rev master rycee home-manager > modules/home-manager.json
+    ${pkgs.nix-prefetch-github}/bin/nix-prefetch-github --rev master rycee home-manager > modules/home-manager.json
   '';
 
   updateNixosHardware = pkgs.writeShellScriptBin "update-nixos-hardware" ''
-    nix-prefetch-github --rev master nixos nixos-hardware > nixos-hardware.json
+    ${pkgs.nix-prefetch-github}/bin/nix-prefetch-github --rev master nixos nixos-hardware > nixos-hardware.json
   '';
 
   updateAll = pkgs.writeShellScriptBin "update-all" ''
@@ -90,5 +90,5 @@ in
   pkgs.mkShell {
     buildInputs = with pkgs; [ qemu bootVm bootVmFromIso sops updateK3s
                                updateNixos updateHomeManager updateNixosHardware updateAll ];
-    SOPS_PGP_FP = "06CAFD66CE7222C7FB0CA84314B5564DEB730BF5";
+    SOPS_PGP_FP = "782517BE26FBB0CC5DA3EFE59D91E5C4D9515D9E";
   }

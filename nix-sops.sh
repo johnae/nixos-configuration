@@ -1,11 +1,7 @@
 #! /usr/bin/env nix-shell
 #! nix-shell -i bash -p sops
-
-export SOPS_PGP_FP="06CAFD66CE7222C7FB0CA84314B5564DEB730BF5"
-
 set -euo pipefail
 
-f=$(mktemp)
-trap "rm $f" EXIT
-sops -d "$1" > $f
-nix-instantiate --eval -E "builtins.readFile $f"
+export SOPS_PGP_FP="782517BE26FBB0CC5DA3EFE59D91E5C4D9515D9E"
+## can't read from fifo's it seems, which is a bit unfortunate
+sops exec-file --no-fifo "$1" 'nix-instantiate --eval -E "builtins.readFile {}"'
