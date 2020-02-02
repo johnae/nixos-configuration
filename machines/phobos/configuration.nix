@@ -85,8 +85,10 @@ with lib; {
   ## WIP
   home-manager.useUserPackages = true;
   home-manager.users."${userName}" = { ... }: {
+    nixpkgs.config.allowUnfree = true;
     nixpkgs.overlays = [
       (import ../../overlays/pkgs.nix)
+      (import ../../overlays/mozilla.nix)
     ];
     imports = [
       ../../modules/sway.nix
@@ -99,6 +101,7 @@ with lib; {
       ../../home/terminfo.nix
       ../../home/i3-status.nix
       ../../home/pulseaudio.nix
+      ../../home/firefox.nix
     ];
     home.packages = with pkgs;
       [
@@ -125,7 +128,6 @@ with lib; {
         launch
         #git-credential-pass
         sk-sk sk-run sk-window sk-passmenu
-        browse
         #slacks
         browse-chromium
         #start-sway
