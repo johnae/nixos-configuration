@@ -81,10 +81,10 @@ in
         idle_bg = alpha cfg.base03 "DD";
         idle_fg = cfg.base05;
 
-        info_bg = alpha cfg.base08 "DD";
+        info_bg = alpha cfg.base06 "DD";
         info_fg = cfg.base00;
 
-        good_bg = alpha cfg.base0A "DD";
+        good_bg = alpha cfg.base09 "DD";
         good_fg = cfg.base00;
 
         warning_bg = alpha cfg.base0D "DD";
