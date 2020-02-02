@@ -10,6 +10,7 @@ with lib;
 let
 
   cfg = config.services.nix-dirs;
+  users = attrNames config.users.extraUsers;
 
 in
 {
@@ -20,7 +21,7 @@ in
   };
 
   config = mkIf cfg.enable {
-    systemd.services.nix-dirs = {
+    systemd.services.nix-dirs = rec {
       description = "Ensure nix dirs per-user are present";
       enable = true;
       serviceConfig = {
@@ -28,16 +29,16 @@ in
         RemainAfterExit = "yes";
       };
       script = ''
-        ${lib.concatStringsSep "\n" (map (uname:
+        ${concatStringsSep "\n" (map (uname:
         ''
         mkdir -m 0755 -p /nix/var/nix/{profiles,gcroots}/per-user/${uname}
         chown ${uname} /nix/var/nix/{profiles,gcroots}/per-user/${uname}
 
         ''
-        ) (lib.attrNames config.users.extraUsers))}
+        ) users)}
       '';
-      before = [ "nix-daemon.socket"];
-      wantedBy = [ "nix-daemon.socket" ];
+      before = map (uname: "home-manager-${uname}.service") users;
+      wantedBy = before;
     };
   };
 
