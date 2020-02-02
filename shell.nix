@@ -16,7 +16,7 @@ let
     URL="https://github.com/rancher/k3s/releases/download/$VERSION/k3s"
 
     HASH="$(nix-prefetch-url $URL 2>&1 | tail -1)"
-    cat<<EOF>packages/k3s/metadata.json
+    cat<<EOF>pkgs/k3s/metadata.json
     {
       "hash": "sha256:$HASH",
       "url": "$URL",
