@@ -10,7 +10,23 @@ with lib;
 let
 
   cfg = config.services.nix-dirs;
-  users = attrNames config.users.extraUsers;
+  users = filterAttrs (_: value: value.isNormalUser) config.users.extraUsers;
+  nix-dirs-services = foldr (user: svcs: svcs // {
+    "nix-dirs-${user}" = rec {
+      description = "Ensure nix dirs per-user for ${user} are present";
+      enable = true;
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = "yes";
+      };
+      script = ''
+        mkdir -m 0755 -p /nix/var/nix/{profiles,gcroots}/per-user/${user}
+        chown ${user} /nix/var/nix/{profiles,gcroots}/per-user/${user}
+      '';
+      before = [ "home-manager-${user}.service" ];
+      wantedBy = before;
+    };
+  }) {} (attrNames users);
 
 in
 {
@@ -20,26 +36,9 @@ in
 
   };
 
-  config = mkIf cfg.enable {
-    systemd.services.nix-dirs = rec {
-      description = "Ensure nix dirs per-user are present";
-      enable = true;
-      serviceConfig = {
-        Type = "oneshot";
-        RemainAfterExit = "yes";
-      };
-      script = ''
-        ${concatStringsSep "\n" (map (uname:
-        ''
-        mkdir -m 0755 -p /nix/var/nix/{profiles,gcroots}/per-user/${uname}
-        chown ${uname} /nix/var/nix/{profiles,gcroots}/per-user/${uname}
 
-        ''
-        ) users)}
-      '';
-      before = map (uname: "home-manager-${uname}.service") users;
-      wantedBy = before;
-    };
+  config = mkIf cfg.enable {
+    systemd.services = nix-dirs-services;
   };
 
 }
