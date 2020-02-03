@@ -53,15 +53,11 @@ with lib; {
 
   users.defaultUserShell = pkgs.fish;
   users.mutableUsers = false;
-  users.groups."${userName}".gid = 1337;
-  users.extraUsers."${userName}" = {
-    shell = pkgs.fish;
-  };
-
   users.groups = {
     "${userName}".gid = 1337;
     scard.gid = 1050;
   };
+
   users.extraUsers."${userName}" = {
     shell = pkgs.fish;
     extraGroups = [ "scard" ];
