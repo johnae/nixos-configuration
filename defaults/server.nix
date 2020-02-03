@@ -6,7 +6,6 @@ in
 {
   imports = [
     "${nixos-hardware}/common/pc/ssd"
-    ../modules
     ./defaults.nix
   ];
 

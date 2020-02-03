@@ -2,8 +2,6 @@
 
 let
 
-  lib = pkgs.callPackage ./../../lib.nix { };
-
   hostName = "phobos";
 
   nixos-hardware = import ../../nixos-hardware.nix;
@@ -47,19 +45,6 @@ with lib; {
   '';
   ## end fix
 
-  services.rbsnapper = {
-    enable = true;
-    sshKey = "home/${userName}/.ssh/backup_id_rsa";
-  };
-
-  services.syncthing = {
-    enable = true;
-    user = userName;
-    group = userName;
-    dataDir = "/home/${userName}/.config/syncthing";
-    openDefaultPorts = true;
-  };
-
   security.pam.services.swaylock = {
     text = ''
       auth include login
@@ -68,44 +53,29 @@ with lib; {
 
   users.defaultUserShell = pkgs.fish;
   users.mutableUsers = false;
-  users.groups."${userName}".gid = 1337;
+  users.groups = {
+    "${userName}".gid = 1337;
+    scard.gid = 1050;
+  };
   users.extraUsers."${userName}" = {
     shell = pkgs.fish;
+    extraGroups = [ "scard" ];
   };
 
-  ## WIP
+  programs.sway.enable = true;
   home-manager.useUserPackages = true;
   home-manager.users."${userName}" = { ... }: {
     imports = [
-      ../../modules/sway.nix
+      ../../home/home.nix
     ];
-    home.packages = with pkgs;
-      [
-        sway
-        swaybg
-        swayidle
-        swaylock
-        mako
-        i3status-rust
-        my-emacs
-      ];
 
-    xdg.enable = true;
-    #xdg.configFile."sway/config".source = pkgs.callPackage ../../sway-config.nix { };
-    programs.command-not-found.enable = true;
-    programs.sway.enable = true;
-    programs.sway.config = rec {
-      fonts = [ "Roboto" "Font Awesome 5 Free" "Font Awesome 5 Brands" "Arial" "sans-serif" "Bold 10" ];
-      modifier = "Mod4";
+    programs.sway.settings.output = {
+      "eDP-1" = {
+        scale = "1.6";
+        pos = "0 0";
+      };
     };
-    programs.fish = {
-      enable = true;
-      shellInit = ''
-        if test "$DISPLAY" = ""; and test (tty) = /dev/tty1; and test "$XDG_SESSION_TYPE" = "tty"
-          exec sway
-        end
-      '';
-    };
+
   };
 
 }

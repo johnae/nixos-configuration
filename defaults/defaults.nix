@@ -1,6 +1,11 @@
 { config, lib, pkgs, ... }:
 
 {
+
+  imports = [
+    ../modules
+  ];
+
   nix.extraOptions = ''
     plugin-files = ${pkgs.nix-plugins.override { nix = config.nix.package; }}/lib/nix/plugins/libnix-extra-builtins.so
   '';
@@ -24,6 +29,14 @@
   environment.shells = [ pkgs.bashInteractive pkgs.zsh pkgs.fish ];
 
   programs.fish.enable = true;
+
+  ## This just auto-creates /nix/var/nix/{profiles,gcroots}/per-user/<USER>
+  ## for all extraUsers setup on the system. Without this home-manager refuses
+  ## to run on boot when setup as a nix module and the user has yet to install
+  ## anything through nix (which is the case on a completely new install).
+  ## I tend to install the full system from an iso so I really want home-manager
+  ## to run properly on boot.
+  services.nix-dirs.enable = true;
 
   system.stateVersion = "20.03";
 }

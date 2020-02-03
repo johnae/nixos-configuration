@@ -18,7 +18,7 @@ let
       secretConfig.users.extraUsers ));
 in
 
-{
+with lib; {
   imports = [
     ../../defaults/laptop.nix
     "${nixos-hardware}/dell/xps/13-9370"
@@ -45,19 +45,6 @@ in
   '';
   ## end fix
 
-  services.rbsnapper = {
-    enable = true;
-    sshKey = "/home/${userName}/.ssh/backup_id_rsa";
-  };
-
-  services.syncthing = {
-    enable = true;
-    user = userName;
-    group = userName;
-    dataDir = "/home/${userName}/.config/syncthing";
-    openDefaultPorts = true;
-  };
-
   security.pam.services.swaylock = {
     text = ''
       auth include login
@@ -69,6 +56,31 @@ in
   users.groups."${userName}".gid = 1337;
   users.extraUsers."${userName}" = {
     shell = pkgs.fish;
+  };
+
+  users.groups = {
+    "${userName}".gid = 1337;
+    scard.gid = 1050;
+  };
+  users.extraUsers."${userName}" = {
+    shell = pkgs.fish;
+    extraGroups = [ "scard" ];
+  };
+
+  programs.sway.enable = true;
+  home-manager.useUserPackages = true;
+  home-manager.users."${userName}" = { ... }: {
+    imports = [
+      ../../home/home.nix
+    ];
+
+    programs.sway.settings.output = {
+      "eDP-1" = {
+        scale = "2.0";
+        pos = "0 0";
+      };
+    };
+
   };
 
 }
