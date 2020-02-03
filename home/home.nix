@@ -31,6 +31,7 @@
       spotnix
       my-emacs
       edit edi #ed emacs-run
+      bat
       #mail
       #alacritty
       wofi
