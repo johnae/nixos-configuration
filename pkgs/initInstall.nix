@@ -30,6 +30,6 @@ writeStrictShellScriptBin "init-install" ''
   sudo mkdir -p /root/.ssh
   sudo chmod 0700 /root/.ssh
   sops -d Development/nixos-configuration/metadata/backup_id_rsa | \
-          sudo tee /root/.ssh/backup_id_rsa
+          sudo tee /root/.ssh/backup_id_rsa >/dev/null
   sudo chmod 0600 /root/.ssh/backup_id_rsa
 ''
