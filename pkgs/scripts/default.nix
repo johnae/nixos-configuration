@@ -4,7 +4,7 @@
  , writeStrictShellScriptBin
  , my-emacs, termite, wl-clipboard
  , ps, jq, fire, sway, udev
- , fd, fzf, skim, bashInteractive
+ , fd, skim, bashInteractive
  , pass, wpa_supplicant, cloud-sql-proxy
  , gnupg, gawk, gnused, openssl
  , gnugrep, findutils, coreutils
@@ -70,17 +70,6 @@ let
     exec ${cloud-sql-proxy}/bin/cloud_sql_proxy \
                    -instances="$CLOUD_SQL_INSTANCES"
   '';
-
-  fzf-fzf = writeStrictShellScriptBin "fzf-fzf" ''
-    FZF_MIN_HEIGHT=''${FZF_MIN_HEIGHT:-100}
-    FZF_MARGIN=''${FZF_MARGIN:-5,5,5,5}
-    FZF_PROMPT=''${FZF_PROMPT:- >}
-    export FZF_DEFAULT_OPTS=''${FZF_OPTS:-"--reverse"}
-    exec ${fzf}/bin/fzf --min-height="$FZF_MIN_HEIGHT" \
-        --margin="$FZF_MARGIN" \
-        --prompt="$FZF_PROMPT"
-  '';
-
   git-credential-pass = writeStrictShellScriptBin "git-credential-pass" ''
     passfile="$1"
     echo password="$(${pass}/bin/pass show "$passfile" | head -1)"

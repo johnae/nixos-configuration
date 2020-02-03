@@ -54,12 +54,6 @@ in
           userKnownHostsFile = "/dev/null";
         };
       };
-      "git-codecommit.*.compute.amazonaws.com" = {
-        user = "APKAIZ3MXXINRIYQBXKA";
-        extraOptions = {
-          preferredAuthentications = "publickey";
-        };
-      };
       "github github.com" = {
         hostname = "github.com";
         user = "git";

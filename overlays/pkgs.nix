@@ -50,10 +50,8 @@ rec {
   inherit ((super.callPackage ../pkgs/scripts { }).paths)
     edit edi #ed emacs-run
     emacs-server
-    fzf-fzf project-select
+    project-select
     terminal launch
-    fzf-passmenu rofi-passmenu
-    fzf-run fzf-window
     sk-sk sk-run sk-window sk-passmenu
     browse-chromium
     rename-workspace screenshot
@@ -63,6 +61,7 @@ rec {
     update-user-nixpkg update-user-nixpkgs update-wireguard-keys
     spotify-play-album spotify-play-track spotify-cmd
     spotify-play-artist spotify-play-playlist
-    swayidle-helper systemd-dbus-helper sway-background
-    rotating-background toggle-keyboard-layouts;
+    #swayidle-helper systemd-dbus-helper
+    sway-background
+    rotating-background; #toggle-keyboard-layouts;
 }

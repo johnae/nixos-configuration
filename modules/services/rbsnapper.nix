@@ -83,6 +83,7 @@ in
     sshKey = mkOption {
       type = types.str;
       example = "/path/to/ssh.key";
+      default = "/root/.ssh/backup_id_rsa";
       description = ''
         The ssh key to use for connecting to remote.
       '';

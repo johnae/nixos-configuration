@@ -45,11 +45,6 @@ in
   '';
   ## end fix
 
-  services.rbsnapper = {
-    enable = true;
-    sshKey = "/home/${userName}/.ssh/backup_id_rsa";
-  };
-
   services.syncthing = {
     enable = true;
     user = userName;

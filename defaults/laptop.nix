@@ -102,6 +102,7 @@ in
   services.upower.enable = true;
   services.disable-usb-wakeup.enable = true;
   services.pasuspender.enable = true;
+  services.rbsnapper.enable = true;
 
   fonts.fonts = with pkgs; [
      google-fonts
