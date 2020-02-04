@@ -162,6 +162,7 @@ in
            border = "#BF616A"; background = "#BF616A"; text = "#E5E9F0";
            indicator = "#BF616A"; childBorder = "#BF616A";
          };
+
        };
 
        modes = {
@@ -170,8 +171,8 @@ in
            Right = "resize grow width 10 px or 10 ppt";
            Up = "resize shrink height 10 px or 10 ppt";
            Down = "resize grow height 10 px or 10 ppt";
-           Return = "mode \"default\"";
-           Escape = "mode \"default\"";
+           Return = "mode default";
+           Escape = "mode default";
          };
 
          "disabled keybindings" = {
@@ -184,6 +185,8 @@ in
            h = "exec swaymsg 'mode default' && systemctl hibernate";
            r = "exec swaymsg 'mode default' && systemctl reboot";
            l = "exec swaymsg 'mode default' && swaymsg exit";
+           Return = "mode default";
+           Escape = "mode default";
          };
 
        };
@@ -288,6 +291,12 @@ in
                border = "#B48EAD";
                background = "#B48EAD";
                text = "#ECEFF4";
+             };
+
+             bindingMode = {
+               border = "#BF616A";
+               background = "#BF616A";
+               text = "#E5E9F0";
              };
            };
          }
