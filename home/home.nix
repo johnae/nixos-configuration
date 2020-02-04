@@ -64,6 +64,11 @@
       #latest.firefox-nightly-bin
     ];
 
+  xsession.pointerCursor = {
+    package = pkgs.gnome3.defaultIconTheme;
+    name = "Adwaita";
+  };
+
   xdg.enable = true;
 
   xdg.configFile."nixpkgs/config.nix".source = ../nixpkgs-config.nix;
