@@ -13,6 +13,31 @@ let
     IFS=
     eval exec sed -E $expressions "''${XDG_CONFIG_HOME:-$HOME/.config}"/gtk-3.0/settings.ini >/dev/null
   '';
+
+  swaylockBackground = "~/Pictures/lockscreen.jpg";
+  swaylockArgs = "-e -i ${swaylockBackground} -K -s fill --font Roboto --inside-color 00000066 --inside-clear-color 00660099 --inside-ver-color 00006699 --inside-wrong-color 66000099 --key-hl-color FFFFFF99 --ring-color GGGGGGBB --ring-wrong-color FF6666BB --ring-ver-color 6666FFBB --text-color FFFFFFFF --text-clear-color FFFFFFFF --text-wrong-color FFFFFFFF --text-ver-color FFFFFFFF";
+  swaylockTimeout = "300";
+  swaylockSleepTimeout = "310";
+  swayidleCommand = lib.concatStringsSep " " [
+    "swayidle -w"
+    "timeout ${swaylockTimeout}"
+    "'swaylock -f ${swaylockArgs}'"
+    "timeout ${swaylockSleepTimeout}"
+    "'swaymsg \"output * dpms off\"'"
+    "resume 'swaymsg \"output * dpms on\"'"
+    "before-sleep 'swaylock -f ${swaylockArgs}'"
+  ];
+
+  toggle-keyboard-layouts = pkgs.writeStrictShellScriptBin "toggle-keyboard-layouts" ''
+    export PATH=${pkgs.jq}/bin''${PATH:+:}$PATH
+    current_layout="$(swaymsg -t get_inputs -r | jq -r "[.[] | select(.xkb_active_layout_name != null)][0].xkb_active_layout_name")"
+    if [ "$current_layout" = "English (US)" ]; then
+      swaymsg 'input "*" xkb_layout se'
+    else
+      swaymsg 'input "*" xkb_layout us'
+    fi
+  '';
+
 in
 
 {
@@ -140,9 +165,9 @@ in
          "${modifier}+Shift+p"     = ''exec ${pkgs.spotify-cmd}/bin/spotify-cmd prev'';
          "${modifier}+Shift+m"     = ''exec ${pkgs.spotify-cmd}/bin/spotify-cmd pause'';
 
-         #"${modifier}+Control+k"   = ''exec ${pkgs.toggle-keyboard-layouts}/bin/toggle-keyboard-layouts'';
+         "${modifier}+Control+k"   = ''exec ${toggle-keyboard-layouts}/bin/toggle-keyboard-layouts'';
 
-         "${modifier}+Control+l"   = ''exec swaylock -f -e -i ~/Pictures/lockscreen.jpg -K -s fill --font Roboto --inside-color 00000066 --inside-clear-color 00660099 --inside-ver-color 00006699 --inside-wrong-color 66000099 --key-hl-color FFFFFF99 --ring-color GGGGGGBB --ring-wrong-color FF6666BB --ring-ver-color 6666FFBB --text-color FFFFFFFF --text-clear-color FFFFFFFF --text-wrong-color FFFFFFFF --text-ver-color FFFFFFFF'';
+         "${modifier}+Control+l"   = ''exec swaylock -f ${swaylockArgs}'';
 
 
          "${modifier}+i"           = ''exec swaymsg inhibit_idle open'';
@@ -191,6 +216,10 @@ in
 
          {
            command = "${pkgs.rotating-background}/bin/rotating-background";
+         }
+
+         {
+           command = swayidleCommand;
          }
        ];
 
