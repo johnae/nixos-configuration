@@ -45,9 +45,6 @@
       sk-sk sk-run sk-window sk-passmenu
       #slacks
       browse-chromium
-      #start-sway
-      random-background
-      random-picsum-background
       add-wifi-network update-wifi-networks
       update-wireguard-keys
       spotify-cmd
@@ -58,10 +55,8 @@
       wl-clipboard
       wl-clipboard-x11
       wf-recorder
-      gtk2
       nordic
       nordic-polar
-      #latest.firefox-nightly-bin
     ];
 
   xsession.pointerCursor = {

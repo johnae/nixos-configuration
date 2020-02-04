@@ -61,15 +61,6 @@ let
   #  exec ${emacsclient} -c -s /run/user/1337/emacs1337/server "$@" >/dev/null 2>&1
   #'';
 
-  csp = writeStrictShellScriptBin "csp" ''
-    CLOUD_SQL_INSTANCES=''${CLOUD_SQL_INSTANCES:-}
-    if [ -z "$CLOUD_SQL_INSTANCES" ]; then
-      echo "Please set CLOUD_SQL_INSTANCES env var"
-      exit 1
-    fi
-    exec ${cloud-sql-proxy}/bin/cloud_sql_proxy \
-                   -instances="$CLOUD_SQL_INSTANCES"
-  '';
   git-credential-pass = writeStrictShellScriptBin "git-credential-pass" ''
     passfile="$1"
     echo password="$(${pass}/bin/pass show "$passfile" | head -1)"
@@ -191,8 +182,8 @@ let
       $MSG "rename workspace to \"$wsname: $name\"" >/dev/null 2>&1
     fi
     set -e
-    #echo "${fire}/bin/fire $cmd" | ${stdenv.shell}
-    echo "${sway}/bin/swaymsg \"exec $cmd\"" | ${stdenv.shell}
+    echo "${fire}/bin/fire $cmd" | ${stdenv.shell}
+    #echo "${sway}/bin/swaymsg \"exec $cmd\"" | ${stdenv.shell}
   '';
 
   rename-workspace = writeStrictShellScriptBin "rename-workspace" ''
@@ -345,27 +336,6 @@ let
     ${update-wifi-networks}/bin/update-wifi-networks
   '';
 
-  random-background = writeStrictShellScriptBin "random-background" ''
-    if [ ! -d "$HOME"/Pictures/backgrounds ] ||
-       [ "$(${findutils}/bin/find "$HOME"/Pictures/backgrounds/ -type f | wc -l)" = "0" ]; then
-       echo "$HOME"/Pictures/default-background.png
-       exit
-    fi
-    ${findutils}/bin/find "$HOME/Pictures/backgrounds" -type f | \
-         ${coreutils}/bin/sort -R | ${coreutils}/bin/tail -1
-  '';
-
-
-  # ${wget}/bin/wget -O /tmp/wallpaper.jpg 'https://picsum.photos/3200/1800' 2>/dev/null
-  random-picsum-background = writeStrictShellScriptBin "random-picsum-background" ''
-    ${wget}/bin/wget -O /tmp/wallpaper.jpg 'https://source.unsplash.com/random/3200x1800/?nature' 2>/dev/null
-    if [ -e "$HOME"/Pictures/wallpaper.jpg ]; then
-      mv "$HOME"/Pictures/wallpaper.jpg "$HOME"/Pictures/previous-wallpaper.jpg
-    fi
-    mv /tmp/wallpaper.jpg "$HOME"/Pictures/wallpaper.jpg
-    echo "$HOME"/Pictures/wallpaper.jpg
-  '';
-
   mail = writeStrictShellScriptBin "mail" ''
     export TERMINAL_CONFIG=
     exec ${terminal}/bin/terminal -e ${edi}/bin/edi -e '(mu4e)'
@@ -471,52 +441,6 @@ let
     fi
   '';
 
-  #swayidle-helper = writeStrictShellScriptBin "swayidle-helper" ''
-  #  export PATH=${swayidle}/bin:${swaylock}/bin:${sway}/bin''${PATH:+:}$PATH
-  #  exec swayidle -w \
-  #    timeout ${swaylockTimeout} \
-  #     'swaylock -f ${swaylockArgs}' \
-  #    timeout ${swaylockSleepTimeout} \
-  #     'swaymsg "output * dpms off"' \
-  #    resume 'swaymsg "output * dpms on"' \
-  #    before-sleep 'swaylock -f ${swaylockArgs}'
-  #'';
-
-  systemd-dbus-helper = writeStrictShellScriptBin "systemd-dbus-helper" ''
-    ${udev}/bin/systemctl --user stop environment-import.target
-    ${udev}/bin/systemctl --user import-environment
-    ${udev}/bin/systemctl --user start environment-import.target
-  '';
-
-  #swaybar-status = writeStrictShellScriptBin "swaybar-status" ''
-  #  exec ${i3status-rust}/bin/i3status-rs ${i3statusconf}
-  #'';
-
-  ## because the delay when fetching from internet seems to
-  ## stop the update from happening when using command substitution
-  sway-background = writeStrictShellScriptBin "sway-background" ''
-    BG=$(${random-picsum-background}/bin/random-picsum-background)
-    #BG=$(${random-background}/bin/random-background)
-    exec swaymsg "output * bg '$BG' fill"
-  '';
-
-  rotating-background = writeStrictShellScriptBin "rotating-background" ''
-    while true; do
-      ${sway-background}/bin/sway-background
-      sleep 600
-    done
-  '';
-
-  toggle-keyboard-layouts = writeStrictShellScriptBin "toggle-keyboard-layouts" ''
-    export PATH=${jq}/bin:${sway}/bin''${PATH:+:}$PATH
-    current_layout="$(swaymsg -t get_inputs -r | jq -r "[.[] | select(.xkb_active_layout_name != null)][0].xkb_active_layout_name")"
-    if [ "$current_layout" = "English (US)" ]; then
-      swaymsg 'input "*" xkb_layout se'
-    else
-      swaymsg 'input "*" xkb_layout us'
-    fi
-  '';
-
 in
 
   {
@@ -524,18 +448,14 @@ in
       inherit edit edi #ed emacs-run
               emacs-server mail
               project-select
-              terminal launch csp
+              terminal launch
               git-credential-pass
               sk-sk sk-run sk-window sk-passmenu
               browse-chromium signal
               rename-workspace screenshot
-              random-background random-name
-              random-picsum-background
-              add-wifi-network update-wifi-networks
+              random-name add-wifi-network update-wifi-networks
               update-user-nixpkg update-user-nixpkgs update-wireguard-keys
               spotify-play-album spotify-play-track spotify-cmd
-              spotify-play-artist spotify-play-playlist
-              systemd-dbus-helper sway-background
-              rotating-background toggle-keyboard-layouts;
+              spotify-play-artist spotify-play-playlist;
     };
   }

@@ -55,13 +55,8 @@ rec {
     sk-sk sk-run sk-window sk-passmenu
     browse-chromium
     rename-workspace screenshot
-    random-background random-name
-    random-picsum-background
-    add-wifi-network update-wifi-networks
+    random-name add-wifi-network update-wifi-networks
     update-user-nixpkg update-user-nixpkgs update-wireguard-keys
     spotify-play-album spotify-play-track spotify-cmd
-    spotify-play-artist spotify-play-playlist
-    #swayidle-helper systemd-dbus-helper
-    sway-background
-    rotating-background; #toggle-keyboard-layouts;
+    spotify-play-artist spotify-play-playlist;
 }
