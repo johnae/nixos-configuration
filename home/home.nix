@@ -57,6 +57,11 @@
       wf-recorder
       nordic
       nordic-polar
+
+      google-cloud-sdk
+      kubectl
+      kustomize
+      fzf ## for certain utilities that depend on it
     ];
 
   xsession.pointerCursor = {
