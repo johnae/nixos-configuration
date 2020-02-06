@@ -66,6 +66,8 @@
       kustomize
       fzf ## for certain utilities that depend on it
       rust-analyzer
+
+      gnome3.nautilus
     ];
 
   xsession.pointerCursor = {
