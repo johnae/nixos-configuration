@@ -733,6 +733,13 @@ in
       xdg.configFile."sway/config" = {
         source = configFile;
       };
+      systemd.user.targets.hm-graphical-session = {
+        Unit = {
+          Description = "Home Manager Graphical Session";
+          Requires = [ "graphical-session-pre.target" ];
+          BindsTo = [ "graphical-session.target" ];
+        };
+      };
     })
   ]);
 }

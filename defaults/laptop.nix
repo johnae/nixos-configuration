@@ -72,32 +72,10 @@ in
   services.logind.lidSwitch = "suspend-then-hibernate";
   environment.etc."systemd/sleep.conf".text = "HibernateDelaySec=8h";
 
-  #Bus 001 Device 002: ID 1050:0407 Yubico.com Yubikey 4 OTP+U2F+CCID
+  ## yubikey v4
   services.udev.extraRules = ''
     ACTION=="add", SUBSYSTEM=="usb", ENV{ID_VENDOR_ID}=="1050", ENV{ID_MODEL_ID}=="0407", MODE="660", GROUP="scard"
   '';
-
-  ## the NixOS module doesn't work well when logging in from console
-  ## which is the case when running sway - a wayland compositor (eg. no x11 yay)
-  ## actually - the redshift package (see below) is a patched version that works
-  ## with wayland
-  systemd.user.services.redshift =
-  {
-    description = "Redshift color temperature adjuster";
-    wantedBy = [ "default.target" ];
-    enable = true;
-    serviceConfig = {
-      ExecStart = ''
-        ${pkgs.redshift-wl}/bin/redshift \
-          -l 59.344:18.045 \
-          -t 6500:2700 \
-          -b 1:1 \
-          -m wayland
-      '';
-      RestartSec = 3;
-      Restart = "always";
-    };
-  };
 
   services.upower.enable = true;
   services.disable-usb-wakeup.enable = true;

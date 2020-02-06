@@ -2,7 +2,7 @@
    stdenv, lib
  , writeScriptBin, writeTextFile
  , writeStrictShellScriptBin
- , my-emacs, termite, wl-clipboard
+ , my-emacs, wl-clipboard
  , ps, jq, fire, sway, udev
  , fd, skim, bashInteractive
  , pass, wpa_supplicant, cloud-sql-proxy
@@ -16,7 +16,6 @@
 }:
 
 let
-  setToStringSep = with lib; sep: x: fun: concatStringsSep sep (mapAttrsToList fun x);
   emacsclient = "${my-emacs}/bin/emacsclient";
   emacs = "${my-emacs}/bin/emacs";
 
@@ -142,60 +141,12 @@ let
     exec ${signal-desktop}/bin/signal-desktop
   '';
 
-  terminal = writeStrictShellScriptBin "terminal" ''
-    _TERMEMU=''${_TERMEMU:-}
-    TERMINAL_CONFIG=''${TERMINAL_CONFIG:-}
-    if [ "$_TERMEMU" = "termite" ]; then
-      CONFIG=$HOME/.config/termite/config$TERMINAL_CONFIG
-      ${termite}/bin/termite --config "$CONFIG" "$@"
-    else
-      CONFIG=$HOME/.config/alacritty/alacritty$TERMINAL_CONFIG.yml
-      # shellcheck disable=SC2068
-      ${alacritty}/bin/alacritty --config-file "$CONFIG" $@
-    fi
-  '';
-
   launch = writeStrictShellScriptBin "launch" ''
     cmd=$*
-    _USE_NAME=''${_USE_NAME:-}
     if [ -z "$cmd" ]; then
       read -r cmd
     fi
-    MSG=${sway}/bin/swaymsg
-    unset _TERMEMU
-    name=$(${coreutils}/bin/echo "$cmd" | ${gawk}/bin/awk '{print $1}')
-    #name=$_USE_NAME
-    unset _USE_NAME
-    wsname=$($MSG -t get_workspaces | ${jq}/bin/jq -r \
-             '.[] | select(.focused).name')
-    apps=$($MSG -t get_workspaces | ${jq}/bin/jq -r \
-             '.[] | select(.focused).focus | length')
-    floating=$($MSG -t get_workspaces | ${jq}/bin/jq -r \
-             '.[] | select(.focused).floating_nodes | length')
-    apps=$((apps - floating))
-    if [ "$apps" = "0" ]; then
-      wsname=$(${coreutils}/bin/echo "$wsname" | ${gawk}/bin/awk -F':' '{print $1}')
-    fi
-    set +e
-    if ${coreutils}/bin/echo "$wsname" | \
-       ${gnugrep}/bin/grep -E '^[0-9]+:? ?+$' > /dev/null; then
-      $MSG "rename workspace to \"$wsname: $name\"" >/dev/null 2>&1
-    fi
-    set -e
     echo "${fire}/bin/fire $cmd" | ${stdenv.shell}
-    #echo "${sway}/bin/swaymsg \"exec $cmd\"" | ${stdenv.shell}
-  '';
-
-  rename-workspace = writeStrictShellScriptBin "rename-workspace" ''
-    CMD=${sway}/bin/swaymsg
-    WSNUM=$($CMD -t get_workspaces | ${jq}/bin/jq \
-            '.[] | select(.focused==true).name' | \
-            ${coreutils}/bin/cut -d"\"" -f2 | \
-            ${gnugrep}/bin/grep -o -E '[[:digit:]]+')
-    if [ -z "$*" ]; then
-        exit 0
-    fi
-    $CMD "rename workspace to \"$WSNUM: $*\"" >/dev/null 2>&1
   '';
 
   sk-run = writeScriptBin "sk-run" ''
@@ -219,8 +170,6 @@ let
       exit 1
     fi
     shift
-    _TERMEMU=
-    #export _TERMEMU=termite
     export TERMINAL_CONFIG=-launcher
     if ${ps}/bin/ps aux | ${gnugrep}/bin/grep '\-t sk-window' | \
        ${gnugrep}/bin/grep -v grep > /dev/null 2>&1; then
@@ -232,15 +181,11 @@ let
         exit
     fi
 
-    if [ "$_TERMEMU" = "termite" ]; then
-      exec ${terminal}/bin/terminal -t "sk-window" -e "$cmd" "$@"
-    fi
     # shellcheck disable=SC2086
-    exec ${terminal}/bin/terminal --class "sk-window" -e $cmd
+    exec ${alacritty}/bin/alacritty --class "sk-window" -e $cmd
   '';
 
   sk-passmenu = writeStrictShellScriptBin "sk-passmenu" ''
-    export _TERMEMU=termite
     export SK_PROMPT="copy password >> "
     export SK_OPTS="--no-bold --color BW  --height=40 --reverse --no-hscroll --no-mouse"
 
@@ -338,107 +283,7 @@ let
 
   mail = writeStrictShellScriptBin "mail" ''
     export TERMINAL_CONFIG=
-    exec ${terminal}/bin/terminal -e ${edi}/bin/edi -e '(mu4e)'
-  '';
-
-  update-user-nixpkg = writeStrictShellScriptBin "update-user-nixpkg" ''
-    metadata=''${1:-} ## the metadata.json file
-    if [ -z "$metadata" ]; then
-      echo "Please give me the metadata.json"
-      exit 1
-    fi
-    dir="$(dirname "$metadata")"
-
-    RED='\033[0;31m'
-    GREEN='\033[0;32m'
-    NEUTRAL='\033[0m'
-    BOLD='\033[1m'
-
-    neutral() { printf "%b" "$NEUTRAL"; }
-    start() { printf "%b" "$1"; }
-    clr() { start "$1""$2"; neutral; }
-    max_retries=2
-    retries=$max_retries
-
-    rm -f "$dir"/metadata.tmp.json
-    # shellcheck disable=SC2046
-    set $(${jq}/bin/jq -r '.owner + " " + .repo' < "$metadata")
-    ## above sets $1 and $2
-
-    while true; do
-      clr "$NEUTRAL" "Prefetching $1/$2 master branch...\n"
-      set +e
-      if ! ${nix-prefetch-github}/bin/nix-prefetch-github --rev master "$1" "$2" > "$dir"/metadata.tmp.json; then
-        clr "$RED" "ERROR: prefetch of $1/$2 failed\n"
-        retries=$((retries - 1))
-        clr "$GREEN" "   $1/$2 - retry $((max_retries - retries)) of $max_retries\n"
-        if [[ "$retries" -ne "0" ]]; then
-          continue
-        else
-          clr "$RED" "FAIL: $1/$2 failed prefetch even after retrying\n"
-          exit 1
-        fi
-      fi
-      set -e
-      clr "$BOLD" "Completed prefetching $1/$2...\n"
-
-      if [ ! -s "$dir"/metadata.tmp.json ]; then
-          clr "$RED" "ERROR: $dir/metadata.tmp.json is empty\n"
-          if [[ "$retries" -ne "0" ]]; then
-            retries=$((retries - 1))
-            clr "$GREEN" "   $1/$2 - retry $((max_retries - retries)) of $max_retries\n"
-            continue
-          else
-            clr "$RED" "FAIL: $dir/metadata.tmp.json is empty even after retrying\n"
-            exit 1
-          fi
-          exit 1
-      fi
-      break
-    done
-
-    if ! ${jq}/bin/jq < "$dir"/metadata.tmp.json > /dev/null; then
-        clr "$RED" "ERROR: $dir/metadata.tmp.json is not valid json\n"
-        cat "$dir"/metadata.tmp.json
-        exit 1
-    fi
-
-  '';
-
-  update-user-nixpkgs = writeStrictShellScriptBin "update-user-nixpkgs" ''
-
-    #RED='\033[0;31m'
-    GREEN='\033[0;32m'
-    NEUTRAL='\033[0m'
-    BOLD='\033[1m'
-
-    neutral() { printf "%b" "$NEUTRAL"; }
-    start() { printf "%b" "$1"; }
-    clr() { start "$1""$2"; neutral; }
-
-    echo Updating metadata.json files in ~/.config/nixpkgs/packages...
-
-    #for pkg in ~/.config/nixpkgs/packages/*; do
-    ${findutils}/bin/find ~/.config/nixpkgs/packages/ -type f -name metadata.json | \
-      ${findutils}/bin/xargs -I{} -n1 -P3 ${update-user-nixpkg}/bin/update-user-nixpkg {}
-
-    pkgs_updated=0
-    for pkg in ~/.config/nixpkgs/packages/*; do
-        if [ -d "$pkg" ] && [ -e "$pkg"/metadata.tmp.json ]; then
-           if ! ${diffutils}/bin/diff "$pkg"/metadata.json "$pkg"/metadata.tmp.json > /dev/null; then
-             pkgs_updated=$((pkgs_updated + 1))
-             clr "$BOLD" "Package $(basename "$pkg") was updated\n"
-             mv "$pkg"/metadata.tmp.json "$pkg"/metadata.json
-           fi
-           rm -f "$pkg"/metadata.tmp.json
-        fi
-    done
-
-    if [ "$pkgs_updated" -gt 0 ]; then
-      clr "$BOLD" "$pkgs_updated packages were updated\n"
-    else
-      clr "$GREEN" "No package metadata was updated\n"
-    fi
+    exec ${alacritty}/bin/alacritty -e ${edi}/bin/edi -e '(mu4e)'
   '';
 
 in
@@ -447,14 +292,12 @@ in
     paths = {
       inherit edit edi #ed emacs-run
               emacs-server mail
-              project-select
-              terminal launch
+              project-select launch
               git-credential-pass
               sk-sk sk-run sk-window sk-passmenu
-              browse-chromium signal
-              rename-workspace screenshot
+              browse-chromium signal screenshot
               random-name add-wifi-network update-wifi-networks
-              update-user-nixpkg update-user-nixpkgs update-wireguard-keys
+              update-wireguard-keys
               spotify-play-album spotify-play-track spotify-cmd
               spotify-play-artist spotify-play-playlist;
     };

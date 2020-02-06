@@ -8,7 +8,9 @@
     ../modules/sway.nix
     ../modules/i3-status.nix
     ../modules/theme.nix
+    ../modules/mako.nix
     ./sway.nix
+    ./mako.nix
     ./alacritty.nix
     ./ssh.nix
     ./gpg-agent.nix
@@ -16,6 +18,7 @@
     ./i3-status.nix
     ./pulseaudio.nix
     ./firefox.nix
+    ./redshift.nix
   ];
 
   home.packages = with pkgs;
@@ -38,8 +41,8 @@
       emacs-server
       #edit
       #edi ed
+      alacritty
       project-select
-      terminal
       launch
       #git-credential-pass
       sk-sk sk-run sk-window sk-passmenu
@@ -62,6 +65,7 @@
       kubectl
       kustomize
       fzf ## for certain utilities that depend on it
+      rust-analyzer
     ];
 
   xsession.pointerCursor = {

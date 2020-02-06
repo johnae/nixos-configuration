@@ -11,11 +11,6 @@ rec {
   office-code-pro-font = super.callPackage ../pkgs/office-code-pro-font { };
   jet-brains-mono-font = super.callPackage ../pkgs/jet-brains-mono-font { };
   btr-snap = super.callPackage ../pkgs/btr-snap { };
-  redshift-wl = super.callPackage ../pkgs/redshift {
-    inherit (super.python3Packages) python pygobject3 pyxdg wrapPython;
-    geoclue = super.geoclue2;
-  };
-
   lorri = importFromGithubMeta ./lorri.json { };
 
   #sway = super.callPackage ../pkgs/sway { };
@@ -50,13 +45,10 @@ rec {
   inherit ((super.callPackage ../pkgs/scripts { }).paths)
     edit edi #ed emacs-run
     emacs-server
-    project-select
-    terminal launch
+    project-select launch
     sk-sk sk-run sk-window sk-passmenu
-    browse-chromium
-    rename-workspace screenshot
-    random-name add-wifi-network update-wifi-networks
-    update-user-nixpkg update-user-nixpkgs update-wireguard-keys
+    browse-chromium screenshot random-name
+    add-wifi-network update-wifi-networks update-wireguard-keys
     spotify-play-album spotify-play-track spotify-cmd
     spotify-play-artist spotify-play-playlist;
 }

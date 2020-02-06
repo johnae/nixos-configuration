@@ -210,7 +210,7 @@ in
          "${modifier}+i"           = ''exec swaymsg inhibit_idle open'';
          "${modifier}+Shift+i"     = ''exec swaymsg inhibit_idle none'';
 
-         "${modifier}+Return"      = ''exec _USE_NAME=>_ ${pkgs.launch}/bin/launch terminal'';
+         "${modifier}+Return"      = ''exec alacritty'';
          "${modifier}+d"           = ''exec sk-window sk-run'';
 
          "${modifier}+minus"       = ''exec sk-window sk-passmenu'';
@@ -218,9 +218,9 @@ in
 
          "${modifier}+b"           = ''exec sway-background'';
 
-         "${modifier}+Shift+e"     = ''exec _USE_NAME=  launch alacritty -t edit -e edi'';
+         "${modifier}+Shift+e"     = ''exec alacritty -t edit -e edi'';
 
-         "${modifier}+Shift+b"     = ''exec _USE_NAME=  launch browse'';
+         "${modifier}+Shift+b"     = ''exec firefox'';
 
          "${modifier}+m"           = ''move workspace to output right'';
          "${modifier}+Shift+q"     = ''kill'';
@@ -257,6 +257,14 @@ in
 
          {
            command = swayidleCommand;
+         }
+
+         {
+           command = pkgs.writeStrictShellScript "hm-graphical-session" ''
+             systemctl --user stop graphical-session.target
+             systemctl --user stop graphical-session-pre.target
+             systemctl --user start hm-graphical-session.target
+           '';
          }
        ];
 

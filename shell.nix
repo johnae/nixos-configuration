@@ -1,7 +1,7 @@
 let
   pkgs-meta = with builtins; fromJSON ( readFile ./nixpkgs.json );
   pkgs = with builtins;
-         import (fetchTarball { inherit (pkgs-meta) url sha256; }) {};
+         import (fetchTarball { inherit (pkgs-meta) url sha256; }) { }; #config = (import ./nixpkgs-config.nix); overlays = [ (import ./nixpkgs-overlays.nix) ]; };
 
   diskname = "testdisk.img";
   altdiskname = "testdiskalt.img";
@@ -44,6 +44,109 @@ let
 
   updateNixosHardware = pkgs.writeShellScriptBin "update-nixos-hardware" ''
     ${pkgs.nix-prefetch-github}/bin/nix-prefetch-github --rev master nixos nixos-hardware > nixos-hardware.json
+  '';
+
+  updateUserNixpkg = with pkgs; writeShellScriptBin "update-user-nixpkg" ''
+    metadata=''${1:-} ## the metadata.json file
+    if [ -z "$metadata" ]; then
+      echo "Please give me the metadata.json"
+      exit 1
+    fi
+    dir="$(dirname "$metadata")"
+
+    RED='\033[0;31m'
+    GREEN='\033[0;32m'
+    NEUTRAL='\033[0m'
+    BOLD='\033[1m'
+
+    neutral() { printf "%b" "$NEUTRAL"; }
+    start() { printf "%b" "$1"; }
+    clr() { start "$1""$2"; neutral; }
+    max_retries=2
+    retries=$max_retries
+
+    rm -f "$dir"/metadata.tmp.json
+    # shellcheck disable=SC2046
+    set $(${jq}/bin/jq -r '.owner + " " + .repo' < "$metadata")
+    ## above sets $1 and $2
+    if [ -z "$1" ] || [ -z "$2" ]; then
+      clr "$NEUTRAL" "skipping "$(basename "$dir")" - metadata not supported"
+      exit 0
+    fi
+
+    while true; do
+      clr "$NEUTRAL" "Prefetching $1/$2 master branch...\n"
+      set +e
+      if ! ${nix-prefetch-github}/bin/nix-prefetch-github --rev master "$1" "$2" > "$dir"/metadata.tmp.json; then
+        clr "$RED" "ERROR: prefetch of $1/$2 failed\n"
+        retries=$((retries - 1))
+        clr "$GREEN" "   $1/$2 - retry $((max_retries - retries)) of $max_retries\n"
+        if [[ "$retries" -ne "0" ]]; then
+          continue
+        else
+          clr "$RED" "FAIL: $1/$2 failed prefetch even after retrying\n"
+          exit 1
+        fi
+      fi
+      set -e
+      clr "$BOLD" "Completed prefetching $1/$2...\n"
+
+      if [ ! -s "$dir"/metadata.tmp.json ]; then
+          clr "$RED" "ERROR: $dir/metadata.tmp.json is empty\n"
+          if [[ "$retries" -ne "0" ]]; then
+            retries=$((retries - 1))
+            clr "$GREEN" "   $1/$2 - retry $((max_retries - retries)) of $max_retries\n"
+            continue
+          else
+            clr "$RED" "FAIL: $dir/metadata.tmp.json is empty even after retrying\n"
+            exit 1
+          fi
+          exit 1
+      fi
+      break
+    done
+
+    if ! ${jq}/bin/jq < "$dir"/metadata.tmp.json > /dev/null; then
+        clr "$RED" "ERROR: $dir/metadata.tmp.json is not valid json\n"
+        cat "$dir"/metadata.tmp.json
+        exit 1
+    fi
+
+  '';
+
+  updateUserNixpkgs = with pkgs; writeShellScriptBin "update-user-nixpkgs" ''
+
+    #RED='\033[0;31m'
+    GREEN='\033[0;32m'
+    NEUTRAL='\033[0m'
+    BOLD='\033[1m'
+
+    neutral() { printf "%b" "$NEUTRAL"; }
+    start() { printf "%b" "$1"; }
+    clr() { start "$1""$2"; neutral; }
+
+    echo Updating metadata.json files in pkgs...
+
+    ${findutils}/bin/find pkgs/ -type f -name metadata.json | \
+      ${findutils}/bin/xargs -I{} -n1 -P3 ${updateUserNixpkg}/bin/update-user-nixpkg {}
+
+    pkgs_updated=0
+    for pkg in pkgs/*; do
+        if [ -d "$pkg" ] && [ -e "$pkg"/metadata.tmp.json ]; then
+           if ! ${diffutils}/bin/diff "$pkg"/metadata.json "$pkg"/metadata.tmp.json > /dev/null; then
+             pkgs_updated=$((pkgs_updated + 1))
+             clr "$BOLD" "Package $(basename "$pkg") was updated\n"
+             mv "$pkg"/metadata.tmp.json "$pkg"/metadata.json
+           fi
+           rm -f "$pkg"/metadata.tmp.json
+        fi
+    done
+
+    if [ "$pkgs_updated" -gt 0 ]; then
+      clr "$BOLD" "$pkgs_updated packages were updated\n"
+    else
+      clr "$GREEN" "No package metadata was updated\n"
+    fi
   '';
 
   updateAll = pkgs.writeShellScriptBin "update-all" ''
@@ -89,6 +192,6 @@ in
 
   pkgs.mkShell {
     buildInputs = with pkgs; [ qemu bootVm bootVmFromIso sops updateK3s
-                               updateNixos updateHomeManager updateNixosHardware updateAll ];
+                               updateNixos updateHomeManager updateNixosHardware updateAll updateUserNixpkg updateUserNixpkgs ];
     SOPS_PGP_FP = "782517BE26FBB0CC5DA3EFE59D91E5C4D9515D9E";
   }
