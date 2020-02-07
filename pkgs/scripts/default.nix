@@ -55,11 +55,6 @@ let
     exec ${emacsclient} -s /run/user/1337/emacs1337/server "$@"
   '';
 
-  #ed = writeStrictShellScriptBin "ed" ''
-  #  ${emacs-server}/bin/emacs-server
-  #  exec ${emacsclient} -c -s /run/user/1337/emacs1337/server "$@" >/dev/null 2>&1
-  #'';
-
   git-credential-pass = writeStrictShellScriptBin "git-credential-pass" ''
     passfile="$1"
     echo password="$(${pass}/bin/pass show "$passfile" | head -1)"
@@ -93,8 +88,7 @@ let
   '';
 
   spotify-cmd = writeStrictShellScriptBin "spotify-cmd" ''
-    CMD="$1"
-    echo "$CMD" "$@" > "$XDG_RUNTIME_DIR"/spotnix_input
+    echo "$@" > "$XDG_RUNTIME_DIR"/spotnix_input
   '';
 
   spotify-play = writeStrictShellScriptBin "spotify-play" ''
@@ -104,7 +98,7 @@ let
     set -e
     echo "$TYPE" "$search" > "$XDG_RUNTIME_DIR"/spotnix_input
     ${sk-sk}/bin/sk-sk < "$XDG_RUNTIME_DIR"/spotnix_output | \
-        awk '{print $NF}' | xargs -r -I{} echo play {} > "$XDG_RUNTIME_DIR"/spotnix_input
+        awk '{print $NF}' | xargs -r -I{} ${spotify-cmd}/bin/spotify-cmd {}
   '';
 
   spotify-play-track = writeStrictShellScriptBin "spotify-play-track" ''
@@ -290,7 +284,7 @@ in
 
   {
     paths = {
-      inherit edit edi #ed emacs-run
+      inherit edit edi emacs-run
               emacs-server mail
               project-select launch
               git-credential-pass
