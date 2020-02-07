@@ -13,11 +13,12 @@ rec {
   btr-snap = super.callPackage ../pkgs/btr-snap { };
   lorri = importFromGithubMeta ./lorri.json { };
 
-  #sway = super.callPackage ../pkgs/sway { };
-  #swaybg = super.callPackage ../pkgs/swaybg { };
-  #swayidle = super.callPackage ../pkgs/swayidle { };
-  #swaylock = super.callPackage ../pkgs/swaylock { };
-  #wlroots = super.callPackage ../pkgs/wlroots { };
+  sway-unwrapped = super.callPackage ../pkgs/sway { };
+  sway = super.callPackage (self.path + "/pkgs/applications/window-managers/sway/wrapper.nix") { };
+  swaybg = super.callPackage ../pkgs/swaybg { };
+  swayidle = super.callPackage ../pkgs/swayidle { };
+  swaylock = super.callPackage ../pkgs/swaylock { };
+  wlroots = super.callPackage ../pkgs/wlroots { };
   alacritty = super.callPackage ../pkgs/alacritty { };
   fire = super.callPackage ../pkgs/fire { };
   grim = super.callPackage ../pkgs/grim { };
@@ -43,7 +44,7 @@ rec {
   initInstall = super.callPackage ../pkgs/initInstall.nix { };
 
   inherit ((super.callPackage ../pkgs/scripts { }).paths)
-    edit edi #ed emacs-run
+    edit edi emacs-run
     emacs-server
     project-select launch
     sk-sk sk-run sk-window sk-passmenu
