@@ -1,65 +1,55 @@
-{ stdenv,
-  lib,
-  fetchFromGitHub,
-  openssl,
-  xorg,
-  pkg-config,
-  python3,
-  pkgs
+{ stdenv
+, lib
+, fetchFromGitHub
+, rustPlatform
+, openssl
+, pkg-config
+, python3
+, xorg
+, withStableFeatures ? true
+, withTestBinaries ? true
 }:
 
 let
-
   metadata = builtins.fromJSON(builtins.readFile ./metadata.json);
-  nightlyRustPlatform =
-    let
-      nightly = pkgs.rustChannelOf {
-        date = "2019-12-07";
-        channel = "nightly";
-      };
-    in
-    pkgs.makeRustPlatform {
-      rustc = nightly.rust;
-      cargo = nightly.rust;
-    };
-
 in
 
-  with nightlyRustPlatform; buildRustPackage rec {
-    pname = metadata.repo;
-    version = metadata.rev;
-    doCheck = false;
+rustPlatform.buildRustPackage rec {
+  pname = metadata.repo;
+  version = metadata.rev;
 
-    src = fetchFromGitHub metadata;
+  src = fetchFromGitHub metadata;
 
-    nativeBuildInputs = [
-      pkg-config python3
-    ];
+  cargoSha256 = "0vr0nmhb66ghvgy1pxir8fgakw8ackl10cdrxr9mnfwdha0crnz6";
 
-    buildInputs = [
-      openssl xorg.libxcb xorg.libX11
-    ];
+  nativeBuildInputs = [ pkg-config python3 ];
 
-    cargoSha256 = "0bdxlbl33kilp9ai40dvdzlx9vcl8r21br82r5ljs2pg521jd66p";
+  buildInputs = [ openssl xorg.libX11 ];
 
-    cargoBuildFlags = [ "--all-features" ];
+  cargoBuildFlags = lib.optional withStableFeatures "--features stable";
 
-    preCheck = ''
-      export HOME=$TMPDIR
-    '';
+  cargoTestFlags = lib.optional withTestBinaries "--features test-bins";
 
-    meta = with stdenv.lib; {
-      description = "NuShell";
-      homepage = https://github.com/nushell/nushell;
-      license = licenses.mit;
-      maintainers = [{
-        email = "john@insane.se";
-        github = "johnae";
-        name = "John Axel Eriksson";
-      }];
-    };
+  preCheck = ''
+    export HOME=$TMPDIR
+  '';
 
-    passthru = {
-      shellPath = "/bin/nu";
-    };
-  }
+  checkPhase = ''
+    runHook preCheck
+    echo "Running cargo cargo test ${lib.strings.concatStringsSep " " cargoTestFlags} -- ''${checkFlags} ''${checkFlagsArray+''${checkFlagsArray[@]}}"
+    cargo test ${lib.strings.concatStringsSep " " cargoTestFlags} -- ''${checkFlags} ''${checkFlagsArray+"''${checkFlagsArray[@]}"}
+    runHook postCheck
+  '';
+
+  meta = with lib; {
+    description = "A modern shell written in Rust";
+    homepage = "https://www.nushell.sh/";
+    license = licenses.mit;
+    maintainers = with maintainers; [ filalex77 marsam ];
+    platforms = [ "x86_64-linux" "i686-linux" "x86_64-darwin" ];
+  };
+
+  passthru = {
+    shellPath = "/bin/nu";
+  };
+}

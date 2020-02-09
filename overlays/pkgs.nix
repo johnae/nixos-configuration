@@ -9,12 +9,10 @@ rec {
   system-san-francisco-font = super.callPackage ../pkgs/system-san-francisco-font { };
   san-francisco-mono-font = super.callPackage ../pkgs/san-francisco-mono-font { };
   office-code-pro-font = super.callPackage ../pkgs/office-code-pro-font { };
-  jet-brains-mono-font = super.callPackage ../pkgs/jet-brains-mono-font { };
   btr-snap = super.callPackage ../pkgs/btr-snap { };
   lorri = importFromGithubMeta ./lorri.json { };
 
-  #emacs26 = super.callPackage ../pkgs/wemacs { };
-
+  nushell = super.callPackage ../pkgs/nushell { };
   sway-unwrapped = super.callPackage ../pkgs/sway { };
   sway = super.callPackage (self.path + "/pkgs/applications/window-managers/sway/wrapper.nix") { };
   swaybg = super.callPackage ../pkgs/swaybg { };
@@ -40,8 +38,6 @@ rec {
   wofi = super.callPackage ../pkgs/wofi { };
   xdg-desktop-portal-wlr = super.callPackage ../pkgs/xdg-desktop-portal-wlr { };
 
-
-  nerdfonts = super.callPackage ../pkgs/nerdfonts { };
 
   inherit (super.callPackage ../pkgs/strictShellScript.nix { })
     writeStrictShellScript writeStrictShellScriptBin;
