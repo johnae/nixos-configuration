@@ -608,12 +608,6 @@ See: https://github.com/emacs-lsp/lsp-mode
   :config
   (push 'company-lsp company-backends)
 )
-
-(use-package ra-emacs-lsp
-  :after lsp-mode
-  :config
-  (add-hook 'rust-mode-hook 'rust-analyzer-inlay-hints-mode)
-)
 #+END_SRC
 
 
