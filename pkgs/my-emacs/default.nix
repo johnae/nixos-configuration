@@ -99,7 +99,7 @@ let
   rust-analyzer-meta = builtins.fromJSON(builtins.readFile ../rust-analyzer/metadata.json);
   rust-analyzer = emacsPackages.melpaBuild {
     pname = "rust-analyzer";
-    version = "20200112";
+    version = "20200207";
     src = fetchFromGitHub rust-analyzer-meta;
 
     recipe = writeText "rust-analyzer-recipe" ''

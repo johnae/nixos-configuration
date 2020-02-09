@@ -1387,7 +1387,7 @@ Disable some things I'm not interested in, like tool bars and menu bars.
 This is a nice font :-).
 
 #+BEGIN_SRC elisp :tangle default.el
-(add-to-list 'default-frame-alist '(font . "Office Code Pro D-14"))
+(add-to-list 'default-frame-alist '(font . "JetBrainsMono Nerd Font 18"))
 ;;(add-to-list 'default-frame-alist '(font . "FontAwesome-14"))
 ;;(add-to-list 'default-frame-alist '(font . "Font Awesome 5 Brands-14"))
 ;;(add-to-list 'default-frame-alist '(font . "Font Awesome 5 Free-14"))

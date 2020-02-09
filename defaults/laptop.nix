@@ -92,9 +92,9 @@ in
      font-awesome_5
      powerline-fonts
      roboto
+     nerdfonts
      #fira-code
      #fira-code-symbols
-     #nerdfonts
   ];
 
 }

@@ -17,7 +17,7 @@ rec {
          multiplier = 20;
        };
        font = {
-         normal.family = "JetBrains Mono";
+         normal.family = "JetBrainsMono Nerd Font";
          size = 14.0;
          offset.x = 0;
          offset.y = 0;

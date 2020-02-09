@@ -33,14 +33,11 @@
       spotifyd
       spotnix
       my-emacs
-      edit edi #ed emacs-run
+      edit edi
       bat
-      #mail
-      #alacritty
+      mail
       wofi
       emacs-server
-      #edit
-      #edi ed
       alacritty
       project-select
       launch
@@ -121,12 +118,10 @@
   programs.command-not-found.enable = true;
   programs.starship.enable = true;
   programs.starship.settings = {
-    git_branch.symbol=" ";
     kubernetes.disabled = false;
     kubernetes.style = "bold blue";
     nix_shell.disabled = false;
     nix_shell.use_name = true;
-    package.symbol = " ";
     rust.symbol = " ";
   };
 
