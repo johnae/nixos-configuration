@@ -47,7 +47,7 @@ rec {
   inherit ((super.callPackage ../pkgs/scripts { }).paths)
     edit edi emacs-run
     emacs-server mail
-    project-select launch
+    project-select launch git-credential-pass
     sk-sk sk-run sk-window sk-passmenu
     browse-chromium screenshot random-name
     add-wifi-network update-wifi-networks update-wireguard-keys

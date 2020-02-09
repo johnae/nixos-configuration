@@ -78,7 +78,7 @@ in
   programs.sway = {
      enable = true;
      settings = rec {
-       fonts = [ "Roboto" "Font Awesome 5 Free" "Font Awesome 5 Brands" "Roboto" "Arial" "sans-serif" "Bold 10" ];
+       fonts = [ "Roboto" "Font Awesome 5 Free" "Font Awesome 5 Brands" "Arial" "sans-serif" "Bold 10" ];
        modifier = "Mod4";
 
        output = {
