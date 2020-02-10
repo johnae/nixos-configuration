@@ -164,7 +164,6 @@ let
       exit 1
     fi
     shift
-    export TERMINAL_CONFIG=-launcher
     if ${ps}/bin/ps aux | ${gnugrep}/bin/grep '\-t sk-window' | \
        ${gnugrep}/bin/grep -v grep > /dev/null 2>&1; then
         ${ps}/bin/ps aux | \
@@ -176,7 +175,7 @@ let
     fi
 
     # shellcheck disable=SC2086
-    exec ${alacritty}/bin/alacritty --class "sk-window" -e $cmd
+    exec ${alacritty}/bin/alacritty --config-file ~/.config/alacritty/alacritty-launcher.yml --class "sk-window" -e $cmd
   '';
 
   sk-passmenu = writeStrictShellScriptBin "sk-passmenu" ''
