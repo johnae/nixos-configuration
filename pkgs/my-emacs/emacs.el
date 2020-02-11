@@ -1,21 +1,3 @@
-#+TITLE: Emacs configuration
-#+AUTHOR: John Axel Eriksson
-
-This is my emacs configuration in the form of an org file. It is meant to be used with org babel tangle
-to extract the actual configuration (to default.el). Since I also use [[https://nixos.org][NixOS]] (and/or
-the nix package manager) it is together with nix expressions this is meant to happen. Basically - this
-should (and does) work nicely as a nix overlay.
-
-
-* Early init
-
-First off, some tricks to speed up emacs initialization. Upping the gc threshold means we should
-be able to avoid garbage collection (several times) during initialization.
-
-Setting file-name-handler-alist to nil means we avoid the cost of regex matching on file names
-during initialization.
-
-#+BEGIN_SRC elisp :tangle default.el
 ;; Keep a ref to the actual file-name-handler
 (defvar file-name-handler-alist-actual file-name-handler-alist)
 
@@ -40,59 +22,27 @@ during initialization.
 
 ;; This makes emacsclient fast when starting up
 (setq-default xterm-query-timeout nil)
-#+END_SRC
 
-
-* Initialization of packages
-
-Now we disable all package archives so that we can completely rely on the nix expressions
-for package installation.
-
-#+BEGIN_SRC elisp :tangle default.el
 ;; Make unpure packages archives unavailable
 (setq package-archives nil)
 (setq package-enable-at-startup nil)
-#+END_SRC
 
-
-Initialize [[https://github.com/jwiegley/use-package][use-package]].
-
-#+BEGIN_SRC elisp :tangle default.el
+;; Initialize [[https://github.com/jwiegley/use-package][use-package]].
 (eval-and-compile
   (require 'package)
   (package-initialize)
   (require 'use-package))
-#+END_SRC
 
-#+BEGIN_SRC elisp :tangle default.el
-;;(use-package benchmark-init
-;;  :ensure t
-;;  :config
-;;  ;; To disable collection of benchmark data after init is done.
-;;  (add-hook 'after-init-hook 'benchmark-init/deactivate))
-#+END_SRC
-
-
-Add path to mu4e to load-path.
-
-#+BEGIN_SRC elisp :tangle default.el
+;; Add path to mu4e to load-path.
 (add-to-list 'load-path "@MUSE_LOAD_PATH@")
-#+END_SRC
 
-
-Setup auth sources to use pass gpg files.
-
-#+BEGIN_SRC elisp :tangle default.el
+;; Setup auth sources to use pass gpg files.
 (setq auth-sources
-    '((:source "~/.password-store/emacs/auth/authinfo.gpg")))
-#+END_SRC
+    '((:source (concat (getenv "PASSWORD_STORE") "/emacs/auth/authinfo.gpg"))))
 
 
-* Packages
+;; The famous [[https://orgmode.org/][org mode]]. Default settings I use and stuff.
 
-The famous [[https://orgmode.org/][org mode]]. Default settings I use and stuff.
-
-#+BEGIN_SRC elisp :tangle default.el
 (use-package org
   :defer t
   :bind (:map org-mode-map
@@ -132,7 +82,7 @@ The famous [[https://orgmode.org/][org mode]]. Default settings I use and stuff.
      (latex . t)
      (haskell . t)
      (clojure . t)
-     (go . t)
+     ;;(go . t)
      (shell . t)
      (sql . t)
      (sqlite . t)
@@ -142,60 +92,42 @@ The famous [[https://orgmode.org/][org mode]]. Default settings I use and stuff.
      (calc . t)
      (C . t)))
   (add-hook 'org-mode-hook 'auto-revert-mode))
-#+END_SRC
 
 
-Showing org bullets as utf8 characters seemed like a cool thing.
+;;Showing org bullets as utf8 characters seemed like a cool thing.
 
-#+BEGIN_SRC elisp :tangle default.el
-;; show org-mode bullets as utf8 characters
 (use-package org-bullets
   :init
   (setq org-bullets-bullet-list '("◉"))
   (add-hook 'org-mode-hook 'org-bullets-mode))
-#+END_SRC
 
 
-Presentation minor mode for org-mode see [[https://github.com/takaxp/org-tree-slide][org-tree-slide]]
-
-#+BEGIN_SRC elisp :tangle default.el
-;; show org-mode bullets as utf8 characters
+;;Presentation minor mode for org-mode see [[https://github.com/takaxp/org-tree-slide][org-tree-slide]]
 (use-package org-tree-slide
   :defer t
   :config
   (define-key org-tree-slide-mode-map (kbd "<f9>") 'org-tree-slide-move-previous-tree)
   (define-key org-tree-slide-mode-map (kbd "<f10>") 'org-tree-slide-move-next-tree)
   )
-#+END_SRC
-
-#+RESULTS:
 
 
-Notifications for org TODO:s. See [[https://github.com/akhramov/org-wild-notifier.el][org-wild-notifier]]
-
-#+BEGIN_SRC elisp :tangle default.el
+;; Notifications for org TODO:s. See [[https://github.com/akhramov/org-wild-notifier.el][org-wild-notifier]]
 ;;(use-package org-wild-notifier
 ;;  :config
 ;;  (org-wild-notifier-mode)
 ;;  )
-#+END_SRC
 
 
-In a terminal, TAB corresponds to C-i so that's an issue. For the GUI emacs, which I
-normally use, this isn't a problem.
+;; In a terminal, TAB corresponds to C-i so that's an issue. For the GUI emacs, which I
+;; normally use, this isn't a problem.
 
-#+BEGIN_SRC elisp :tangle default.el
-;; so TAB works in a terminal too
 (setq evil-want-keybinding nil)
 ;; see https://github.com/emacs-evil/evil-collection/issues/60
 (setq evil-want-C-i-jump nil)
-#+END_SRC
 
 
-So [[https://github.com/emacs-evil/evil][evil]] is vim for emacs. A better vim basically ;-).
+;; So [[https://github.com/emacs-evil/evil][evil]] is vim for emacs. A better vim basically ;-).
 
-#+BEGIN_SRC elisp :tangle default.el
-;; vim for emacs
 (use-package evil
   :config
   (evil-mode 1)
@@ -219,32 +151,26 @@ So [[https://github.com/emacs-evil/evil][evil]] is vim for emacs. A better vim b
   (define-key evil-normal-state-map (kbd ", +") 'enlarge-window)
   (define-key evil-normal-state-map (kbd ", -") 'shrink-window)
   (define-key evil-normal-state-map (kbd ", <RET>") 'projectile-ag))
-#+END_SRC
 
 
-[[https://github.com/redguardtoo/evil-nerd-commenter][Evil nerd commenter]] let's me comment out one of more lines. In Evil mode this is done using
-C-c i (multiple lines by selecting a region). A reimplementation of the vim version.
+;; [[https://github.com/redguardtoo/evil-nerd-commenter][Evil nerd commenter]] let's me comment out one of more lines. In Evil mode this is done using
+;; C-c i (multiple lines by selecting a region). A reimplementation of the vim version.
 
-#+BEGIN_SRC elisp :tangle default.el
 (use-package evil-nerd-commenter
   :config
   (evilnc-default-hotkeys))
-#+END_SRC
 
 
-[[https://github.com/redguardtoo/evil-nerd-commenter][Evil surround]] makes it easy to surround text in say quotes or parens.
-See: https://github.com/emacs-evil/evil-surround
+;; [[https://github.com/redguardtoo/evil-nerd-commenter][Evil surround]] makes it easy to surround text in say quotes or parens.
+;; See: https://github.com/emacs-evil/evil-surround
 
-#+BEGIN_SRC elisp :tangle default.el
 (use-package evil-surround
   :config
   (global-evil-surround-mode 1))
-#+END_SRC
 
 
-Evil keybindings for [[https://orgmode.org/][org-mode]]. See [[https://github.com/Somelauw/evil-org-mode][https://github.com/Somelauw/evil-org-mode]]. Yay.
+;; Evil keybindings for [[https://orgmode.org/][org-mode]]. See [[https://github.com/Somelauw/evil-org-mode][https://github.com/Somelauw/evil-org-mode]]. Yay.
 
-#+BEGIN_SRC elisp :tangle default.el
 (use-package evil-org
   :after org
   :config
@@ -252,29 +178,20 @@ Evil keybindings for [[https://orgmode.org/][org-mode]]. See [[https://github.co
   (add-hook 'evil-org-mode-hook
             (lambda ()
               (evil-org-set-key-theme))))
-#+END_SRC
 
 
-Evil keybindings for many things. Woohoo.
-
-#+BEGIN_SRC elisp :tangle default.el
+;; Evil keybindings for many things.
 (use-package evil-collection
   :after evil
   :config
   (evil-collection-init))
-#+END_SRC
 
 
-Evil keybindings for magit. Woohoo.
-
-#+BEGIN_SRC elisp :tangle default.el
+;; Evil keybindings for magit.
 (use-package evil-magit)
-#+END_SRC
 
 
-Polymode allows several major modes in one buffer.
-
-#+BEGIN_SRC elisp :tangle default.el
+;; Polymode allows several major modes in one buffer.
 (use-package polymode)
 
 (use-package poly-org
@@ -286,26 +203,20 @@ Polymode allows several major modes in one buffer.
   :config
   (add-hook 'markdown-mode-hook 'poly-markdown-mode)
 )
-#+END_SRC
 
 
-Avy is kind of like vim motion. It lets you jump to certain text using a
-character based decision tree.
-See: [[https://github.com/abo-abo/avy][https://github.com/abo-abo/avy]]
+;; Avy is kind of like vim motion. It lets you jump to certain text using a
+;; character based decision tree.
+;; See: [[https://github.com/abo-abo/avy][https://github.com/abo-abo/avy]]
 
-#+BEGIN_SRC elisp :tangle default.el
 (use-package avy
   :config
   (global-set-key (kbd "C-c ¨") 'avy-goto-char)
 )
-#+END_SRC
 
 
-Which key will show (in a popup) any possible continuations of a currently entered incomplete command.
-See: [[https://github.com/justbur/emacs-which-key][https://github.com/justbur/emacs-which-key]]
-
-#+BEGIN_SRC elisp :tangle default.el
-;; show unfinished key sequence options automatically
+;; Which key will show (in a popup) any possible continuations of a currently entered incomplete command.
+;; See: [[https://github.com/justbur/emacs-which-key][https://github.com/justbur/emacs-which-key]]
 (use-package which-key
   :diminish (which-key-mode . "")
   :init
@@ -316,15 +227,10 @@ See: [[https://github.com/justbur/emacs-which-key][https://github.com/justbur/em
         which-key-side-window-max-width 0.33
         which-key-idle-delay 0.05)
   )
-#+END_SRC
 
 
-Completion tools.
-
-See: [[https://github.com/abo-abo/swiper][https://github.com/abo-abo/swiper]]
-
-#+BEGIN_SRC elisp :tangle default.el
-;; completions
+;; Completion tools.
+;; See: [[https://github.com/abo-abo/swiper][https://github.com/abo-abo/swiper]]
 (use-package ivy
   :config
   (ivy-mode 1)
@@ -341,40 +247,31 @@ See: [[https://github.com/abo-abo/swiper][https://github.com/abo-abo/swiper]]
   ;;                  ivy-display-functions-alist)))
 
 (add-hook 'eshell-mode-hook #'setup-eshell-ivy-completion)
-#+END_SRC
 
 
-Counsel integration for projectile.
+;;Counsel integration for projectile.
 
-See: [[https://github.com/ericdanan/counsel-projectile][https://github.com/ericdanan/counsel-projectile]]
+;;See: [[https://github.com/ericdanan/counsel-projectile][https://github.com/ericdanan/counsel-projectile]]
 
-#+BEGIN_SRC elisp :tangle default.el
-;; for projects yeah :-)
 (use-package counsel-projectile
   :diminish (projectile-mode . "")
   :config
   (projectile-mode)
   (counsel-projectile-mode))
-#+END_SRC
 
-
-This will name buffers with the project relative path to the file name rather than
-just the file name. Useful in larger projects.
-
-#+BEGIN_SRC elisp :tangle default.el
+;; This will name buffers with the project relative path to the file name rather than
+;; just the file name. Useful in larger projects.
 (defun my-project-relative-buffer-name ()
   (ignore-errors
     (rename-buffer
      (file-relative-name buffer-file-name (projectile-project-root)))))
 
 (add-hook 'find-file-hook #'my-project-relative-buffer-name)
-#+END_SRC
 
 
-Sorting and filtering for company and ivy.
-See: [[https://github.com/raxod502/prescient.el][https://github.com/raxod502/prescient.el]]
+;; Sorting and filtering for company and ivy.
+;; See: [[https://github.com/raxod502/prescient.el][https://github.com/raxod502/prescient.el]]
 
-#+BEGIN_SRC elisp :tangle default.el
 (use-package prescient
    :config
    (prescient-persist-mode))
@@ -384,39 +281,28 @@ See: [[https://github.com/raxod502/prescient.el][https://github.com/raxod502/pre
 (use-package company-prescient
    :config
    (company-prescient-mode))
-#+END_SRC
 
-See: [[https://www.emacswiki.org/emacs/PosTip][https://www.emacswiki.org/emacs/PosTip]]
-
-#+BEGIN_SRC elisp :tangle default.el
+;; See: [[https://www.emacswiki.org/emacs/PosTip][https://www.emacswiki.org/emacs/PosTip]]
 ;; get tooltips at point
 (use-package pos-tip)
 (setq help-at-pt-display-when-idle t)
 (setq help-at-pt-timer-delay 0.1)
 (help-at-pt-set-timer)
-#+END_SRC
 
 
-For editing html, css etc.
-See: [[https://github.com/fxbois/web-mode][https://github.com/fxbois/web-mode]]
+;; For editing html, css etc.
+;; See: [[https://github.com/fxbois/web-mode][https://github.com/fxbois/web-mode]]
 
-#+BEGIN_SRC elisp :tangle default.el
 (use-package web-mode
   :mode "\\.html?$")
-#+END_SRC
 
 
-You know, for docker.
-
-#+BEGIN_SRC elisp :tangle default.el
+;; You know, for docker.
 (use-package dockerfile-mode
   :mode "Dockerfile.*")
-#+END_SRC
 
 
-HashiCorps terraform.
-
-#+BEGIN_SRC elisp :tangle default.el
+;; HashiCorps terraform.
 (use-package terraform-mode
   :mode "\\.tf$"
   :init
@@ -427,36 +313,13 @@ HashiCorps terraform.
   :after company
   :init
   (company-terraform-init))
-#+END_SRC
 
-
-Elvish mode. See elvish: https://github.com/elves/elvish
-
-#+BEGIN_SRC elisp :tangle default.el
-(use-package elvish-mode
-  :mode "\\.elv$")
-#+END_SRC
-
-
-Elixir mode.
-
-#+BEGIN_SRC elisp :tangle default.el
-;;(use-package alchemist)
-#+END_SRC
-
-
-For editing nix expressions.
-
-#+BEGIN_SRC elisp :tangle default.el
+;;For editing nix expressions.
 (use-package nix-mode
   :mode "\\.nix\\'")
-#+END_SRC
 
 
-[[https://magit.vc/][Magit]] is possibly the most awesome git integration of any editor out there. It's awesome anyway.
-
-#+BEGIN_SRC elisp :tangle default.el
-;; the awesome git emacs interface
+;; [[https://magit.vc/][Magit]] is possibly the most awesome git integration of any editor out there.
 (use-package magit
   :config
   (setq magit-auto-revert-mode nil)
@@ -464,14 +327,12 @@ For editing nix expressions.
         '( "~/Development" ))
   (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh)
   )
-#+END_SRC
 
 
-Because in evil mode I often want to go to a line x lines below and therefore I want to see those
-numbers in the fringe. I'm still interested in the current line number though so I want that to show
-for the line that I'm on.
+;; Because in evil mode I often want to go to a line x lines below and therefore I want to see those
+;; numbers in the fringe. I'm still interested in the current line number though so I want that to show
+;; for the line that I'm on.
 
-#+BEGIN_SRC elisp :tangle default.el
 ;; relative line numbers
 (use-package linum-relative
   :config
@@ -479,38 +340,29 @@ for the line that I'm on.
   (setq linum-relative-current-symbol "")
   (global-linum-mode t)
   (linum-relative-mode t))
-#+END_SRC
 
 
-Helps with the fringe? :-)
-
-#+BEGIN_SRC elisp :tangle default.el
+;; Helps with the fringe? :-)
 (use-package fringe-helper
   :init
   (setq-default left-fringe-width  16)
   (setq-default right-fringe-width 16)
   :config
   )
-#+END_SRC
 
 
-Direnv integration for emacs.
-See: [[https://github.com/wbolster/emacs-direnv][https://github.com/wbolster/emacs-direnv]]
-and ofc
-https://direnv.net/]]
-
-#+BEGIN_SRC elisp :tangle default.el
+;; Direnv integration for emacs.
+;; See: [[https://github.com/wbolster/emacs-direnv][https://github.com/wbolster/emacs-direnv]]
+;; and ofc
+;; https://direnv.net/]]
 (use-package direnv
   :config
   (direnv-mode)
   (add-to-list 'direnv-non-file-modes 'eshell-mode)
 )
-#+END_SRC
 
 
-Highlights uncommitted changes.
-
-#+BEGIN_SRC elisp :tangle default.el
+;; Highlights uncommitted changes.
 (use-package diff-hl
   :config
   (setq diff-hl-side 'right)
@@ -521,12 +373,8 @@ Highlights uncommitted changes.
       (diff-hl-mode)
       (diff-hl-margin-mode))))
   (add-hook 'dired-mode-hook 'diff-hl-dired-mode))
-#+END_SRC
 
-
-Some simple modes for a few languages.
-
-#+BEGIN_SRC elisp :tangle default.el
+;; Some simple modes for a few languages.
 (use-package moonscript
   :mode ("\\Spookfile.*\\'" . moonscript-mode))
 
@@ -560,33 +408,29 @@ Some simple modes for a few languages.
   (add-hook 'rust-mode-hook 'cargo-minor-mode)
 )
 
-(defun my-reset-cargo-custom-path ()
-  "Always reevaluate cargo bin path (so direnv + nix works nicely)."
-  (setq cargo-process--custom-path-to-bin (executable-find "cargo"))
-)
-(add-hook 'post-command-hook 'my-reset-cargo-custom-path)
+;;(defun my-reset-cargo-custom-path ()
+;;  "Always reevaluate cargo bin path (so direnv + nix works nicely)."
+;;  (setq cargo-process--custom-path-to-bin (executable-find "cargo"))
+;;)
+;;(add-hook 'post-command-hook 'my-reset-cargo-custom-path)
 
-#+END_SRC
-
-#+BEGIN_SRC elisp :tangle default.el
 (use-package swift-mode)
-#+END_SRC
 
-Fix executable-find so it uses direnvs environment.
+;; Fix executable-find so it uses direnvs environment.
 
-#+BEGIN_SRC elisp :tangle default.el
-(defun my-executable-find (orig-fun &rest args)
-  (direnv-update-environment default-directory)
-  (apply orig-fun args))
+;; (defun my-executable-find (orig-fun &rest args)
+;;   (direnv-update-environment default-directory)
+;;   (apply orig-fun args))
+;; 
+;; (advice-add 'executable-find :around #'my-executable-find)
 
-(advice-add 'executable-find :around #'my-executable-find)
-#+END_SRC
-
-Language Server Protocol.
-See: https://github.com/emacs-lsp/lsp-mode
-
-#+BEGIN_SRC elisp :tangle default.el
+;; Language Server Protocol.
+;; See: https://github.com/emacs-lsp/lsp-mode
 (use-package lsp-mode
+  :init (setq lsp-keymap-prefix "C-c a")
+  :hook (
+         (lsp-mode . lsp-enable-which-key-integration)
+  )
   :defer 5
  )
 
@@ -595,12 +439,13 @@ See: https://github.com/emacs-lsp/lsp-mode
   (direnv-update-environment default-directory)
   (lsp-deferred))
 
-(add-hook 'prog-mode-hook 'my-lsp)
+(add-hook 'prog-mode-hook 'lsp)
 
 (use-package lsp-ui
   :after lsp-mode
   :config
   (setq lsp-ui-doc-max-height 60)
+  (add-hook 'lsp-mode-hook 'lsp-ui-mode)
 )
 
 (use-package company-lsp
@@ -608,81 +453,30 @@ See: https://github.com/emacs-lsp/lsp-mode
   :config
   (push 'company-lsp company-backends)
 )
-#+END_SRC
+
+(use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
+(use-package lsp-treemacs :commands lsp-treemacs-errors-list)
 
 
-Flycheck rust enables syntax checking.
-
-#+BEGIN_SRC elisp :tangle default.el
-
+;; Flycheck rust enables syntax checking.
 (use-package flycheck-rust
   :after (rust-mode flycheck)
   :config
   (add-hook 'flycheck-mode-hook 'flycheck-rust-setup))
-#+END_SRC
 
 
-Intero is an awesome haskell environment for emacs. It's disabled now because it is.
-
-#+BEGIN_SRC elisp :tangle default.el
-;; (use-package intero
-;;   :config
-;;   (add-hook 'haskell-mode-hook 'intero-mode))
-#+END_SRC
-
-
-Racket mode.
-
-#+BEGIN_SRC elisp :tangle default.el
-(use-package racket-mode)
-#+END_SRC
-
-
-Prettier for js/typescript etc code formatting.
-
-#+BEGIN_SRC elisp :tangle default.el
+;; Prettier for js/typescript etc code formatting.
 (use-package prettier-js
   :config
   (add-hook 'js2-mode-hook 'prettier-js-mode)
   (add-hook 'typescript-mode-hook 'prettier-js-mode))
-#+END_SRC
 
 
-Mode for elm. Disabled atm.
-
-#+BEGIN_SRC elisp :tangle default.el
-;; (use-package elm-mode)
-#+END_SRC
-
-
-Mode for jsonnet.
-
-#+BEGIN_SRC elisp :tangle default.el
-(use-package jsonnet-mode
-  :init
-  :mode "\\.jsonnet\\'\\|\\.libsonnet'"
-)
-#+END_SRC
-
-
-Mode for groovy.
-
-#+BEGIN_SRC elisp :tangle default.el
-(use-package groovy-mode
-  :init
-  (setq groovy-indent-offset 2)
-  :mode "\\.groovy\\'\\|\\.gradle\\'|\\Jenkinsfile'"
-)
-#+END_SRC
-
-
-Company]] is a text completion framework for Emacs. The name stands for "complete anything". It uses pluggable back-ends
-and front-ends to retrieve and display completion candidates.
-
-It comes with several back-ends such as Elisp, Clang, Semantic, Eclim, Ropemacs, Ispell, CMake, BBDB, Yasnippet, dabbrev,
-etags, gtags, files, keywords and a few others.
-
-#+BEGIN_SRC elisp :tangle default.el
+;; Company]] is a text completion framework for Emacs. The name stands for "complete anything". It uses pluggable back-ends
+;; and front-ends to retrieve and display completion candidates.
+;;
+;; It comes with several back-ends such as Elisp, Clang, Semantic, Eclim, Ropemacs, Ispell, CMake, BBDB, Yasnippet, dabbrev,
+;; etags, gtags, files, keywords and a few others.
 (use-package company
   :diminish (company-mode . "")
   :init
@@ -694,36 +488,27 @@ etags, gtags, files, keywords and a few others.
         company-dabbrev-downcase nil)
   :config
   (global-company-mode))
-#+END_SRC
 
 
-Show documentation popups when idling on a completion candidate.
-See: [[https://github.com/expez/company-quickhelp][https://github.com/expez/company-quickhelp]]
+;; Show documentation popups when idling on a completion candidate.
+;; See: [[https://github.com/expez/company-quickhelp][https://github.com/expez/company-quickhelp]]
 
-#+BEGIN_SRC elisp :tangle default.el
 (use-package company-quickhelp
   :config
   (company-quickhelp-mode 1)
   (setq company-quickhelp-delay 0))
-#+END_SRC
 
 
-Show documentation popups for nixos configuration options.
-
-#+BEGIN_SRC elisp :tangle default.el
+;; Show documentation popups for nixos configuration options.
 ;;(use-package company-nixos-options
 ;;  :defer t
 ;;  :init
 ;;  (with-eval-after-load 'company
 ;;    (add-to-list 'company-backends 'company-nixos-options))
 ;;  )
-#+END_SRC
 
 
-This allows me to toggle between snake case, camel case etc.
-
-#+BEGIN_SRC elisp :tangle default.el
-;; Cycle between snake case, camel case, etc.
+;; This allows me to toggle between snake case, camel case etc.
 (use-package string-inflection
   :config
   (global-set-key (kbd "C-c i") 'string-inflection-cycle)
@@ -731,12 +516,9 @@ This allows me to toggle between snake case, camel case etc.
   (global-set-key (kbd "C-c L") 'string-inflection-lower-camelcase)  ;; Force to lowerCamelCase
   (global-set-key (kbd "C-c J") 'string-inflection-java-style-cycle) ;; Cycle through Java styles
   )
-#+END_SRC
 
 
-Flycheck]] is "Syntax checking for emacs".
-
-#+BEGIN_SRC elisp :tangle default.el
+;; Flycheck is "Syntax checking for emacs".
 (use-package flycheck
   :config
   (global-flycheck-mode)
@@ -746,12 +528,9 @@ Flycheck]] is "Syntax checking for emacs".
   (setq flycheck-executable-find
         (lambda (cmd) (executable-find cmd)))
 )
-#+END_SRC
 
 
-Go mode and other go stuff.
-
-#+BEGIN_SRC elisp :tangle default.el
+;; Go mode and other go stuff.
 (use-package go-mode
   :config
   (setq gofmt-command "goimports")
@@ -774,68 +553,30 @@ Go mode and other go stuff.
 (use-package go-eldoc
   :config
   (add-hook 'go-mode-hook 'go-eldoc-setup))
-#+END_SRC
 
 
-This enables syntax checking / linting for moonscript. Defined right here. Disabled for now.
-
-#+BEGIN_SRC elisp :tangle default.el
-;; (flycheck-define-checker moonscript-moonpick
-;;   "A MoonScript syntax checker using moonpick.
-
-;; See URL `https://github.com/nilnor/moonpick'."
-;;   :command ("moonpick" "--filename" source-original "-")
-;;   :standard-input t
-;;   :error-patterns
-;;   (
-;;    (warning line-start "line " line ": " (message) line-end)
-;;    (error line-start " [" line "] >> " (message) line-end))
-
-;;   :modes (moonscript-mode))
-
-;; (add-to-list 'flycheck-checkers 'moonscript-moonpick)
-#+END_SRC
-
-
-For showing errors in terminal (pos-tip doesn't do that - see below).
-See: [[https://github.com/flycheck/flycheck-popup-tip][https://github.com/flycheck/flycheck-popup-tip]]
-
-#+BEGIN_SRC elisp :tangle default.el
+;; For showing errors in terminal (pos-tip doesn't do that - see below).
+;; See: [[https://github.com/flycheck/flycheck-popup-tip][https://github.com/flycheck/flycheck-popup-tip]]
 (use-package flycheck-popup-tip)
-#+END_SRC
 
-
-For showing errors under point. Refers to above for similar terminal functionality.
-See: [[https://github.com/flycheck/flycheck-pos-tip][https://github.com/flycheck/flycheck-pos-tip]]
-
-#+BEGIN_SRC elisp :tangle default.el
+;; For showing errors under point. Refers to above for similar terminal functionality.
+;; See: [[https://github.com/flycheck/flycheck-pos-tip][https://github.com/flycheck/flycheck-pos-tip]]
 (use-package flycheck-pos-tip
   :config
   (setq flycheck-pos-tip-display-errors-tty-function #'flycheck-popup-tip-show-popup)
   (setq flycheck-pos-tip-timeout 0)
   (flycheck-pos-tip-mode))
-#+END_SRC
 
-
-Check those bashisms. Posix ftw!
-
-#+BEGIN_SRC elisp :tangle default.el
+;; Check those bashisms. Posix ftw!
 (use-package flycheck-checkbashisms
   :config
   (flycheck-checkbashisms-setup))
-#+END_SRC
 
 
-When programming I like to see clearly which line I'm editing atm.
-
-#+BEGIN_SRC elisp :tangle default.el
+;; When programming I like to see clearly which line I'm editing atm.
 (add-hook 'prog-mode-hook 'hl-line-mode)
-#+END_SRC
 
-
-This will highlight matching parentheses. Some additional configuration for that.
-
-#+BEGIN_SRC elisp :tangle default.el
+;; This will highlight matching parentheses. Some additional configuration for that.
 (defun my-show-paren-mode ()
    "Enables show-paren-mode."
    (setq show-paren-delay 0)
@@ -843,88 +584,57 @@ This will highlight matching parentheses. Some additional configuration for that
    (set-face-foreground 'show-paren-match "#def")
    (set-face-attribute 'show-paren-match nil :weight 'extra-bold)
    (show-paren-mode 1))
-
 (add-hook 'prog-mode-hook 'my-show-paren-mode)
-#+END_SRC
 
-
-Electric pair-mode will help with matching parentheses, quotes etc. Only used for prog mode.
-
-#+BEGIN_SRC elisp :tangle default.el
+;; Electric pair-mode will help with matching parentheses, quotes etc. Only used for prog mode.
 (add-hook 'prog-mode-hook 'electric-pair-mode)
-#+END_SRC
 
-
-Sometimes I edit markdown.
-
-#+BEGIN_SRC elisp :tangle default.el
+;; Sometimes I edit markdown.
 (use-package markdown-mode)
-#+END_SRC
 
 
-Highlights numbers in source code.
-See: [[https://github.com/Fanael/highlight-numbers][https://github.com/Fanael/highlight-numbers]]
-
-#+BEGIN_SRC elisp :tangle default.el
+;; Highlights numbers in source code.
+;; See: [[https://github.com/Fanael/highlight-numbers][https://github.com/Fanael/highlight-numbers]]
 (use-package highlight-numbers
   :config
   (add-hook 'prog-mode-hook 'highlight-numbers-mode))
-#+END_SRC
 
 
-UndoTree let's me visualize the past state of a buffer.
-See: [[https://www.emacswiki.org/emacs/UndoTree][https://www.emacswiki.org/emacs/UndoTree]]
-
-#+BEGIN_SRC elisp :tangle default.el
+;; UndoTree let's me visualize the past state of a buffer.
+;; See: [[https://www.emacswiki.org/emacs/UndoTree][https://www.emacswiki.org/emacs/UndoTree]]
 (use-package undo-tree
   :diminish undo-tree-mode
   :config
   (define-key evil-normal-state-map (kbd "U") 'undo-tree-visualize)
   (global-undo-tree-mode)
   (setq undo-tree-visualizer-diff t))
-#+END_SRC
 
 
-Frames only mode makes emacs play nicely with tiling window managers (such as i3). It uses
-new operating system windows instead of emacs internal ones.
-See: [[https://github.com/davidshepherd7/frames-only-mode][https://github.com/davidshepherd7/frames-only-mode]]
-
-#+BEGIN_SRC elisp :tangle default.el
+;; Frames only mode makes emacs play nicely with tiling window managers (such as i3). It uses
+;; new operating system windows instead of emacs internal ones.
+;; See: [[https://github.com/davidshepherd7/frames-only-mode][https://github.com/davidshepherd7/frames-only-mode]]
 (use-package frames-only-mode
   :config
   (frames-only-mode))
-#+END_SRC
 
 
-Using control-x control-z to zoom in / out a window (eg. "fullscreen" it).
-
-#+BEGIN_SRC elisp :tangle default.el
+;; Using control-x control-z to zoom in / out a window (eg. "fullscreen" it).
 (use-package zoom-window
   :bind* ("C-x C-z" . zoom-window-zoom))
-#+END_SRC
 
 
-Highlight the part of a line that goes beyond 80 chars
-
-#+BEGIN_SRC elisp :tangle default.el
+;; Highlight the part of a line that goes beyond 80 chars
 (use-package column-enforce-mode
   :config
   (setq column-enforce-comments nil)
   (add-hook 'prog-mode-hook 'column-enforce-mode))
-#+END_SRC
 
 
-Alerts. Using for example libnotify on Linux.
-
-#+BEGIN_SRC elisp :tangle default.el
+;; Alerts. Using for example libnotify on Linux.
 (use-package alert
   :custom (alert-default-style 'libnotify))
-#+END_SRC
 
-
-The awesome Mu4e email client. (This is added to the load path as it comes with mu).
-
-#+BEGIN_SRC elisp :tangle default.el
+;; The awesome Mu4e email client. (This is added to the load path as it comes with mu).
 
 (setq uninteresting-mail-query
       (concat
@@ -937,116 +647,100 @@ The awesome Mu4e email client. (This is added to the load path as it comes with 
        " OR maildir:/Junk/"
        " OR maildir:/All.Mail/"))
 
-(use-package mu4e
-  :config
-  (setq mail-user-agent 'mu4e-user-agent
-        mu4e-maildir "~/.mail"
-        ;;mu4e-compose-format-flowed t
-        mu4e-sent-messages-behavior (lambda ()
-          (if (not(string= (message-sendmail-envelope-from) "john@insane.se"))
-              'delete
-            'sent))
-        mu4e-headers-date-format "%Y-%m-%d"
-        mu4e-headers-time-format "%H:%M"
-        mu4e-headers-skip-duplicates t
-        mu4e-compose-dont-reply-to-self t
-        mu4e-compose-crypto-reply-policy 'sign-and-encrypt
-        mu4e-enable-async-operations t
-        mu4e-view-prefer-html nil
-        mu4e-hide-index-messages t
-        mu4e-change-filenames-when-moving t
-        mu4e-split-view 'horizontal
-        mu4e-view-show-addresses t
-        org-mu4e-convert-to-html t
-        mu4e-headers-leave-behavior 'apply
-        mu4e-headers-include-related t
+(require 'mu4e)
+(setq mail-user-agent 'mu4e-user-agent
+      mu4e-maildir "~/.mail"
+      ;;mu4e-compose-format-flowed t
+      mu4e-sent-messages-behavior (lambda ()
+        (if (not(string= (message-sendmail-envelope-from) "john@insane.se"))
+            'delete
+          'sent))
+      mu4e-headers-date-format "%Y-%m-%d"
+      mu4e-headers-time-format "%H:%M"
+      mu4e-headers-skip-duplicates t
+      mu4e-compose-dont-reply-to-self t
+      mu4e-compose-crypto-reply-policy 'sign-and-encrypt
+      mu4e-enable-async-operations t
+      mu4e-view-prefer-html nil
+      mu4e-hide-index-messages t
+      mu4e-change-filenames-when-moving t
+      mu4e-split-view 'horizontal
+      mu4e-view-show-addresses t
+      org-mu4e-convert-to-html t
+      mu4e-headers-leave-behavior 'apply
+      mu4e-headers-include-related t
 
-        mu4e-use-fancy-chars t
-        mu4e-headers-unread-mark    '("u" . " ")
-        mu4e-headers-new-mark       '("N" . " ")
-        mu4e-headers-draft-mark     '("D" . "⚒ ")
-        mu4e-headers-passed-mark    '("P" . "❯ ")
-        mu4e-headers-replied-mark   '("R" . "❮ ")
-        mu4e-headers-seen-mark      '("S" . "✔ ")
-        mu4e-headers-attach-mark    '("" . "⚓")
-        mu4e-headers-flagged-mark   '("F" . "✚ ")
-        mu4e-headers-trashed-mark   '("T" . " ")
-        mu4e-headers-encrypted-mark '("x" . "  ")
-        mu4e-headers-signed-mark    '("s" . " ")
+      mu4e-use-fancy-chars t
+      mu4e-headers-unread-mark    '("u" . " ")
+      mu4e-headers-new-mark       '("N" . " ")
+      mu4e-headers-draft-mark     '("D" . "⚒ ")
+      mu4e-headers-passed-mark    '("P" . "❯ ")
+      mu4e-headers-replied-mark   '("R" . "❮ ")
+      mu4e-headers-seen-mark      '("S" . "✔ ")
+      mu4e-headers-attach-mark    '("" . "⚓")
+      mu4e-headers-flagged-mark   '("F" . "✚ ")
+      mu4e-headers-trashed-mark   '("T" . " ")
+      mu4e-headers-encrypted-mark '("x" . "  ")
+      mu4e-headers-signed-mark    '("s" . " ")
 
-        ;;mu4e-html2text-command 'mu4e-shr2text
-        mu4e-html2text-command "iconv -c -t utf-8 | @PANDOC@ -f html -t plain"
-        ;;mu4e-html2text-command "w3m -dump -T text/html -cols 72 -o display_link_number=true -o auto_image=false -o display_image=false -o ignore_null_img_alt=true"
-        mu4e-get-mail-command "@MBSYNC@ -a"
-        mu4e-update-interval 1200 ;; we are using imapnotify so not super important
-        mu4e-view-fields '(:from :to :cc :subject :flags :date :maildir :mailing-list :tags :attachments :signature :decryption))
+      ;;mu4e-html2text-command 'mu4e-shr2text
+      mu4e-html2text-command "iconv -c -t utf-8 | @PANDOC@ -f html -t plain"
+      ;;mu4e-html2text-command "w3m -dump -T text/html -cols 72 -o display_link_number=true -o auto_image=false -o display_image=false -o ignore_null_img_alt=true"
+      mu4e-get-mail-command "@MBSYNC@ -a"
+      mu4e-update-interval 1200 ;; we are using imapnotify so not super important
+      mu4e-view-fields '(:from :to :cc :subject :flags :date :maildir :mailing-list :tags :attachments :signature :decryption))
 
-  (add-to-list 'mu4e-view-actions
-      '("ViewInBrowser" . mu4e-action-view-in-browser) t)
+(add-to-list 'mu4e-view-actions
+    '("ViewInBrowser" . mu4e-action-view-in-browser) t)
 
-  (add-hook 'mu4e-mark-execute-pre-hook
-      (lambda (mark msg)
-        (cond ((member mark '(refile trash)) (mu4e-action-retag-message msg "-\\Inbox"))
-        ((equal mark 'flag) (mu4e-action-retag-message msg "\\Starred"))
-        ((equal mark 'unflag) (mu4e-action-retag-message msg "-\\Starred")))))
+(add-hook 'mu4e-mark-execute-pre-hook
+    (lambda (mark msg)
+      (cond ((member mark '(refile trash)) (mu4e-action-retag-message msg "-\\Inbox"))
+      ((equal mark 'flag) (mu4e-action-retag-message msg "\\Starred"))
+      ((equal mark 'unflag) (mu4e-action-retag-message msg "-\\Starred")))))
 
-  (add-hook 'mu4e-view-mode-hook
-            (lambda ()
-              (setq mu4e-view-show-images t)))
+(add-hook 'mu4e-view-mode-hook
+          (lambda ()
+            (setq mu4e-view-show-images t)))
 
-  (add-hook 'mu4e-compose-mode-hook
-            (lambda ()
-              (set-fill-column 72)
-              (auto-fill-mode 0)
-              (visual-fill-column-mode)
-              (setq visual-line-fringe-indicators '(left-curly-arrow right-curly-arrow))
-              (visual-line-mode)))
-)
+(add-hook 'mu4e-compose-mode-hook
+          (lambda ()
+            (set-fill-column 72)
+            (auto-fill-mode 0)
+            (visual-fill-column-mode)
+            (setq visual-line-fringe-indicators '(left-curly-arrow right-curly-arrow))
+            (visual-line-mode)))
 
-(use-package org-mu4e
-  :after mu4e
-  :config
-  (setq org-mu4e-link-query-in-headers-mode nil))
+(require 'org-mu4e)
+(setq org-mu4e-link-query-in-headers-mode nil)
 
-#+END_SRC
+;; Mu4e alert. For notifications on new mail.
 
-Mu4e alert. For notifications on new mail.
-
-#+BEGIN_SRC elisp :tangle default.el
-(use-package mu4e-alert
-    :after mu4e
-    :init
-    :config
-    (setq mu4e-alert-icon "mail-generic")
-    (mu4e-alert-set-default-style 'libnotify)
-    ;;(alert-add-rule :category "mu4e-alert" :icon "mail-generic" :continue t)
-    (setq mu4e-alert-email-notification-types '(subjects))
-    (setq mu4e-alert-interesting-mail-query
-      (concat
-       "date:today..now"
-       " AND flag:unread"
-       " AND NOT (" uninteresting-mail-query ") "))
-    (mu4e-alert-enable-mode-line-display)
-    (mu4e-alert-enable-notifications)
-)
-#+END_SRC
+;; (use-package mu4e-alert
+;;     :after mu4e
+;;     :init
+;;     :config
+;;     (setq mu4e-alert-icon "mail-generic")
+;;     (mu4e-alert-set-default-style 'libnotify)
+;;     ;;(alert-add-rule :category "mu4e-alert" :icon "mail-generic" :continue t)
+;;     (setq mu4e-alert-email-notification-types '(subjects))
+;;     (setq mu4e-alert-interesting-mail-query
+;;       (concat
+;;        "date:today..now"
+;;        " AND flag:unread"
+;;        " AND NOT (" uninteresting-mail-query ") "))
+;;     (mu4e-alert-enable-mode-line-display)
+;;     (mu4e-alert-enable-notifications)
+;; )
 
 
-Visual-fill-column. Helps with composing emails.
-
-#+BEGIN_SRC elisp :tange default.el
+;; Visual-fill-column. Helps with composing emails.
 (use-package visual-fill-column
   :ensure t)
-#+END_SRC
 
-
-Sending email.
-
-#+BEGIN_SRC elisp :tangle default.el
-(use-package jl-encrypt
-  :config
-  (setq mml-secure-insert-signature "always")
-)
+;; Sending email.
+(require 'jl-encrypt)
+(setq mml-secure-insert-signature "always")
 
 (setq mu4e-bookmarks
   `( ,(make-mu4e-bookmark
@@ -1096,27 +790,14 @@ Sending email.
       smtpmail-smtp-user "john@insane.se"
       smtpmail-smtp-server "smtp.gmail.com"
       smtpmail-smtp-service 587
-      mu4e-sent-folder "/insane-mail/Sent"
-      mu4e-drafts-folder "/insane-mail/Drafts"
-      mu4e-trash-folder "/insane-mail/Trash"
-      mu4e-refile-folder "/insane-mail/Archive"
+      mu4e-sent-folder "/personal/Sent"
+      mu4e-drafts-folder "/personal/Drafts"
+      mu4e-trash-folder "/personal/Trash"
+      mu4e-refile-folder "/personal/Archive"
 )
 
 (defvar my-mu4e-account-alist
-  '(("insane-mail"
-     ;:(mu4e-sent-folder "/Gmail/sent")
-     (user-mail-address "john@insane.se")
-     (smtpmail-smtp-user "john@insane.se")
-     (smtpmail-local-domain "insane.se")
-     (smtpmail-default-smtp-server "mail.insane.se")
-     (smtpmail-smtp-server "mail.insane.se")
-     (smtpmail-smtp-service 587)
-     (mu4e-sent-folder "/insane-mail/Sent")
-     (mu4e-drafts-folder "/insane-mail/Drafts")
-     (mu4e-trash-folder "/insane-mail/Trash")
-     (mu4e-refile-folder "/insane-mail/Archive")
-     )
-    ("insane-gmail" ;; dummy
+  '(("personal"
      ;:(mu4e-sent-folder "/Gmail/sent")
      (user-mail-address "john@insane.se")
      (smtpmail-smtp-user "john@insane.se")
@@ -1124,12 +805,12 @@ Sending email.
      (smtpmail-default-smtp-server "smtp.gmail.com")
      (smtpmail-smtp-server "smtp.gmail.com")
      (smtpmail-smtp-service 587)
-     (mu4e-sent-folder "/insane-gmail/[Gmail]/Sent Mail")
-     (mu4e-drafts-folder "/insane-gmail/[Gmail]/Drafts")
-     (mu4e-trash-folder "/insane-gmail/[Gmail]/Trash")
-     (mu4e-refile-folder "/insane-gmail/[Gmail]/All Mail")
+     (mu4e-sent-folder "/personal/[Gmail]/Sent Mail")
+     (mu4e-drafts-folder "/personal/[Gmail]/Drafts")
+     (mu4e-trash-folder "/personal/[Gmail]/Trash")
+     (mu4e-refile-folder "/personal/[Gmail]/All Mail")
      )
-    ("karma-gmail"
+    ("work"
      ;;(mu4e-sent-folder "/Gmail/sent")
      (user-mail-address "john@karma.life")
      (smtpmail-smtp-user "john@karma.life")
@@ -1137,10 +818,10 @@ Sending email.
      (smtpmail-default-smtp-server "smtp.gmail.com")
      (smtpmail-smtp-server "smtp.gmail.com")
      (smtpmail-smtp-service 587)
-     (mu4e-sent-folder "/karma-gmail/[Gmail]/Sent Mail")
-     (mu4e-drafts-folder "/karma-gmail/[Gmail]/Drafts")
-     (mu4e-trash-folder "/karma-gmail/[Gmail]/Trash")
-     (mu4e-refile-folder "/karma-gmail/[Gmail]/All Mail")
+     (mu4e-sent-folder "/work/[Gmail]/Sent Mail")
+     (mu4e-drafts-folder "/work/[Gmail]/Drafts")
+     (mu4e-trash-folder "/work/[Gmail]/Trash")
+     (mu4e-refile-folder "/work/[Gmail]/All Mail")
     ))
 )
 
@@ -1165,12 +846,6 @@ Sending email.
         account-vars)
       (error "No email account found"))))
 (add-hook 'mu4e-compose-pre-hook 'my-mu4e-set-account)
-#+END_SRC
-
-#+BEGIN_SRC elisp :tangle default.el
-(use-package kubernetes-tramp
-  :after tramp
-  )
 
 (use-package tramp
   :defer 5
@@ -1186,46 +861,34 @@ Sending email.
                (not (let ((method (file-remote-p name 'method)))
                       (when (stringp method)
                         (member method '("su" "sudo")))))))))
-#+END_SRC
 
-
-Allows memoization of expensive functions.
-
-#+BEGIN_SRC elisp :tangle default.el
+;; Allows memoization of expensive functions.
 (use-package memoize)
-#+END_SRC
 
+;; Manage external processes from within emacs.
+;; (use-package prodigy
+;;   :ensure t
+;;   :init
+;;   (prodigy-define-tag
+;;    :name 'email
+;;    :ready-message "Watching for new email using imap idle. Ctrl-C to shutdown.")
+;;   (prodigy-define-service
+;;     :name "imapnotify-karma"
+;;     :command "@IMAPNOTIFY@"
+;;     :args (list "-c" (expand-file-name ".config/imapnotify.work.js" (getenv "HOME")))
+;;     :tags '(email)
+;;     :kill-signal 'sigkill)
+;;   (prodigy-define-service
+;;     :name "imapnotify-insane"
+;;     :command "@IMAPNOTIFY@"
+;;     :args (list "-c" (expand-file-name ".config/imapnotify.insane-gmail.js" (getenv "HOME")))
+;;     :tags '(email)
+;;     :kill-signal 'sigkill)
+;;   (prodigy-start-service (prodigy-find-service "imapnotify-karma"))
+;;   (prodigy-start-service (prodigy-find-service "imapnotify-insane"))
+;; )
 
-Manage external processes from within emacs.
-
-#+BEGIN_SRC elisp :tangle default.el
-(use-package prodigy
-  :ensure t
-  :init
-  (prodigy-define-tag
-   :name 'email
-   :ready-message "Watching for new email using imap idle. Ctrl-C to shutdown.")
-  (prodigy-define-service
-    :name "imapnotify-karma"
-    :command "@IMAPNOTIFY@"
-    :args (list "-c" (expand-file-name ".config/imapnotify.karma-gmail.js" (getenv "HOME")))
-    :tags '(email)
-    :kill-signal 'sigkill)
-  (prodigy-define-service
-    :name "imapnotify-insane"
-    :command "@IMAPNOTIFY@"
-    :args (list "-c" (expand-file-name ".config/imapnotify.insane-gmail.js" (getenv "HOME")))
-    :tags '(email)
-    :kill-signal 'sigkill)
-  (prodigy-start-service (prodigy-find-service "imapnotify-karma"))
-  (prodigy-start-service (prodigy-find-service "imapnotify-insane"))
-)
-#+END_SRC
-
-
-Use wl-clipboard for interprocess copy/paste.
-
-#+BEGIN_SRC elisp :tangle default.el
+;; Use wl-clipboard for interprocess copy/paste.
 (setq wl-copy-process nil)
 (defun wl-copy (text)
   (setq wl-copy-process (make-process :name "@WLCOPY@"
@@ -1240,14 +903,11 @@ Use wl-clipboard for interprocess copy/paste.
       (shell-command-to-string "@WLPASTE@ -n | tr -d \r")))
 (setq interprogram-cut-function 'wl-copy)
 (setq interprogram-paste-function 'wl-paste)
-#+END_SRC
 
 
-* Other configuration
+;; Other configuration
 
-This is the opposite of fill-paragraph.
-
-#+BEGIN_SRC elisp :tangle default.el
+;; This is the opposite of fill-paragraph.
 (defun unfill-paragraph (&optional region)
   "Take a multi-line paragraph and an optional REGION and make it into a single line of text."
   (interactive (progn (barf-if-buffer-read-only) '(t)))
@@ -1256,24 +916,18 @@ This is the opposite of fill-paragraph.
         (emacs-lisp-docstring-fill-column t))
     (fill-paragraph nil region)))
 (global-set-key (kbd "M-Q") 'unfill-paragraph)
-#+END_SRC
 
-This will return a secret from the password store.
-
-#+BEGIN_SRC elisp :tangle default.el
+;; This will return a secret from the password store.
 (defmemoize my/secret (storepath)
  "Return the contents in gnupg encrypted STOREPATH argument."
   (replace-regexp-in-string "\n\\'" ""
    (shell-command-to-string
     (concat "gpg --decrypt "
             "~/.password-store/" storepath ".gpg 2>/dev/null"))))
-#+END_SRC
 
-Define a function to set the telephone line theme. This is so that when using emacsclient we
-can just call this rather than duplicate code. So we need to be able to set the theme more
-than once depending on whether we use the emacsclient or not.
-
-#+BEGIN_SRC elisp :tangle default.el
+;; Define a function to set the telephone line theme. This is so that when using emacsclient we
+;; can just call this rather than duplicate code. So we need to be able to set the theme more
+;; than once depending on whether we use the emacsclient or not.
 (defun my-telephone-line-theme ()
   "Enables the current telephone line theme."
   (setq telephone-line-primary-right-separator 'telephone-line-abs-left
@@ -1285,20 +939,15 @@ than once depending on whether we use the emacsclient or not.
 (use-package telephone-line
   :config
   (my-telephone-line-theme))
-#+END_SRC
 
+(use-package nord-theme)
 
-Define the overall theme somewhere for reuse.
-
-#+BEGIN_SRC elisp :tangle default.el
+;; Define the overall theme somewhere for reuse.
 (defvar my:theme 'nord)
 (load-theme my:theme t)
-#+END_SRC
 
 
-This is where we recognize whether emacsclient is being used or not and if it is we'll set the theme as necessary.
-
-#+BEGIN_SRC elisp :tangle default.el
+;; This is where we recognize whether emacsclient is being used or not and if it is we'll set the theme as necessary.
 (defvar my:theme-window-loaded nil)
 (defvar my:theme-terminal-loaded nil)
 
@@ -1324,12 +973,8 @@ This is where we recognize whether emacsclient is being used or not and if it is
     (if (display-graphic-p)
         (setq my:theme-window-loaded t)
       (setq my:theme-terminal-loaded t))))
-#+END_SRC
 
-
-Capture those tasks.
-
-#+BEGIN_SRC elisp :tangle default.el
+;; Capture those tasks.
 (defun insane-org-task-capture ()
   "Capture a task with the default template."
   (interactive)
@@ -1343,56 +988,38 @@ Capture those tasks.
   (find-file (expand-file-name "~/Sync/org/todos.org")))
 
 (define-key global-map (kbd "C-c C-t") 'insane-things-todo)
-#+END_SRC
 
+;;Define some keybindings I like for moving between splits/windows.
 
-Define some keybindings I like for moving between splits/windows.
-
-#+BEGIN_SRC elisp :tangle default.el
 (global-set-key (kbd "C-<up>") 'windmove-up)
 (global-set-key (kbd "C-<down>") 'windmove-down)
 (global-set-key (kbd "C-<left>") 'windmove-left)
 (global-set-key (kbd "C-<right>") 'windmove-right)
-#+END_SRC
 
 
-We don't want any scratch message at all. Unfortunately, because the emacs devs don't want a sysadmin
-to disable the startup screen for users (or something like that), we can't disable that from here. Must
-be added to a user's .emacs or init.el.
+;; We don't want any scratch message at all. Unfortunately, because the emacs devs don't want a sysadmin
+;; to disable the startup screen for users (or something like that), we can't disable that from here. Must
+;; be added to a user's .emacs or init.el.
 
-#+BEGIN_SRC elisp :tangle default.el
 ;; inhibit-startup-screen has to be in .emacs - see emacs source
 ;; for why
 (setq initial-scratch-message "")
-#+END_SRC
 
 
-Disable some things I'm not interested in, like tool bars and menu bars.
-
-#+BEGIN_SRC elisp :tangle default.el
+;; Disable some things I'm not interested in, like tool bars and menu bars.
 ;; No menus or anything like that thanks
 (tool-bar-mode -1)
 ;; (scroll-bar-mode -1) ;; scrollbars are still nice though
 (blink-cursor-mode -1)
 (menu-bar-mode -1)
-#+END_SRC
 
 
-This is a nice font :-).
-
-#+BEGIN_SRC elisp :tangle default.el
+;; This is a nice font :-).
 (add-to-list 'default-frame-alist '(font . "JetBrainsMono Nerd Font 18"))
-;;(add-to-list 'default-frame-alist '(font . "FontAwesome-14"))
-;;(add-to-list 'default-frame-alist '(font . "Font Awesome 5 Brands-14"))
-;;(add-to-list 'default-frame-alist '(font . "Font Awesome 5 Free-14"))
-(set-face-attribute 'default t :font "Office Code Pro D-14")
-#+END_SRC
+(set-face-attribute 'default t :font "JetBrainsMono Nerd Font 18")
 
 
-Did I mention I like utf8? I like utf8.
-
-#+BEGIN_SRC elisp :tangle default.el
-;; like, utf-8 everywhere
+;; Did I mention I like utf8? I like utf8.
 (setq locale-coding-system 'utf-8)
 (set-terminal-coding-system 'utf-8)
 (set-keyboard-coding-system 'utf-8)
@@ -1400,12 +1027,8 @@ Did I mention I like utf8? I like utf8.
 (prefer-coding-system 'utf-8)
 (when (display-graphic-p)
   (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
-#+END_SRC
 
-
-Fix the scrolling which isn't very nice by default in my opinion.
-
-#+BEGIN_SRC elisp :tangle default.el
+;; Fix the scrolling which isn't very nice by default in my opinion.
 ;; Sane scrolling - 1 step at a time etc
 (setq redisplay-dont-pause t
       scroll-margin 1
@@ -1413,21 +1036,12 @@ Fix the scrolling which isn't very nice by default in my opinion.
       scroll-step 1
       scroll-preserve-screen-position t
       auto-window-vscroll nil)
-#+END_SRC
 
-
-I use a shell script called browse which launches the browser I use - so emacs also calls that script.
-
-#+BEGIN_SRC elisp :tangle default.el
-;; use "browse" as the command to open a web browser
 (setq browse-url-browser-function 'browse-url-generic
-      browse-url-generic-program "browse")
-#+END_SRC
+      browse-url-generic-program "firefox")
 
 
-Some other general settings.
-
-#+BEGIN_SRC elisp :tangle default.el
+;; Some other general settings.
 (setq mode-require-final-newline nil)
 (setq tab-stop-list (number-sequence 2 120 2))
 (setq-default tab-width 2)
@@ -1436,13 +1050,9 @@ Some other general settings.
 ;; Highlight trailing whitespace.
 (setq-default show-trailing-whitespace t)
 (set-face-background 'trailing-whitespace "yellow")
-#+END_SRC
 
 
-Eshell settings and tweaks.
-
-#+BEGIN_SRC elisp :tangle default.el
-
+;; Eshell settings and tweaks.
 (use-package fish-completion
   :config
   (global-fish-completion-mode)
@@ -1496,16 +1106,6 @@ Eshell settings and tweaks.
   (push 'eshell-tramp eshell-modules-list))
 (setq eshell-modify-global-environment t)
 (add-hook 'post-command-hook '(lambda ()
-   (if (string= (expand-file-name default-directory) (concat (getenv "HOME") "/"))
-       (progn
-        (setenv "GIT_DIR" (concat (getenv "HOME") "/.cfg"))
-        (setenv "GIT_WORK_TREE" (getenv "HOME"))
-       )
-       (progn
-        (setenv "GIT_DIR" nil)
-        (setenv "GIT_WORK_TREE" nil)
-       )
-   )
    (setq eshell-path-env (getenv "PATH"))
   )
 )
@@ -1806,12 +1406,9 @@ current buffer's file."
 (setq backup-inhibited t)
 (setq make-backup-files nil) ; don't create backup~ files
 (setq auto-save-default nil) ; don't create #autosave# files
-#+END_SRC
 
 
-Helper for opening a new empty buffer.
-
-#+BEGIN_SRC elisp :tangle default.el
+;; Helper for opening a new empty buffer.
 (defun insane-new-empty-buffer ()
   "Create a new empty buffer.
 New buffer will be named “untitled” or “untitled<2>”, “untitled<3>”, etc.
@@ -1827,12 +1424,8 @@ Version 2017-11-01"
     (setq buffer-offer-save t)
     $buf
     ))
-#+END_SRC
 
-
-Finally, since I'm in Europe, I'd like dates and such to be displayed in the expected European formats.
-
-#+BEGIN_SRC elisp :tangle default.el
+;; Finally, since I'm in Europe, I'd like dates and such to be displayed in the expected European formats.
 (setq european-date-style 'european)
 (setq calendar-set-date-style 'european)
 (setq calendar-week-start-day 1)
@@ -1843,4 +1436,3 @@ Finally, since I'm in Europe, I'd like dates and such to be displayed in the exp
 
 (setq calendar-time-display-form
       '(24-hours ":" minutes))
-#+END_SRC

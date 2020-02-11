@@ -32,27 +32,27 @@ let
     FORCE=''${1:-}
     if [ "$FORCE" == "--force" ]; then
        ${procps}/bin/pkill -f "emacs --daemon=server"
-    elif [ -e /run/user/1337/emacs1337/server ]; then
+    elif [ -e /run/user/1337/emacs/server ]; then
        exit 0
     fi
-    ${coreutils}/bin/rm -rf /run/user/1337/emacs1337
+    ${coreutils}/bin/rm -rf /run/user/1337/emacs
     TMPDIR=/run/user/1337 exec ${emacs} --daemon=server
   '';
 
   edit = writeStrictShellScriptBin "edit" ''
     ${emacs-server}/bin/emacs-server
     exec ${emacsclient} -n -c \
-         -s /run/user/1337/emacs1337/server "$@" >/dev/null 2>&1
+         -s /run/user/1337/emacs/server "$@" >/dev/null 2>&1
   '';
 
   edi = writeStrictShellScriptBin "edi" ''
     ${emacs-server}/bin/emacs-server
     export TERM=xterm-24bits
-    exec ${emacsclient} -t -s /run/user/1337/emacs1337/server "$@"
+    exec ${emacsclient} -t -s /run/user/1337/emacs/server "$@"
   '';
 
   emacs-run = writeStrictShellScriptBin "emacs-run" ''
-    exec ${emacsclient} -s /run/user/1337/emacs1337/server "$@"
+    exec ${emacsclient} -s /run/user/1337/emacs/server "$@"
   '';
 
   git-credential-pass = writeStrictShellScriptBin "git-credential-pass" ''

@@ -78,6 +78,8 @@
   xdg.configFile."nixpkgs/overlays".source = ../overlays;
   xdg.configFile."nixpkgs/pkgs".source = ../pkgs;
 
+  home.file.".emacs".source = (pkgs.callPackage ../pkgs/my-emacs/config.nix { }).emacsConfig;
+
   home.file.".icons/default" = {
     source = "${pkgs.gnome3.defaultIconTheme}/share/icons/Adwaita";
   };
