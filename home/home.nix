@@ -1,5 +1,10 @@
 { pkgs, config, lib, options }:
 
+let
+  chrpkgsBall = builtins.fetchTarball { url = "https://github.com/colemickens/nixpkgs-chromium/archive/master.tar.gz"; };
+  chrpkgs = import chrpkgsBall;
+in
+
 {
   nixpkgs.config = import ../nixpkgs-config.nix;
   nixpkgs.overlays = import ../nixpkgs-overlays.nix;
@@ -65,6 +70,7 @@
       rust-analyzer
 
       gnome3.nautilus
+      chrpkgs.chromium-dev-wayland
     ];
 
   xsession.pointerCursor = {
