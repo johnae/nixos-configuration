@@ -38,6 +38,8 @@ rec {
   wofi = super.callPackage ../pkgs/wofi { };
   xdg-desktop-portal-wlr = super.callPackage ../pkgs/xdg-desktop-portal-wlr { };
 
+  fish-kubectl-completions = super.callPackage ../pkgs/fish-kubectl-completions { };
+  google-cloud-sdk-fish-completion = super.callPackage ../pkgs/google-cloud-sdk-fish-completion { };
 
   inherit (super.callPackage ../pkgs/strictShellScript.nix { })
     writeStrictShellScript writeStrictShellScriptBin;
