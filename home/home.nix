@@ -67,6 +67,7 @@ in
       nordic
       nordic-polar
 
+      nixfmt
       google-cloud-sdk
       kubectl
       kustomize

@@ -1,3 +1,1 @@
-{ exec, ... }: {
-  sops = path: exec [./nix-sops.sh path];
-}
+{ exec, ... }: { sops = path: exec [ ./nix-sops.sh path ]; }

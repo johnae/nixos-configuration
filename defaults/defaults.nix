@@ -2,12 +2,12 @@
 
 {
 
-  imports = [
-    ../modules
-  ];
+  imports = [ ../modules ];
 
   nix.extraOptions = ''
-    plugin-files = ${pkgs.nix-plugins.override { nix = config.nix.package; }}/lib/nix/plugins/libnix-extra-builtins.so
+    plugin-files = ${
+      pkgs.nix-plugins.override { nix = config.nix.package; }
+    }/lib/nix/plugins/libnix-extra-builtins.so
   '';
 
   boot.loader.systemd-boot.enable = true;
@@ -22,9 +22,7 @@
   time.timeZone = "Europe/Stockholm";
 
   nixpkgs.config.allowUnfree = true;
-  nixpkgs.overlays = [
-    (import ../overlays/pkgs.nix)
-  ];
+  nixpkgs.overlays = [ (import ../overlays/pkgs.nix) ];
 
   environment.shells = [ pkgs.bashInteractive pkgs.zsh pkgs.fish ];
 
