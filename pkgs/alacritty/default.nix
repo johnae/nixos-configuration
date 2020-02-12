@@ -1,26 +1,6 @@
-{ stdenv,
-  lib,
-  fetchFromGitHub,
-  rustPlatform,
-  cmake,
-  makeWrapper,
-  ncurses,
-  expat,
-  pkgconfig,
-  freetype,
-  fontconfig,
-  libX11,
-  gzip,
-  libXcursor,
-  libXxf86vm,
-  libXi,
-  libXrandr,
-  libGL,
-  python3,
-  wayland,
-  libxkbcommon,
-  libxcb
-}:
+{ stdenv, lib, fetchFromGitHub, rustPlatform, cmake, makeWrapper, ncurses, expat
+, pkgconfig, freetype, fontconfig, libX11, gzip, libXcursor, libXxf86vm, libXi
+, libXrandr, libGL, python3, wayland, libxkbcommon, libxcb }:
 
 with rustPlatform;
 
@@ -35,11 +15,7 @@ let
     libXrandr
     libGL
     libXi
-  ] ++ lib.optionals stdenv.isLinux [
-    wayland
-    libxkbcommon
-    libxcb
-  ];
+  ] ++ lib.optionals stdenv.isLinux [ wayland libxkbcommon libxcb ];
 
   metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
 in buildRustPackage rec {
@@ -48,16 +24,9 @@ in buildRustPackage rec {
   doCheck = false;
 
   src = fetchFromGitHub metadata;
-  cargoSha256 = "11axnf08frlkyjrxd29nqmqwd3cv0i24z2sb1iwfq7n3i3ivxpm3";
+  cargoSha256 = "11lngixhvlj4ipz9mgf9y44f9xisv068v55v22l1glgvwh5803xd";
 
-  nativeBuildInputs = [
-    cmake
-    makeWrapper
-    pkgconfig
-    ncurses
-    gzip
-    python3
-  ];
+  nativeBuildInputs = [ cmake makeWrapper pkgconfig ncurses gzip python3 ];
 
   buildInputs = rpathLibs;
 
@@ -76,7 +45,9 @@ in buildRustPackage rec {
   '' else ''
     install -D extra/linux/alacritty.desktop -t $out/share/applications/
     install -D extra/logo/alacritty-term.svg $out/share/icons/hicolor/scalable/apps/Alacritty.svg
-    patchelf --set-rpath "${stdenv.lib.makeLibraryPath rpathLibs}" $out/bin/alacritty
+    patchelf --set-rpath "${
+      stdenv.lib.makeLibraryPath rpathLibs
+    }" $out/bin/alacritty
   '') + ''
 
     install -D extra/completions/_alacritty -t "$out/share/zsh/site-functions/"
@@ -98,7 +69,7 @@ in buildRustPackage rec {
 
   meta = with stdenv.lib; {
     description = "GPU-accelerated terminal emulator";
-    homepage = https://github.com/jwilm/alacritty;
+    homepage = "https://github.com/jwilm/alacritty";
     license = with licenses; [ asl20 ];
     maintainers = with maintainers; [ mic92 ];
     platforms = [ "x86_64-linux" "x86_64-darwin" ];

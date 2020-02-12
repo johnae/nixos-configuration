@@ -1,11 +1,13 @@
 { pkgs, config, lib, options }:
 
 let
-  chrpkgsBall = builtins.fetchTarball { url = "https://github.com/colemickens/nixpkgs-chromium/archive/master.tar.gz"; };
+  chrpkgsBall = builtins.fetchTarball {
+    url =
+      "https://github.com/colemickens/nixpkgs-chromium/archive/master.tar.gz";
+  };
   chrpkgs = import chrpkgsBall;
-in
 
-{
+in {
   nixpkgs.config = import ../nixpkgs-config.nix;
   nixpkgs.overlays = import ../nixpkgs-overlays.nix;
 
@@ -29,54 +31,58 @@ in
     ./fish.nix
   ];
 
-  home.packages = with pkgs;
-    [
-      sway
-      swaybg
-      swayidle
-      swaylock
-      xwayland
-      iw
-      mako
-      spotifyd
-      spotnix
-      my-emacs
-      mu
-      edit edi
-      bat
-      mail
-      wofi
-      emacs-server
-      alacritty
-      project-select
-      launch
-      git-credential-pass
-      sk-sk sk-run sk-window sk-passmenu
-      #slacks
-      browse-chromium
-      add-wifi-network update-wifi-networks
-      update-wireguard-keys
-      spotify-cmd
-      spotify-play-album
-      spotify-play-track
-      spotify-play-artist
-      spotify-play-playlist
-      wl-clipboard
-      wl-clipboard-x11
-      wf-recorder
-      nordic
-      nordic-polar
+  home.packages = with pkgs; [
+    sway
+    swaybg
+    swayidle
+    swaylock
+    xwayland
+    iw
+    mako
+    spotifyd
+    spotnix
+    my-emacs
+    mu
+    edit
+    edi
+    bat
+    mail
+    wofi
+    emacs-server
+    alacritty
+    project-select
+    launch
+    git-credential-pass
+    sk-sk
+    sk-run
+    sk-window
+    sk-passmenu
+    #slacks
+    browse-chromium
+    add-wifi-network
+    update-wifi-networks
+    update-wireguard-keys
+    spotify-cmd
+    spotify-play-album
+    spotify-play-track
+    spotify-play-artist
+    spotify-play-playlist
+    wl-clipboard
+    wl-clipboard-x11
+    wf-recorder
+    nordic
+    nordic-polar
 
-      nixfmt
-      google-cloud-sdk
-      kubectl
-      kustomize
-      fzf ## for certain utilities that depend on it
-      rust-analyzer
+    nixfmt
+    google-cloud-sdk
+    kubectl
+    kustomize
+    fzf # # for certain utilities that depend on it
+    rust-analyzer-bin
 
-      gnome3.nautilus
-      chrpkgs.chromium-dev-wayland
-    ];
+    gnome3.nautilus
+    chrpkgs.chromium-dev-wayland
+  ];
 
   xsession.pointerCursor = {
     package = pkgs.gnome3.defaultIconTheme;
@@ -89,7 +95,8 @@ in
   xdg.configFile."nixpkgs/overlays".source = ../overlays;
   xdg.configFile."nixpkgs/pkgs".source = ../pkgs;
 
-  home.file.".emacs".source = (pkgs.callPackage ../pkgs/my-emacs/config.nix { }).emacsConfig;
+  home.file.".emacs".source =
+    (pkgs.callPackage ../pkgs/my-emacs/config.nix { }).emacsConfig;
 
   home.file.".icons/default" = {
     source = "${pkgs.gnome3.defaultIconTheme}/share/icons/Adwaita";
