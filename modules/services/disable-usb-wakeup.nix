@@ -2,10 +2,8 @@
 
 with lib;
 
-let
-  cfg = config.services.disable-usb-wakeup;
-in
-{
+let cfg = config.services.disable-usb-wakeup;
+in {
   options.services.disable-usb-wakeup = {
     enable = mkEnableOption "prevent usb devices from waking up computer";
   };

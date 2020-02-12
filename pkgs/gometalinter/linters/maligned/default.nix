@@ -16,7 +16,8 @@ buildGoPackage rec {
   goDeps = ./deps.nix;
 
   meta = {
-    description = "Detect Go structs that would take less memory if their fields were sorted";
+    description =
+      "Detect Go structs that would take less memory if their fields were sorted";
     homePage = "https://github.com/mdempsky/maligned";
   };
 }

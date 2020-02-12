@@ -8,16 +8,14 @@ let
 
   substituteInPlace = file: substitutions: ''
     substituteInPlace ${file} \
-      ${setToStringSep " "
-                       substitutions
-                       (name: value: '' --subst-var-by ${name} "${value}"'' )}
+      ${
+        setToStringSep " " substitutions
+        (name: value: ''--subst-var-by ${name} "${value}"'')
+      }
   '';
 
-  mkStrictShellScript =
-    { name
-    , src
-    , substitutions ? {}
-    }: stdenv.mkDerivation {
+  mkStrictShellScript = { name, src, substitutions ? { } }:
+    stdenv.mkDerivation {
       inherit name;
       buildCommand = ''
         install -v -D -m755 ${src} $out/bin/${name}
@@ -43,18 +41,14 @@ let
       '';
     };
 
-    wl-copy = "${wl-clipboard}/bin/wl-copy";
-    wl-paste = "${wl-clipboard}/bin/wl-paste";
+  wl-copy = "${wl-clipboard}/bin/wl-copy";
+  wl-paste = "${wl-clipboard}/bin/wl-paste";
 
-in
-
-  mkStrictShellScript {
-    name = "xclip";
-    src = ./xclip.sh;
-    substitutions = {
-      inherit bash wl-copy wl-paste;
-    };
-  }
+in mkStrictShellScript {
+  name = "xclip";
+  src = ./xclip.sh;
+  substitutions = { inherit bash wl-copy wl-paste; };
+}
 
 #stdenv.mkDerivation rec {
 #  name = "wl-clipboard-x11";

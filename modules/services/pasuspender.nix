@@ -2,10 +2,8 @@
 
 with lib;
 
-let
-  cfg = config.services.pasuspender;
-in
-{
+let cfg = config.services.pasuspender;
+in {
   options.services.pasuspender = {
     enable = mkEnableOption "enable pulseaudio suspender";
   };
@@ -15,12 +13,8 @@ in
       description = "Fix PulseAudio resume after suspend";
       after = [ "suspend.target" ];
       enable = true;
-      serviceConfig = {
-        Type = "oneshot";
-      };
-      environment = {
-        XDG_RUNTIME_DIR = "/run/user/%U";
-      };
+      serviceConfig = { Type = "oneshot"; };
+      environment = { XDG_RUNTIME_DIR = "/run/user/%U"; };
       script = ''
         ${pkgs.pulseaudioFull}/bin/pasuspender ${pkgs.coreutils}/bin/true
       '';

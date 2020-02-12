@@ -22,5 +22,5 @@ buildGoPackage rec {
 
   postInstall = ''
     ln -sf $bin/bin/gometalinter.v2 $bin/bin/gometalinter
-    '';
+  '';
 }

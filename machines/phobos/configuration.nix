@@ -14,11 +14,10 @@ let
   ## determine what username we're using so we define it in one
   ## place
   userName = with lib;
-    head ( attrNames ( filterAttrs (_: value: value.uid == 1337)
-      secretConfig.users.extraUsers ));
-in
+    head (attrNames (filterAttrs (_: value: value.uid == 1337)
+      secretConfig.users.extraUsers));
 
-with lib; {
+in with lib; {
   imports = [
     ../../defaults/laptop.nix
     "${nixos-hardware}/dell/xps/13-9360"
@@ -65,9 +64,7 @@ with lib; {
   programs.sway.enable = true;
   home-manager.useUserPackages = true;
   home-manager.users."${userName}" = { ... }: {
-    imports = [
-      ../../home/home.nix
-    ];
+    imports = [ ../../home/home.nix ];
 
     programs.sway.settings.output = {
       "eDP-1" = {

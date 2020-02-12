@@ -14,7 +14,8 @@ buildGoPackage rec {
   };
 
   meta = {
-    description = "Find in Go repeated strings that could be replaced by a constant";
+    description =
+      "Find in Go repeated strings that could be replaced by a constant";
     homePage = "https://github.com/jgautheron/goconst";
   };
 }

@@ -25,8 +25,9 @@ stdenv.mkDerivation rec {
   buildInputs = [ ghc ];
 
   meta = {
-    description = "Simple launcher (creates new process group for exec'd process)";
-    homepage = https://github.com/johnae/fire;
+    description =
+      "Simple launcher (creates new process group for exec'd process)";
+    homepage = "https://github.com/johnae/fire";
     license = "MIT";
   };
 }

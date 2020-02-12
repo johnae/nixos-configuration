@@ -11,16 +11,13 @@ let
   ## determine what username we're using so we define it in one
   ## place
   userName = with lib;
-    head ( attrNames ( filterAttrs (_: value: hasAttr "uid" value && value.uid == 1337)
-      secretConfig.users.extraUsers ));
-in
+    head (attrNames
+      (filterAttrs (_: value: hasAttr "uid" value && value.uid == 1337)
+        secretConfig.users.extraUsers));
 
-{
-  imports = [
-    ../../defaults/server.nix
-    ./hardware-configuration.nix
-    secretConfig
-  ];
+in {
+  imports =
+    [ ../../defaults/server.nix ./hardware-configuration.nix secretConfig ];
 
   nix.trustedUsers = [ "root" userName ];
 
@@ -34,16 +31,12 @@ in
     enable = true;
     nodeName = hostName;
     flannelBackend = "none";
-    extraManifests = [
-      ../../modules/services/k3s/calico.yaml
-    ];
+    extraManifests = [ ../../modules/services/k3s/calico.yaml ];
   };
 
   users.defaultUserShell = pkgs.fish;
   users.mutableUsers = false;
   users.groups."${userName}".gid = 1337;
-  users.extraUsers."${userName}" = {
-    shell = pkgs.fish;
-  };
+  users.extraUsers."${userName}" = { shell = pkgs.fish; };
 
 }

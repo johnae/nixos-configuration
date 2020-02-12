@@ -6,7 +6,8 @@ stdenv.mkDerivation rec {
   version = "1.0.0";
   name = "btr-snap-${version}";
 
-  buildInputs = [ bashInteractive btrfs-progs openssh makeWrapper coreutils pv hostname ];
+  buildInputs =
+    [ bashInteractive btrfs-progs openssh makeWrapper coreutils pv hostname ];
 
   src = ./.;
 
@@ -25,7 +26,7 @@ stdenv.mkDerivation rec {
 
   meta = {
     description = "Btrfs snapshot and backup scripts";
-    homepage = https://github.com/johnae/btr-snap;
+    homepage = "https://github.com/johnae/btr-snap";
     license = "MIT";
   };
 

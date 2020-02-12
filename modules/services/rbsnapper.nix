@@ -7,17 +7,16 @@ let
   cfg = config.services.rbsnapper;
 
   pango = attrs: str:
-        "<span " +
-        (lib.concatStringsSep " " (lib.mapAttrsToList (name: value: '' ${name}='${value}' '') attrs)) +
-        ">" + str + "</span>";
+    "<span " + (lib.concatStringsSep " "
+      (lib.mapAttrsToList (name: value: "${name}='${value}' ") attrs)) + ">"
+    + str + "</span>";
 
-  mkRbSnapper = {OnUnitInactiveSec ? "30m", OnBootSec ? "5m", ...}: {
+  mkRbSnapper = { OnUnitInactiveSec ? "30m", OnBootSec ? "5m", ... }: {
     timers.rbsnapper = {
-      description = "run rbsnapper every ${OnUnitInactiveSec} and ${OnBootSec} after boot";
+      description =
+        "run rbsnapper every ${OnUnitInactiveSec} and ${OnBootSec} after boot";
       wantedBy = [ "timers.target" ]; # enable it and autostart
-      timerConfig = {
-        inherit OnUnitInactiveSec OnBootSec;
-      };
+      timerConfig = { inherit OnUnitInactiveSec OnBootSec; };
     };
 
     services.rbsnapper = rec {
@@ -52,11 +51,15 @@ let
         DURATION=$(($ENDED_AT - $STARTED_AT))
         NOTIFY="${notify-desktop}/bin/notify-desktop"
         if [ "$EXIT_STATUS" = "0" ]; then
-           MSG="${pango { font_weight = "bold"; } "Completed"} ${toLower description} in $DURATION"s.
+           MSG="${pango { font_weight = "bold"; } "Completed"} ${
+             toLower description
+           } in $DURATION"s.
            ${busybox}/bin/su $USER -s /bin/sh -c \
              "$NOTIFY -i emblem-insync-syncing \"Backup\" \"$MSG\""
         else
-           MSG="${pango { font_weight = "bold"; } "Failed" } ${toLower description} after $DURATION"s.
+           MSG="${pango { font_weight = "bold"; } "Failed"} ${
+             toLower description
+           } after $DURATION"s.
            ${busybox}/bin/su $USER -s /bin/sh -c \
              "$NOTIFY -i dialog-error -u critical \"Backup\" \"$MSG\""
         fi;
@@ -66,11 +69,11 @@ let
 
   };
 
-in
-{
+in {
   options.services.rbsnapper = {
 
-    enable = mkEnableOption "enable rbsnapper backup service for storing remote btrfs snapshots.";
+    enable = mkEnableOption
+      "enable rbsnapper backup service for storing remote btrfs snapshots.";
 
     destination = mkOption {
       type = types.str;
@@ -93,7 +96,7 @@ in
       type = types.port;
       example = 4567;
       default = 30022;
-      apply = val: toString(val);
+      apply = val: toString (val);
       description = ''
         SSH remote port to connect to.
       '';

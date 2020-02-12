@@ -1,45 +1,58 @@
-{ stdenv, fetchFromGitHub, fetchpatch, meson, ninja, pkgconfig
-, wayland, libGL, wayland-protocols, libinput, libxkbcommon, pixman
-, xcbutilwm, libX11, libcap, xcbutilimage, xcbutilerrors, mesa_noglu
-, libpng, ffmpeg_4#, freerdp
+{ stdenv, fetchFromGitHub, fetchpatch, meson, ninja, pkgconfig, wayland, libGL
+, wayland-protocols, libinput, libxkbcommon, pixman, xcbutilwm, libX11, libcap
+, xcbutilimage, xcbutilerrors, mesa_noglu, libpng, ffmpeg_4 # , freerdp
 }:
 
 let
 
   metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
 
-in
+in stdenv.mkDerivation rec {
+  name = metadata.repo;
+  version = metadata.rev;
 
-  stdenv.mkDerivation rec {
-    name = metadata.repo;
-    version = metadata.rev;
+  src = fetchFromGitHub metadata;
 
-    src = fetchFromGitHub metadata;
+  outputs = [ "out" ];
 
-    outputs = [ "out" ];
+  nativeBuildInputs = [ meson ninja pkgconfig ];
 
-    nativeBuildInputs = [ meson ninja pkgconfig ];
+  mesonFlags = [
+    "-Dlibcap=enabled"
+    "-Dlogind=enabled"
+    "-Dxwayland=enabled"
+    "-Dx11-backend=enabled"
+    "-Dxcb-icccm=enabled"
+    "-Dxcb-errors=enabled"
+    "-Dfreerdp=disabled"
+  ];
 
-    mesonFlags = [
-      "-Dlibcap=enabled" "-Dlogind=enabled" "-Dxwayland=enabled" "-Dx11-backend=enabled"
-      "-Dxcb-icccm=enabled" "-Dxcb-errors=enabled" "-Dfreerdp=disabled"
-    ];
+  buildInputs = [
+    wayland
+    libGL
+    wayland-protocols
+    libinput
+    libxkbcommon
+    pixman
+    xcbutilwm
+    libX11
+    libcap
+    xcbutilimage
+    xcbutilerrors
+    mesa_noglu
+    libpng
+    ffmpeg_4 # freerdp
+  ];
 
-    buildInputs = [
-      wayland libGL wayland-protocols libinput libxkbcommon pixman
-      xcbutilwm libX11 libcap xcbutilimage xcbutilerrors mesa_noglu
-      libpng ffmpeg_4 #freerdp
-    ];
-
-    meta = with stdenv.lib; {
-      description = "A modular Wayland compositor library";
-      inherit (src.meta) homepage;
-      license     = licenses.mit;
-      platforms   = platforms.linux;
-      maintainers = with maintainers; [ {
-        email = "john@insane.se";
-        github = "johnae";
-        name = "John Axel Eriksson";
-      } ];
-    };
-  }
+  meta = with stdenv.lib; {
+    description = "A modular Wayland compositor library";
+    inherit (src.meta) homepage;
+    license = licenses.mit;
+    platforms = platforms.linux;
+    maintainers = with maintainers; [{
+      email = "john@insane.se";
+      github = "johnae";
+      name = "John Axel Eriksson";
+    }];
+  };
+}

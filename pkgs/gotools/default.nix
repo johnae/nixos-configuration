@@ -26,9 +26,11 @@ buildGoPackage rec {
     export GOTOOLDIR=$bin/bin
   '';
 
-  excludedPackages = "\\("
-    + stdenv.lib.concatStringsSep "\\|" ([ "testdata" ] ++ stdenv.lib.optionals (stdenv.lib.versionAtLeast go.meta.branch "1.5") [ "vet" "cover" ])
-    + "\\)";
+  excludedPackages = "\\(" + stdenv.lib.concatStringsSep "\\|" ([ "testdata" ]
+    ++ stdenv.lib.optionals (stdenv.lib.versionAtLeast go.meta.branch "1.5") [
+      "vet"
+      "cover"
+    ]) + "\\)";
 
   # Do not copy this without a good reason for enabling
   # In this case tools is heavily coupled with go itself and embeds paths.

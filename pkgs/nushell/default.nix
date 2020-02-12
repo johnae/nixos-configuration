@@ -1,20 +1,9 @@
-{ stdenv
-, lib
-, fetchFromGitHub
-, rustPlatform
-, openssl
-, pkg-config
-, python3
-, xorg
-, withStableFeatures ? true
-, withTestBinaries ? true
-}:
+{ stdenv, lib, fetchFromGitHub, rustPlatform, openssl, pkg-config, python3, xorg
+, withStableFeatures ? true, withTestBinaries ? true }:
 
-let
-  metadata = builtins.fromJSON(builtins.readFile ./metadata.json);
-in
+let metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
 
-rustPlatform.buildRustPackage rec {
+in rustPlatform.buildRustPackage rec {
   pname = metadata.repo;
   version = metadata.rev;
 
@@ -36,8 +25,12 @@ rustPlatform.buildRustPackage rec {
 
   checkPhase = ''
     runHook preCheck
-    echo "Running cargo cargo test ${lib.strings.concatStringsSep " " cargoTestFlags} -- ''${checkFlags} ''${checkFlagsArray+''${checkFlagsArray[@]}}"
-    cargo test ${lib.strings.concatStringsSep " " cargoTestFlags} -- ''${checkFlags} ''${checkFlagsArray+"''${checkFlagsArray[@]}"}
+    echo "Running cargo cargo test ${
+      lib.strings.concatStringsSep " " cargoTestFlags
+    } -- ''${checkFlags} ''${checkFlagsArray+''${checkFlagsArray[@]}}"
+    cargo test ${
+      lib.strings.concatStringsSep " " cargoTestFlags
+    } -- ''${checkFlags} ''${checkFlagsArray+"''${checkFlagsArray[@]}"}
     runHook postCheck
   '';
 
@@ -49,7 +42,5 @@ rustPlatform.buildRustPackage rec {
     platforms = [ "x86_64-linux" "i686-linux" "x86_64-darwin" ];
   };
 
-  passthru = {
-    shellPath = "/bin/nu";
-  };
+  passthru = { shellPath = "/bin/nu"; };
 }

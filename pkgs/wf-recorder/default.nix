@@ -1,33 +1,26 @@
-{ stdenv, fetchFromGitHub, meson, ninja, pkgconfig, wayland, scdoc, ffmpeg, wayland-protocols, libpulseaudio }:
+{ stdenv, fetchFromGitHub, meson, ninja, pkgconfig, wayland, scdoc, ffmpeg
+, wayland-protocols, libpulseaudio }:
 
 let
 
   metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
 
-in
+in stdenv.mkDerivation rec {
+  name = "${metadata.repo}-${version}";
+  version = metadata.rev;
 
-  stdenv.mkDerivation rec {
-    name = "${metadata.repo}-${version}";
-    version = metadata.rev;
+  src = fetchFromGitHub metadata;
 
-    src = fetchFromGitHub metadata;
+  nativeBuildInputs = [ meson ninja pkgconfig scdoc ];
 
-    nativeBuildInputs = [
-      meson ninja pkgconfig scdoc
-    ];
+  buildInputs = [ wayland wayland-protocols ffmpeg libpulseaudio ];
 
-    buildInputs = [
-      wayland wayland-protocols ffmpeg libpulseaudio
-    ];
+  mesonFlags = [ "-Dopencl=disabled" ];
 
-     mesonFlags = [
-       "-Dopencl=disabled"
-     ];
-
-    meta = with stdenv.lib; {
-      description = "Screen Recorder for Wlroots compositors";
-      homepage    = https://github.com/ammen99/wf-recorder;
-      license     = licenses.mit;
-      platforms   = platforms.linux;
-    };
-  }
+  meta = with stdenv.lib; {
+    description = "Screen Recorder for Wlroots compositors";
+    homepage = "https://github.com/ammen99/wf-recorder";
+    license = licenses.mit;
+    platforms = platforms.linux;
+  };
+}

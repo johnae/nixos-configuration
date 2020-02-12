@@ -10,8 +10,7 @@ let
   k3sDir = "/var/lib/k3s";
   k3sDataDir = "${k3sDir}/data";
 
-in
-{
+in {
   options.services.k3s = {
 
     enable = mkEnableOption "enable k3s - lightweight kubernetes.";
@@ -26,7 +25,7 @@ in
 
     labels = mkOption {
       type = types.listOf types.str;
-      default = [];
+      default = [ ];
       example = [ "label-one" "label-two" ];
       description = ''
         The node labels to apply to the current node.
@@ -60,14 +59,14 @@ in
 
     extraManifests = mkOption {
       type = types.listOf types.path;
-      default = [];
+      default = [ ];
       description = ''
         A list of paths to kubernetes manifests to automatically apply.
       '';
     };
 
     masterUrl = mkOption {
-      type = types.nullOr (types.strMatching "https:\/\/[0-9a-zA-Z.]+.*");
+      type = types.nullOr (types.strMatching "https://[0-9a-zA-Z.]+.*");
       example = "https://1.2.3.4:6332";
       default = null;
       description = ''
@@ -86,38 +85,40 @@ in
       environment = {
         K3S_NODE_NAME = cfg.nodeName;
         K3S_CLUSTER_SECRET = cfg.clusterSecret;
-      } // (if isAgent then { K3S_URL = cfg.masterUrl; } else {});
+      } // (if isAgent then { K3S_URL = cfg.masterUrl; } else { });
 
-      script = (
-        if isAgent then
-          ''
-          exec ${k3s}/bin/k3s agent -d ${k3sDataDir} ${if cfg.docker then "--docker" else ""}\
-                              --kubelet-arg "volume-plugin-dir=${k3sDir}/libexec/kubernetes/kubelet-plugins/volume/exec" \
-                              --kubelet-arg "cni-bin-dir=${k3sDir}/opt/cni/bin" \
-                              ${lib.concatStringsSep " " (map (v: "--node-label ${v}") cfg.labels)}
-          ''
-        else
-          ''
-          exec ${k3s}/bin/k3s server --no-deploy=traefik --no-deploy=servicelb --no-deploy=local-storage -d ${k3sDataDir} ${if cfg.docker then "--docker" else ""} \
-                              -o /kubeconfig.yml --flannel-backend=${cfg.flannelBackend} \
-                              --kubelet-arg "volume-plugin-dir=${k3sDir}/libexec/kubernetes/kubelet-plugins/volume/exec" \
-                              --kubelet-arg "cni-bin-dir=${k3sDir}/opt/cni/bin" \
-                              --kube-controller-arg "flex-volume-plugin-dir=${k3sDir}/libexec/kubernetes/kubelet-plugins/volume/exec" \
-                              ${lib.concatStringsSep " " (map (v: "--node-label ${v}") cfg.labels)}
-          ''
-      );
+      script = (if isAgent then ''
+        exec ${k3s}/bin/k3s agent -d ${k3sDataDir} ${
+          if cfg.docker then "--docker" else ""
+        }\
+                            --kubelet-arg "volume-plugin-dir=${k3sDir}/libexec/kubernetes/kubelet-plugins/volume/exec" \
+                            --kubelet-arg "cni-bin-dir=${k3sDir}/opt/cni/bin" \
+                            ${
+                              lib.concatStringsSep " "
+                              (map (v: "--node-label ${v}") cfg.labels)
+                            }
+      '' else ''
+        exec ${k3s}/bin/k3s server --no-deploy=traefik --no-deploy=servicelb --no-deploy=local-storage -d ${k3sDataDir} ${
+          if cfg.docker then "--docker" else ""
+        } \
+                            -o /kubeconfig.yml --flannel-backend=${cfg.flannelBackend} \
+                            --kubelet-arg "volume-plugin-dir=${k3sDir}/libexec/kubernetes/kubelet-plugins/volume/exec" \
+                            --kubelet-arg "cni-bin-dir=${k3sDir}/opt/cni/bin" \
+                            --kube-controller-arg "flex-volume-plugin-dir=${k3sDir}/libexec/kubernetes/kubelet-plugins/volume/exec" \
+                            ${
+                              lib.concatStringsSep " "
+                              (map (v: "--node-label ${v}") cfg.labels)
+                            }
+      '');
 
       postStart = (if isMaster then ''
         echo Applying extra kubernetes manifests
         set -x
-        ${lib.concatStringsSep "\n"
-          (map
-            (m:
-              "${kubectl}/bin/kubectl --kubeconfig /kubeconfig.yml apply -f ${m}"
-            ) cfg.extraManifests
-          )
-         }
-      '' else "");
+        ${lib.concatStringsSep "\n" (map (m:
+          "${kubectl}/bin/kubectl --kubeconfig /kubeconfig.yml apply -f ${m}")
+          cfg.extraManifests)}
+      '' else
+        "");
 
       serviceConfig = {
         Type = if isAgent then "exec" else "notify";

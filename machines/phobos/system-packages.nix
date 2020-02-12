@@ -1,4 +1,5 @@
-pkgs: with pkgs; [
+pkgs:
+with pkgs; [
   man-pages
   bmon
   iftop

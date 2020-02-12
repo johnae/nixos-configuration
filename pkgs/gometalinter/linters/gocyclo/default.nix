@@ -14,7 +14,8 @@ buildGoPackage rec {
   };
 
   meta = {
-    description = "Calculate cyclomatic complexities of functions in Go source code";
+    description =
+      "Calculate cyclomatic complexities of functions in Go source code";
     homePage = "https://github.com/alecthomas/gocyclo";
   };
 }

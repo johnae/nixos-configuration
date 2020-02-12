@@ -1,9 +1,7 @@
 { stdenv, rustPlatform, fetchFromGitHub, pkgconfig, dbus, libpulseaudio }:
 
-let
-  metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
-in
-rustPlatform.buildRustPackage rec {
+let metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
+in rustPlatform.buildRustPackage rec {
   pname = metadata.repo;
   version = metadata.rev;
 
@@ -18,8 +16,9 @@ rustPlatform.buildRustPackage rec {
   doCheck = false;
 
   meta = with stdenv.lib; {
-    description = "Very resource-friendly and feature-rich replacement for i3status";
-    homepage = https://github.com/greshake/i3status-rust;
+    description =
+      "Very resource-friendly and feature-rich replacement for i3status";
+    homepage = "https://github.com/greshake/i3status-rust";
     license = licenses.gpl3;
     maintainers = with maintainers; [ backuitist globin ];
     platforms = platforms.linux;
