@@ -1,6 +1,26 @@
-{ stdenv, lib, fetchFromGitHub, rustPlatform, cmake, makeWrapper, ncurses, expat
-, pkgconfig, freetype, fontconfig, libX11, gzip, libXcursor, libXxf86vm, libXi
-, libXrandr, libGL, python3, wayland, libxkbcommon, libxcb }:
+{ stdenv
+, lib
+, fetchFromGitHub
+, rustPlatform
+, cmake
+, makeWrapper
+, ncurses
+, expat
+, pkgconfig
+, freetype
+, fontconfig
+, libX11
+, gzip
+, libXcursor
+, libXxf86vm
+, libXi
+, libXrandr
+, libGL
+, python3
+, wayland
+, libxkbcommon
+, libxcb
+}:
 
 with rustPlatform;
 
@@ -18,7 +38,8 @@ let
   ] ++ lib.optionals stdenv.isLinux [ wayland libxkbcommon libxcb ];
 
   metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
-in buildRustPackage rec {
+in
+buildRustPackage rec {
   pname = metadata.repo;
   version = metadata.rev;
   doCheck = false;
@@ -39,16 +60,18 @@ in buildRustPackage rec {
 
     install -D target/release/alacritty $out/bin/alacritty
 
-  '' + (if stdenv.isDarwin then ''
-    mkdir $out/Applications
-    cp -r target/release/osx/Alacritty.app $out/Applications/Alacritty.app
-  '' else ''
-    install -D extra/linux/alacritty.desktop -t $out/share/applications/
-    install -D extra/logo/alacritty-term.svg $out/share/icons/hicolor/scalable/apps/Alacritty.svg
-    patchelf --set-rpath "${
-      stdenv.lib.makeLibraryPath rpathLibs
+  '' + (
+    if stdenv.isDarwin then ''
+      mkdir $out/Applications
+      cp -r target/release/osx/Alacritty.app $out/Applications/Alacritty.app
+    '' else ''
+      install -D extra/linux/alacritty.desktop -t $out/share/applications/
+      install -D extra/logo/alacritty-term.svg $out/share/icons/hicolor/scalable/apps/Alacritty.svg
+      patchelf --set-rpath "${
+    stdenv.lib.makeLibraryPath rpathLibs
     }" $out/bin/alacritty
-  '') + ''
+    ''
+  ) + ''
 
     install -D extra/completions/_alacritty -t "$out/share/zsh/site-functions/"
     install -D extra/completions/alacritty.bash -t "$out/etc/bash_completion.d/"

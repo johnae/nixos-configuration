@@ -24,59 +24,59 @@ in
 
 {
   programs.i3status-rust = {
-     enable = true;
-     settings.block = [
+    enable = true;
+    settings.block = [
 
-         {
-           block = "custom";
-           interval = 600;
-           command = "${checkNixosVersion}/bin/check-nixos-version";
-         }
+      {
+        block = "custom";
+        interval = 600;
+        command = "${checkNixosVersion}/bin/check-nixos-version";
+      }
 
-         {
-           block = "cpu";
-           interval = 1;
-         }
+      {
+        block = "cpu";
+        interval = 1;
+      }
 
-         {
-           block = "backlight";
-         }
+      {
+        block = "backlight";
+      }
 
-         {
-           block = "battery";
-           interval = 10;
-           format = "{percentage}% {time}";
-         }
+      {
+        block = "battery";
+        interval = 10;
+        format = "{percentage}% {time}";
+      }
 
-         {
-           block = "net";
-           device = "wlan0";
-           ssid = true;
-           signal_strength = true;
-           ip = false;
-           speed_up = true;
-           graph_up = false;
-           interval = 5;
-         }
+      {
+        block = "net";
+        device = "wlan0";
+        ssid = true;
+        signal_strength = true;
+        ip = false;
+        speed_up = true;
+        graph_up = false;
+        interval = 5;
+      }
 
-         { block = "sound"; }
+      { block = "sound"; }
 
-         #headphones = {
-         #  block = "bluetooth";
-         #  opts.mac = "04:52:C7:5F:CC:B6";
-         #};
+      #headphones = {
+      #  block = "bluetooth";
+      #  opts.mac = "04:52:C7:5F:CC:B6";
+      #};
 
-         #mouse = {
-         #  block = "bluetooth";
-         #  opts.mac = "D5:17:1A:80:22:AA";
-         #};
+      #mouse = {
+      #  block = "bluetooth";
+      #  opts.mac = "D5:17:1A:80:22:AA";
+      #};
 
-         {
-           block = "time";
-           interval = 1;
-           format = "%b-%d %H:%M:%S";
-         }
+      {
+        block = "time";
+        interval = 1;
+        format = "%b-%d %H:%M:%S";
+      }
 
-       ];
-     };
+    ];
+  };
 }

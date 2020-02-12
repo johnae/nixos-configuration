@@ -1,7 +1,9 @@
 { stdenv, fetchhg, pkgconfig, wayland, wayland-protocols, gtk3 }:
 
-let metadata = import ./metadata.nix;
-in stdenv.mkDerivation rec {
+let
+  metadata = import ./metadata.nix;
+in
+stdenv.mkDerivation rec {
   name = "${pname}-${version}";
   pname = "wofi";
   version = metadata.rev;

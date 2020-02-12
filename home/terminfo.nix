@@ -20,5 +20,5 @@
       ${pkgs.ncurses}/bin/tic -x -o ~/.terminfo "$file"
     done
   '';
-  
+
 }

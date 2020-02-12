@@ -11,11 +11,16 @@ let
   ## determine what username we're using so we define it in one
   ## place
   userName = with lib;
-    head (attrNames
-      (filterAttrs (_: value: hasAttr "uid" value && value.uid == 1337)
-        secretConfig.users.extraUsers));
+    head (
+      attrNames
+        (
+          filterAttrs (_: value: hasAttr "uid" value && value.uid == 1337)
+            secretConfig.users.extraUsers
+        )
+    );
 
-in {
+in
+{
   imports =
     [ ../../defaults/server.nix ./hardware-configuration.nix secretConfig ];
 

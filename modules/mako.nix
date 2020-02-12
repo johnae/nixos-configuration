@@ -10,7 +10,8 @@ let
       ${concatStringsSep "\n" (mapAttrsToList (k: v: "${k}=${v}") conf)}
     '';
 
-in {
+in
+{
   options.programs.mako = {
     enable = mkEnableOption "Wayland notification dbus daemon.";
     settings = mkOption {

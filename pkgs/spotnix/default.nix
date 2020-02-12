@@ -1,7 +1,9 @@
 { stdenv, rustPlatform, fetchFromGitHub, pkgconfig, openssl }:
 
-let metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
-in rustPlatform.buildRustPackage rec {
+let
+  metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
+in
+rustPlatform.buildRustPackage rec {
   pname = metadata.repo;
   version = metadata.rev;
 
@@ -18,10 +20,12 @@ in rustPlatform.buildRustPackage rec {
     description = "Spotify for UNIX";
     homepage = "https://github.com/johnae/spotnix";
     license = licenses.gpl3;
-    maintainers = [{
-      email = "john@insane.se";
-      github = "johnae";
-      name = "John Axel Eriksson";
-    }];
+    maintainers = [
+      {
+        email = "john@insane.se";
+        github = "johnae";
+        name = "John Axel Eriksson";
+      }
+    ];
   };
 }

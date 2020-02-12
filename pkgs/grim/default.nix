@@ -1,5 +1,15 @@
-{ stdenv, fetchFromGitHub, meson, ninja, pkgconfig, wayland, wayland-protocols
-, cairo, libjpeg, git, systemd }:
+{ stdenv
+, fetchFromGitHub
+, meson
+, ninja
+, pkgconfig
+, wayland
+, wayland-protocols
+, cairo
+, libjpeg
+, git
+, systemd
+}:
 
 stdenv.mkDerivation rec {
   name = "grim-${version}";

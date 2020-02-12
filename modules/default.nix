@@ -1,15 +1,15 @@
-{...}:
+{ ... }:
 
 let
   home-manager = with builtins;
     let
-       hmeta = fromJSON (readFile ./home-manager.json);
+      hmeta = fromJSON (readFile ./home-manager.json);
     in
-       fetchGit {
-         url = "https://github.com/${hmeta.owner}/${hmeta.repo}";
-         inherit (hmeta) rev;
-         ref = "master";
-       };
+      fetchGit {
+        url = "https://github.com/${hmeta.owner}/${hmeta.repo}";
+        inherit (hmeta) rev;
+        ref = "master";
+      };
 in
 
 {

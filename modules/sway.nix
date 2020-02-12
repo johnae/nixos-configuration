@@ -6,7 +6,7 @@ let
   sharedOptions = {
     fonts = mkOption {
       type = types.listOf types.str;
-      default = ["monospace 8"];
+      default = [ "monospace 8" ];
       description = ''
         Font list used for window titles.
       '';
@@ -112,7 +112,7 @@ let
         type = types.int;
         default = 18;
         description = "The height of the bar";
-        apply = val: toString(val);
+        apply = val: toString (val);
       };
       colors = mkOption {
         type = types.submodule {
@@ -171,7 +171,7 @@ let
       inherit (sharedOptions) fonts;
 
       window = mkOption {
-       type = types.submodule {
+        type = types.submodule {
           options = {
             titlebar = mkOption {
               type = types.bool;
@@ -252,7 +252,7 @@ let
               type = types.listOf criteriaModule;
               default = [];
               description = "List of criteria for windows that should be opened in a floating mode.";
-              example = [ {"title" = "Steam - Update News";} {"class" = "Pavucontrol";} ];
+              example = [ { "title" = "Steam - Update News"; } { "class" = "Pavucontrol"; } ];
             };
           };
         };
@@ -456,8 +456,11 @@ let
             focused = mkOption {
               type = colorSetModule;
               default = {
-                border = "#4c7899"; background = "#285577"; text = "#ffffff";
-                indicator = "#2e9ef4"; childBorder = "#285577";
+                border = "#4c7899";
+                background = "#285577";
+                text = "#ffffff";
+                indicator = "#2e9ef4";
+                childBorder = "#285577";
               };
               description = "A window which currently has the focus.";
             };
@@ -465,8 +468,11 @@ let
             focusedInactive = mkOption {
               type = colorSetModule;
               default = {
-                border = "#333333"; background = "#5f676a"; text = "#ffffff";
-                indicator = "#484e50"; childBorder = "#5f676a";
+                border = "#333333";
+                background = "#5f676a";
+                text = "#ffffff";
+                indicator = "#484e50";
+                childBorder = "#5f676a";
               };
               description = ''
                 A window which is the focused one of its container,
@@ -477,8 +483,11 @@ let
             unfocused = mkOption {
               type = colorSetModule;
               default = {
-                border = "#333333"; background = "#222222"; text = "#888888";
-                indicator = "#292d2e"; childBorder = "#222222";
+                border = "#333333";
+                background = "#222222";
+                text = "#888888";
+                indicator = "#292d2e";
+                childBorder = "#222222";
               };
               description = "A window which is not focused.";
             };
@@ -486,8 +495,11 @@ let
             urgent = mkOption {
               type = colorSetModule;
               default = {
-                border = "#2f343a"; background = "#900000"; text = "#ffffff";
-                indicator = "#900000"; childBorder = "#900000";
+                border = "#2f343a";
+                background = "#900000";
+                text = "#ffffff";
+                indicator = "#900000";
+                childBorder = "#900000";
               };
               description = "A window which has its urgency hint activated.";
             };
@@ -524,7 +536,7 @@ let
 
       bars = mkOption {
         type = types.listOf barModule;
-        default = [{}];
+        default = [ {} ];
         description = ''
           sway bars settings blocks. Set to empty list to remove bars completely.
         '';
@@ -547,42 +559,44 @@ let
       };
 
       gaps = mkOption {
-        type = types.nullOr (types.submodule {
-          options = {
-            inner = mkOption {
-              type = types.nullOr types.int;
-              default = null;
-              description = "Inner gaps value.";
-              example = 12;
-            };
+        type = types.nullOr (
+          types.submodule {
+            options = {
+              inner = mkOption {
+                type = types.nullOr types.int;
+                default = null;
+                description = "Inner gaps value.";
+                example = 12;
+              };
 
-            outer = mkOption {
-              type = types.nullOr types.int;
-              default = null;
-              description = "Outer gaps value.";
-              example = 5;
-            };
+              outer = mkOption {
+                type = types.nullOr types.int;
+                default = null;
+                description = "Outer gaps value.";
+                example = 5;
+              };
 
-            smartGaps = mkOption {
-              type = types.bool;
-              default = false;
-              description = ''
-                This option controls whether to disable all gaps (outer and inner)
-                on workspace with a single container.
-              '';
-              example = true;
-            };
+              smartGaps = mkOption {
+                type = types.bool;
+                default = false;
+                description = ''
+                  This option controls whether to disable all gaps (outer and inner)
+                  on workspace with a single container.
+                '';
+                example = true;
+              };
 
-            smartBorders = mkOption {
-              type = types.enum [ "on" "off" "no_gaps" ];
-              default = "off";
-              description = ''
-                This option controls whether to disable container borders on
-                workspace with a single container.
-              '';
+              smartBorders = mkOption {
+                type = types.enum [ "on" "off" "no_gaps" ];
+                default = "off";
+                description = ''
+                  This option controls whether to disable container borders on
+                  workspace with a single container.
+                '';
+              };
             };
-          };
-        });
+          }
+        );
         default = null;
       };
     };
@@ -611,30 +625,38 @@ let
     map (c: "assign ${criteriaStr c} ${workspace}") criteria
   );
 
-  barStr = {
-    id ? null, fonts, height, mode, hiddenState, position,
-    statusCommand, colors, separatorSymbol, ...
-  }: ''
-    bar {
-      font pango:${concatStringsSep ", " fonts}
-      mode ${mode}
-      height ${height}
-      hidden_state ${hiddenState}
-      position ${position}
-      status_command ${statusCommand}
-      separator_symbol "${separatorSymbol}"
-      colors {
-        background ${colors.background}
-        statusline ${colors.statusline}
-        separator ${colors.separator}
-        focused_workspace ${barColorSetStr colors.focusedWorkspace}
-        active_workspace ${barColorSetStr colors.activeWorkspace}
-        inactive_workspace ${barColorSetStr colors.inactiveWorkspace}
-        urgent_workspace ${barColorSetStr colors.urgentWorkspace}
-        binding_mode ${barColorSetStr colors.bindingMode}
+  barStr =
+    { id ? null
+    , fonts
+    , height
+    , mode
+    , hiddenState
+    , position
+    , statusCommand
+    , colors
+    , separatorSymbol
+    , ...
+    }: ''
+      bar {
+        font pango:${concatStringsSep ", " fonts}
+        mode ${mode}
+        height ${height}
+        hidden_state ${hiddenState}
+        position ${position}
+        status_command ${statusCommand}
+        separator_symbol "${separatorSymbol}"
+        colors {
+          background ${colors.background}
+          statusline ${colors.statusline}
+          separator ${colors.separator}
+          focused_workspace ${barColorSetStr colors.focusedWorkspace}
+          active_workspace ${barColorSetStr colors.activeWorkspace}
+          inactive_workspace ${barColorSetStr colors.inactiveWorkspace}
+          urgent_workspace ${barColorSetStr colors.urgentWorkspace}
+          binding_mode ${barColorSetStr colors.bindingMode}
+        }
       }
-    }
-  '';
+    '';
 
   gapsStr = with cfg.config.gaps; ''
     ${optionalString (inner != null) "gaps inner ${toString inner}"}
@@ -661,11 +683,11 @@ let
           if v then "enabled" else "disabled"
         else toString v;
     in
-    ''
-    input "${name}" {
-    ${concatStringsSep "\n" (mapAttrsToList (name: value: "${name} ${toVal value}") attrs)}
-    }
-  '';
+      ''
+        input "${name}" {
+        ${concatStringsSep "\n" (mapAttrsToList (name: value: "${name} ${toVal value}") attrs)}
+        }
+      '';
 
   outputStr = name: attrs: ''
     output "${name}" {
@@ -673,39 +695,43 @@ let
     }
   '';
 
-  configFile = pkgs.writeText "sway.config" ((if cfg.settings != null then with cfg.settings; ''
-    font pango:${concatStringsSep ", " fonts}
+  configFile = pkgs.writeText "sway.config" (
+    (
+      if cfg.settings != null then with cfg.settings; ''
+        font pango:${concatStringsSep ", " fonts}
 
-    floating_modifier ${floating.modifier}
-    default_border ${if window.titlebar then "normal" else "pixel"} ${toString window.border}
-    default_floating_border ${if floating.titlebar then "normal" else "pixel"} ${toString floating.border}
-    hide_edge_borders ${window.hideEdgeBorders}
-    popup_during_fullscreen ${window.popupDuringFullscreen}
-    focus_wrapping ${if focus.forceWrapping then "yes" else "no"}
-    focus_follows_mouse ${if focus.followMouse then "yes" else "no"}
-    focus_on_window_activation ${focus.newWindow}
-    mouse_warping ${focus.mouseWarping}
-    workspace_layout ${workspaceLayout}
-    workspace_auto_back_and_forth ${if workspaceAutoBackAndForth then "yes" else "no"}
+        floating_modifier ${floating.modifier}
+        default_border ${if window.titlebar then "normal" else "pixel"} ${toString window.border}
+        default_floating_border ${if floating.titlebar then "normal" else "pixel"} ${toString floating.border}
+        hide_edge_borders ${window.hideEdgeBorders}
+        popup_during_fullscreen ${window.popupDuringFullscreen}
+        focus_wrapping ${if focus.forceWrapping then "yes" else "no"}
+        focus_follows_mouse ${if focus.followMouse then "yes" else "no"}
+        focus_on_window_activation ${focus.newWindow}
+        mouse_warping ${focus.mouseWarping}
+        workspace_layout ${workspaceLayout}
+        workspace_auto_back_and_forth ${if workspaceAutoBackAndForth then "yes" else "no"}
 
-    client.focused ${colorSetStr colors.focused}
-    client.focused_inactive ${colorSetStr colors.focusedInactive}
-    client.unfocused ${colorSetStr colors.unfocused}
-    client.urgent ${colorSetStr colors.urgent}
+        client.focused ${colorSetStr colors.focused}
+        client.focused_inactive ${colorSetStr colors.focusedInactive}
+        client.unfocused ${colorSetStr colors.unfocused}
+        client.urgent ${colorSetStr colors.urgent}
 
-    ${keybindingsStr keybindings}
-    ${keycodebindingsStr keycodebindings}
-    ${concatStringsSep "\n" (mapAttrsToList inputStr input)}
-    ${concatStringsSep "\n" (mapAttrsToList outputStr output)}
-    ${concatStringsSep "\n" (mapAttrsToList modeStr modes)}
-    ${concatStringsSep "\n" (mapAttrsToList assignStr assigns)}
-    ${concatStringsSep "\n" (map barStr bars)}
-    ${optionalString (gaps != null) gapsStr}
-    ${concatStringsSep "\n" (map floatingCriteriaStr floating.criteria)}
-    ${concatStringsSep "\n" (map windowCommandsStr window.commands)}
-    ${concatStringsSep "\n" (map noFocusCriteriaStr window.noFocusCriteria)}
-    ${concatStringsSep "\n" (map startupEntryStr startup)}
-  '' else "") + "\n" + cfg.extraConfig);
+        ${keybindingsStr keybindings}
+        ${keycodebindingsStr keycodebindings}
+        ${concatStringsSep "\n" (mapAttrsToList inputStr input)}
+        ${concatStringsSep "\n" (mapAttrsToList outputStr output)}
+        ${concatStringsSep "\n" (mapAttrsToList modeStr modes)}
+        ${concatStringsSep "\n" (mapAttrsToList assignStr assigns)}
+        ${concatStringsSep "\n" (map barStr bars)}
+        ${optionalString (gaps != null) gapsStr}
+        ${concatStringsSep "\n" (map floatingCriteriaStr floating.criteria)}
+        ${concatStringsSep "\n" (map windowCommandsStr window.commands)}
+        ${concatStringsSep "\n" (map noFocusCriteriaStr window.noFocusCriteria)}
+        ${concatStringsSep "\n" (map startupEntryStr startup)}
+      '' else ""
+    ) + "\n" + cfg.extraConfig
+  );
 in
 {
   options = {
@@ -728,18 +754,22 @@ in
     };
   };
 
-  config = mkIf cfg.enable (mkMerge [
-    (mkIf (cfg.settings != null) {
-      xdg.configFile."sway/config" = {
-        source = configFile;
-      };
-      systemd.user.targets.hm-graphical-session = {
-        Unit = {
-          Description = "Home Manager Graphical Session";
-          Requires = [ "graphical-session-pre.target" ];
-          BindsTo = [ "graphical-session.target" ];
-        };
-      };
-    })
-  ]);
+  config = mkIf cfg.enable (
+    mkMerge [
+      (
+        mkIf (cfg.settings != null) {
+          xdg.configFile."sway/config" = {
+            source = configFile;
+          };
+          systemd.user.targets.hm-graphical-session = {
+            Unit = {
+              Description = "Home Manager Graphical Session";
+              Requires = [ "graphical-session-pre.target" ];
+              BindsTo = [ "graphical-session.target" ];
+            };
+          };
+        }
+      )
+    ]
+  );
 }

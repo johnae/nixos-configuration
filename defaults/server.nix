@@ -15,8 +15,18 @@ in
   console.font = "Lat2-Terminus16";
 
   environment.systemPackages = with pkgs; [
-    wget vim curl man-pages cacert zip unzip
-    jq git fd lsof fish
+    wget
+    vim
+    curl
+    man-pages
+    cacert
+    zip
+    unzip
+    jq
+    git
+    fd
+    lsof
+    fish
   ];
 
   services.openssh.enable = true;

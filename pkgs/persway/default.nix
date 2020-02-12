@@ -6,7 +6,8 @@ let
 
   metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
 
-in buildRustPackage rec {
+in
+buildRustPackage rec {
   pname = metadata.repo;
   version = metadata.rev;
 
@@ -25,10 +26,12 @@ in buildRustPackage rec {
     description = "Small Sway IPC Daemon";
     homepage = "https://github.com/johnae/persway";
     license = licenses.mit;
-    maintainers = [{
-      email = "john@insane.se";
-      github = "johnae";
-      name = "John Axel Eriksson";
-    }];
+    maintainers = [
+      {
+        email = "john@insane.se";
+        github = "johnae";
+        name = "John Axel Eriksson";
+      }
+    ];
   };
 }

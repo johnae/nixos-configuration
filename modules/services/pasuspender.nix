@@ -2,8 +2,10 @@
 
 with lib;
 
-let cfg = config.services.pasuspender;
-in {
+let
+  cfg = config.services.pasuspender;
+in
+{
   options.services.pasuspender = {
     enable = mkEnableOption "enable pulseaudio suspender";
   };

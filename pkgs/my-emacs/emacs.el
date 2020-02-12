@@ -1,4 +1,3 @@
-
 ;; Keep a ref to the actual file-name-handler
 (defvar file-name-handler-alist-actual file-name-handler-alist)
 
@@ -426,7 +425,7 @@
 ;; (defun my-executable-find (orig-fun &rest args)
 ;;   (direnv-update-environment default-directory)
 ;;   (apply orig-fun args))
-;; 
+;;
 ;; (advice-add 'executable-find :around #'my-executable-find)
 
 ;; Language Server Protocol.
@@ -437,6 +436,11 @@
   :config
   (setq lsp-prefer-flymake nil)
   (setq lsp-enable-snippet nil)
+  (add-to-list 'lsp-language-id-configuration '(nix-mode . "nix"))
+  (lsp-register-client
+   (make-lsp-client :new-connection (lsp-stdio-connection '("rnix-lsp"))
+                    :major-modes '(nix-mode)
+                    :server-id 'nix))
   (setq lsp-file-watch-ignored '(
     "[/\\\\]\\.direnv$"
     ; SCM tools
@@ -531,15 +535,14 @@
   (company-quickhelp-mode 1)
   (setq company-quickhelp-delay 0))
 
-
 ;; Show documentation popups for nixos configuration options.
-;;(use-package company-nixos-options
-;;  :defer t
-;;  :init
-;;  (with-eval-after-load 'company
-;;    (add-to-list 'company-backends 'company-nixos-options))
-;;  )
-
+(use-package company-nixos-options
+  :defer t
+  :init
+  :after (company)
+  ;;(with-eval-after-load 'company
+  ;;  (add-to-list 'company-backends 'company-nixos-options))
+  )
 
 ;; This allows me to toggle between snake case, camel case etc.
 (use-package string-inflection
@@ -1471,3 +1474,4 @@ Version 2017-11-01"
       '(24-hours ":" minutes))
 
 (customize-set-variable 'lsp-rust-server 'rust-analyzer)
+(customize-set-variable 'nix-nixfmt-bin "nixpkgs-fmt")

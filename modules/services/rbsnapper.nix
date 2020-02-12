@@ -7,8 +7,10 @@ let
   cfg = config.services.rbsnapper;
 
   pango = attrs: str:
-    "<span " + (lib.concatStringsSep " "
-      (lib.mapAttrsToList (name: value: "${name}='${value}' ") attrs)) + ">"
+    "<span " + (
+      lib.concatStringsSep " "
+        (lib.mapAttrsToList (name: value: "${name}='${value}' ") attrs)
+    ) + ">"
     + str + "</span>";
 
   mkRbSnapper = { OnUnitInactiveSec ? "30m", OnBootSec ? "5m", ... }: {
@@ -52,14 +54,14 @@ let
         NOTIFY="${notify-desktop}/bin/notify-desktop"
         if [ "$EXIT_STATUS" = "0" ]; then
            MSG="${pango { font_weight = "bold"; } "Completed"} ${
-             toLower description
-           } in $DURATION"s.
+      toLower description
+      } in $DURATION"s.
            ${busybox}/bin/su $USER -s /bin/sh -c \
              "$NOTIFY -i emblem-insync-syncing \"Backup\" \"$MSG\""
         else
            MSG="${pango { font_weight = "bold"; } "Failed"} ${
-             toLower description
-           } after $DURATION"s.
+      toLower description
+      } after $DURATION"s.
            ${busybox}/bin/su $USER -s /bin/sh -c \
              "$NOTIFY -i dialog-error -u critical \"Backup\" \"$MSG\""
         fi;
@@ -69,7 +71,8 @@ let
 
   };
 
-in {
+in
+{
   options.services.rbsnapper = {
 
     enable = mkEnableOption

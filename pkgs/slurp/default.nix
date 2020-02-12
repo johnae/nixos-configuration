@@ -1,11 +1,23 @@
-{ stdenv, fetchFromGitHub, meson, ninja, pkgconfig, wayland, wayland-protocols
-, cairo, libjpeg, git, systemd, scdoc }:
+{ stdenv
+, fetchFromGitHub
+, meson
+, ninja
+, pkgconfig
+, wayland
+, wayland-protocols
+, cairo
+, libjpeg
+, git
+, systemd
+, scdoc
+}:
 
 let
 
   metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
 
-in stdenv.mkDerivation rec {
+in
+stdenv.mkDerivation rec {
   name = "${metadata.repo}-${version}";
   version = metadata.rev;
 

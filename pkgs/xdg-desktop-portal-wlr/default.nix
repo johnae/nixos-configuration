@@ -2,15 +2,29 @@
 #, wayland-protocols, gdk_pixbuf, dbus_libs, pango, cairo, git, systemd, librsvg
 #}:
 
-{ stdenv, fetchFromGitHub, meson, ninja, pkgconfig, scdoc, makeWrapper
-, dbus_libs, git, cairo, pango, wayland, wayland-protocols, systemd, gdk_pixbuf
+{ stdenv
+, fetchFromGitHub
+, meson
+, ninja
+, pkgconfig
+, scdoc
+, makeWrapper
+, dbus_libs
+, git
+, cairo
+, pango
+, wayland
+, wayland-protocols
+, systemd
+, gdk_pixbuf
 }:
 
 let
 
   metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
 
-in stdenv.mkDerivation rec {
+in
+stdenv.mkDerivation rec {
   name = "${metadata.repo}-${version}";
   version = metadata.rev;
 

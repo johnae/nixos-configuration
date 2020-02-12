@@ -7,7 +7,8 @@ let
   };
   chrpkgs = import chrpkgsBall;
 
-in {
+in
+{
   nixpkgs.config = import ../nixpkgs-config.nix;
   nixpkgs.overlays = import ../nixpkgs-overlays.nix;
 
@@ -73,12 +74,14 @@ in {
     nordic
     nordic-polar
 
-    nixfmt
+    # nixfmt ## using below instead
+    nixpkgs-fmt
     google-cloud-sdk
     kubectl
     kustomize
     fzf # # for certain utilities that depend on it
     rust-analyzer-bin
+    rnix-lsp
 
     gnome3.nautilus
     chrpkgs.chromium-dev-wayland
@@ -96,7 +99,7 @@ in {
   xdg.configFile."nixpkgs/pkgs".source = ../pkgs;
 
   home.file.".emacs".source =
-    (pkgs.callPackage ../pkgs/my-emacs/config.nix { }).emacsConfig;
+    (pkgs.callPackage ../pkgs/my-emacs/config.nix {}).emacsConfig;
 
   home.file.".icons/default" = {
     source = "${pkgs.gnome3.defaultIconTheme}/share/icons/Adwaita";

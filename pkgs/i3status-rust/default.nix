@@ -1,7 +1,9 @@
 { stdenv, rustPlatform, fetchFromGitHub, pkgconfig, dbus, libpulseaudio }:
 
-let metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
-in rustPlatform.buildRustPackage rec {
+let
+  metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
+in
+rustPlatform.buildRustPackage rec {
   pname = metadata.repo;
   version = metadata.rev;
 

@@ -6,8 +6,8 @@
 
   nix.extraOptions = ''
     plugin-files = ${
-      pkgs.nix-plugins.override { nix = config.nix.package; }
-    }/lib/nix/plugins/libnix-extra-builtins.so
+  pkgs.nix-plugins.override { nix = config.nix.package; }
+  }/lib/nix/plugins/libnix-extra-builtins.so
   '';
 
   boot.loader.systemd-boot.enable = true;

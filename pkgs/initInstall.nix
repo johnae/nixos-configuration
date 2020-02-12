@@ -1,4 +1,4 @@
-{stdenv, sops, git, btrfs-progs, writeStrictShellScriptBin, ...}:
+{ stdenv, sops, git, btrfs-progs, writeStrictShellScriptBin, ... }:
 
 writeStrictShellScriptBin "init-install" ''
   PATH=${sops}/bin:${git}/bin:${btrfs-progs}/bin''${PATH:+:}$PATH

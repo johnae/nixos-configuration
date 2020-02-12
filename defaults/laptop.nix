@@ -13,10 +13,10 @@ in
   boot.extraModulePackages = with config.boot.kernelPackages; [ wireguard ];
 
   boot.kernel.sysctl = {
-      "vm.dirty_writeback_centisecs" = 1500;
-      "vm.laptop_mode" = 5;
-      "vm.swappiness" = 1;
-      "fs.inotify.max_user_watches" = 12288;
+    "vm.dirty_writeback_centisecs" = 1500;
+    "vm.laptop_mode" = 5;
+    "vm.swappiness" = 1;
+    "fs.inotify.max_user_watches" = 12288;
   };
 
   hardware.opengl.enable = true;
@@ -83,17 +83,17 @@ in
   services.rbsnapper.enable = true;
 
   fonts.fonts = with pkgs; [
-     google-fonts
-     #source-code-pro
-     #office-code-pro-font
-     #system-san-francisco-font
-     #san-francisco-mono-font
-     font-awesome_5
-     powerline-fonts
-     roboto
-     nerdfonts
-     #fira-code
-     #fira-code-symbols
+    google-fonts
+    #source-code-pro
+    #office-code-pro-font
+    #system-san-francisco-font
+    #san-francisco-mono-font
+    font-awesome_5
+    powerline-fonts
+    roboto
+    nerdfonts
+    #fira-code
+    #fira-code-symbols
   ];
 
 }

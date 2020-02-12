@@ -1,4 +1,4 @@
-{stdenv, shellcheck, writeTextFile, ...}:
+{ stdenv, shellcheck, writeTextFile, ... }:
 {
   writeStrictShellScript = name: text:
     writeTextFile {

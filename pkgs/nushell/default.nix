@@ -1,9 +1,20 @@
-{ stdenv, lib, fetchFromGitHub, rustPlatform, openssl, pkg-config, python3, xorg
-, withStableFeatures ? true, withTestBinaries ? true }:
+{ stdenv
+, lib
+, fetchFromGitHub
+, rustPlatform
+, openssl
+, pkg-config
+, python3
+, xorg
+, withStableFeatures ? true
+, withTestBinaries ? true
+}:
 
-let metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
+let
+  metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
 
-in rustPlatform.buildRustPackage rec {
+in
+rustPlatform.buildRustPackage rec {
   pname = metadata.repo;
   version = metadata.rev;
 
@@ -26,11 +37,11 @@ in rustPlatform.buildRustPackage rec {
   checkPhase = ''
     runHook preCheck
     echo "Running cargo cargo test ${
-      lib.strings.concatStringsSep " " cargoTestFlags
-    } -- ''${checkFlags} ''${checkFlagsArray+''${checkFlagsArray[@]}}"
+  lib.strings.concatStringsSep " " cargoTestFlags
+  } -- ''${checkFlags} ''${checkFlagsArray+''${checkFlagsArray[@]}}"
     cargo test ${
-      lib.strings.concatStringsSep " " cargoTestFlags
-    } -- ''${checkFlags} ''${checkFlagsArray+"''${checkFlagsArray[@]}"}
+  lib.strings.concatStringsSep " " cargoTestFlags
+  } -- ''${checkFlags} ''${checkFlagsArray+"''${checkFlagsArray[@]}"}
     runHook postCheck
   '';
 

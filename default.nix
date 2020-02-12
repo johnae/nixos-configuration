@@ -1,7 +1,7 @@
 let
-  pkgs-meta = with builtins; fromJSON ( readFile ./nixpkgs.json );
+  pkgs-meta = with builtins; fromJSON (readFile ./nixpkgs.json);
   pkgs = with builtins;
-         import (fetchTarball { inherit (pkgs-meta) url sha256; }) {};
+    import (fetchTarball { inherit (pkgs-meta) url sha256; }) {};
   lib = pkgs.lib;
 
   nixosFunc = import (pkgs.path + "/nixos");
@@ -14,8 +14,10 @@ let
     let
       metadataDir = toString ./metadata;
       confName = (baseNameOf (dirOf config));
-      isoConf = let conf = "${metadataDir}/${confName}/isoconf.json";
-                in if pathExists conf then fromJSON (extraBuiltins.sops conf) else {};
+      isoConf = let
+        conf = "${metadataDir}/${confName}/isoconf.json";
+      in
+        if pathExists conf then fromJSON (extraBuiltins.sops conf) else {};
       system-closure = buildConfig config;
       configuration = {
         imports = [
@@ -50,8 +52,8 @@ let
           fi
 
           ${lib.concatMapStringsSep "\n"
-            (s: "export ${s}")
-            (lib.mapAttrsToList (name: value: "${name}=\"${value}\"") isoConf)}
+          (s: "export ${s}")
+          (lib.mapAttrsToList (name: value: "${name}=\"${value}\"") isoConf)}
 
           sudo --preserve-env=DISK_PASSWORD,ADDITIONAL_VOLUMES,ADDITIONAL_DISK \
                 /etc/install.sh

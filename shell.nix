@@ -1,7 +1,7 @@
 let
   pkgs-meta = with builtins; fromJSON (readFile ./nixpkgs.json);
   pkgs = with builtins;
-    import (fetchTarball { inherit (pkgs-meta) url sha256; }) { };
+    import (fetchTarball { inherit (pkgs-meta) url sha256; }) {};
 
   diskname = "testdisk.img";
   altdiskname = "testdiskalt.img";
@@ -206,7 +206,8 @@ let
        -net user,hostfwd=tcp::10022-:22 -net nic
   '';
 
-in pkgs.mkShell {
+in
+pkgs.mkShell {
   buildInputs = with pkgs; [
     qemu
     bootVm

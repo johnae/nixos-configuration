@@ -1,9 +1,44 @@
-{ stdenv, lib, writeScriptBin, writeTextFile, writeStrictShellScriptBin
-, my-emacs, wl-clipboard, ps, jq, fire, sway, udev, fd, skim, bashInteractive
-, pass, wpa_supplicant, cloud-sql-proxy, gnupg, gawk, gnused, openssl, gnugrep
-, findutils, coreutils, alacritty, libnotify, hostname, maim, slop, killall
-, wget, procps, openssh, kubectl, diffutils, chromium, nix-prefetch-github
-, signal-desktop, ... }:
+{ stdenv
+, lib
+, writeScriptBin
+, writeTextFile
+, writeStrictShellScriptBin
+, my-emacs
+, wl-clipboard
+, ps
+, jq
+, fire
+, sway
+, udev
+, fd
+, skim
+, bashInteractive
+, pass
+, wpa_supplicant
+, cloud-sql-proxy
+, gnupg
+, gawk
+, gnused
+, openssl
+, gnugrep
+, findutils
+, coreutils
+, alacritty
+, libnotify
+, hostname
+, maim
+, slop
+, killall
+, wget
+, procps
+, openssh
+, kubectl
+, diffutils
+, chromium
+, nix-prefetch-github
+, signal-desktop
+, ...
+}:
 
 let
   emacsclient = "${my-emacs}/bin/emacsclient";
@@ -269,12 +304,14 @@ let
     exec ${alacritty}/bin/alacritty -e ${edi}/bin/edi -e '(mu4e)'
   '';
 
-in {
+in
+{
   paths = {
     inherit edit edi emacs-run emacs-server mail project-select launch
       git-credential-pass sk-sk sk-run sk-window sk-passmenu browse-chromium
       signal screenshot random-name add-wifi-network update-wifi-networks
       update-wireguard-keys spotify-play-album spotify-play-track spotify-cmd
-      spotify-play-artist spotify-play-playlist;
+      spotify-play-artist spotify-play-playlist
+      ;
   };
 }

@@ -1,11 +1,21 @@
-{ stdenv, fetchFromGitHub, meson, ninja, pkgconfig, wayland, scdoc, ffmpeg
-, wayland-protocols, libpulseaudio }:
+{ stdenv
+, fetchFromGitHub
+, meson
+, ninja
+, pkgconfig
+, wayland
+, scdoc
+, ffmpeg
+, wayland-protocols
+, libpulseaudio
+}:
 
 let
 
   metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
 
-in stdenv.mkDerivation rec {
+in
+stdenv.mkDerivation rec {
   name = "${metadata.repo}-${version}";
   version = metadata.rev;
 

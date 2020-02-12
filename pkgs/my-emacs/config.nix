@@ -1,9 +1,17 @@
-{ fetchgit, writeText, isync, pandoc, imapnotify, wl-clipboard, mu, runCommand
-, ... }:
+{ fetchgit
+, writeText
+, isync
+, pandoc
+, imapnotify
+, wl-clipboard
+, mu
+, runCommand
+, ...
+}:
 
 let
 
-  emacsConfig = runCommand "emacs.el" { } ''
+  emacsConfig = runCommand "emacs.el" {} ''
     cp ${./emacs.el} "$out"
     substituteInPlace "$out" \
                       --subst-var-by MUSE_LOAD_PATH \
@@ -20,4 +28,5 @@ let
                       "${wl-clipboard}/bin/wl-paste"
   '';
 
-in { inherit emacsConfig; }
+in
+{ inherit emacsConfig; }

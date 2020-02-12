@@ -1,8 +1,17 @@
-{ stdenv, rustPlatform, fetchFromGitHub, pkgconfig, dbus, libpulseaudio, alsaLib
-, openssl }:
+{ stdenv
+, rustPlatform
+, fetchFromGitHub
+, pkgconfig
+, dbus
+, libpulseaudio
+, alsaLib
+, openssl
+}:
 
-let metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
-in rustPlatform.buildRustPackage rec {
+let
+  metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
+in
+rustPlatform.buildRustPackage rec {
   pname = metadata.repo;
   version = metadata.rev;
 
@@ -21,10 +30,12 @@ in rustPlatform.buildRustPackage rec {
     description = "Simple spotify device daemon";
     homepage = "https://github.com/spotifyd/spotifyd";
     license = licenses.gpl3;
-    maintainers = [{
-      email = "john@insane.se";
-      github = "johnae";
-      name = "John Axel Eriksson";
-    }];
+    maintainers = [
+      {
+        email = "john@insane.se";
+        github = "johnae";
+        name = "John Axel Eriksson";
+      }
+    ];
   };
 }

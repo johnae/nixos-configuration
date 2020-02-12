@@ -1,11 +1,24 @@
-{ stdenv, fetchFromGitHub, meson, ninja, systemd, xwayland, pkgconfig, wayland
-, wayland-protocols, libxkbcommon, pixman, xorg, mesa }:
+{ stdenv
+, fetchFromGitHub
+, meson
+, ninja
+, systemd
+, xwayland
+, pkgconfig
+, wayland
+, wayland-protocols
+, libxkbcommon
+, pixman
+, xorg
+, mesa
+}:
 
 let
 
   metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
 
-in stdenv.mkDerivation rec {
+in
+stdenv.mkDerivation rec {
   name = "${metadata.repo}-${version}";
   version = metadata.rev;
 
@@ -34,10 +47,12 @@ in stdenv.mkDerivation rec {
     homepage = "https://github.com/akvadrako/sommelier";
     license = licenses.mit;
     platforms = platforms.linux;
-    maintainers = with maintainers; [{
-      email = "john@insane.se";
-      github = "johnae";
-      name = "John Axel Eriksson";
-    }];
+    maintainers = with maintainers; [
+      {
+        email = "john@insane.se";
+        github = "johnae";
+        name = "John Axel Eriksson";
+      }
+    ];
   };
 }

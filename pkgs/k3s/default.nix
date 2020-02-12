@@ -1,7 +1,9 @@
 { stdenv, fetchurl }:
 
-let metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
-in stdenv.mkDerivation rec {
+let
+  metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
+in
+stdenv.mkDerivation rec {
   inherit (metadata) version;
   name = "k3s-${version}";
   src = fetchurl { inherit (metadata) hash url; };
