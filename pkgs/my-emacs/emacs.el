@@ -1,3 +1,4 @@
+
 ;; Keep a ref to the actual file-name-handler
 (defvar file-name-handler-alist-actual file-name-handler-alist)
 
@@ -316,8 +317,10 @@
 
 ;;For editing nix expressions.
 (use-package nix-mode
-  :mode "\\.nix\\'")
-
+  :mode "\\.nix\\'"
+  :init
+  (add-hook 'before-save-hook #'nix-format-buffer)
+  )
 
 ;; [[https://magit.vc/][Magit]] is possibly the most awesome git integration of any editor out there.
 (use-package magit
@@ -356,6 +359,8 @@
 ;; and ofc
 ;; https://direnv.net/]]
 (use-package direnv
+  :init
+  (add-hook 'prog-mode-hook #'direnv-update-environment)
   :config
   (direnv-mode)
   (add-to-list 'direnv-non-file-modes 'eshell-mode)
@@ -427,11 +432,38 @@
 ;; Language Server Protocol.
 ;; See: https://github.com/emacs-lsp/lsp-mode
 (use-package lsp-mode
+  :after (direnv evil)
   :init (setq lsp-keymap-prefix "C-c a")
+  :config
+  (setq lsp-prefer-flymake nil)
+  (setq lsp-enable-snippet nil)
+  (setq lsp-file-watch-ignored '(
+    "[/\\\\]\\.direnv$"
+    ; SCM tools
+    "[/\\\\]\\.git$"
+    "[/\\\\]\\.hg$"
+    "[/\\\\]\\.bzr$"
+    "[/\\\\]_darcs$"
+    "[/\\\\]\\.svn$"
+    "[/\\\\]_FOSSIL_$"
+    ; IDE tools
+    "[/\\\\]\\.idea$"
+    "[/\\\\]\\.ensime_cache$"
+    "[/\\\\]\\.eunit$"
+    "[/\\\\]node_modules$"
+    "[/\\\\]\\.fslckout$"
+    "[/\\\\]\\.tox$"
+    "[/\\\\]\\.stack-work$"
+    "[/\\\\]\\.bloop$"
+    "[/\\\\]\\.metals$"
+    "[/\\\\]target$"
+    ; Autotools output
+    "[/\\\\]\\.deps$"
+    "[/\\\\]build-aux$"
+    "[/\\\\]autom4te.cache$"
+    "[/\\\\]\\.reference$"))
   :hook (
-         (lsp-mode . lsp-enable-which-key-integration)
-  )
-  :defer 5
+    (lsp-mode . lsp-enable-which-key-integration))
  )
 
 (defun my-lsp ()
@@ -439,7 +471,7 @@
   (direnv-update-environment default-directory)
   (lsp-deferred))
 
-(add-hook 'prog-mode-hook 'lsp)
+(add-hook 'prog-mode-hook 'my-lsp)
 
 (use-package lsp-ui
   :after lsp-mode
@@ -452,6 +484,7 @@
   :after lsp-mode
   :config
   (push 'company-lsp company-backends)
+  :defer t
 )
 
 (use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
@@ -1436,3 +1469,5 @@ Version 2017-11-01"
 
 (setq calendar-time-display-form
       '(24-hours ":" minutes))
+
+(customize-set-variable 'lsp-rust-server 'rust-analyzer)

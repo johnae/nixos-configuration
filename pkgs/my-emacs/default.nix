@@ -1,8 +1,8 @@
-#{ pkgs, fetchFromGitHub, fetchgit, fetchurl, glibc, pandoc, isync, imapnotify, git, wl-clipboard, mu, writeText, ... }:
-{ emacsPackages, fetchgit, writeText, mu, emacsWithPackagesFromUsePackage, pkgs, ...}:
+# { pkgs, fetchFromGitHub, fetchgit, fetchurl, glibc, pandoc, isync, imapnotify, git, wl-clipboard, mu, writeText, ... }:
+{ emacsPackages, fetchgit, writeText, mu, emacsWithPackagesFromUsePackage, pkgs
+, ... }:
 
 let
-
   jl-encrypt = emacsPackages.melpaBuild {
     pname = "jl-encrypt";
     version = "20190618";
@@ -22,12 +22,8 @@ let
 
   config = pkgs.callPackage ./config.nix { };
 
-in
-
-  emacsWithPackagesFromUsePackage {
-    config = builtins.readFile config.emacsConfig;
-    package = pkgs.emacsGit-nox;
-    extraEmacsPackages = epkgs: [
-      jl-encrypt
-    ];
-  }
+in emacsWithPackagesFromUsePackage {
+  config = builtins.readFile config.emacsConfig;
+  package = pkgs.emacsGit-nox;
+  extraEmacsPackages = epkgs: [ jl-encrypt ];
+}
