@@ -20,6 +20,16 @@ let
     fi
   '';
 
+  vpnStatus = pkgs.writeStrictShellScriptBin "vpn-status" ''
+    VPN_EXIT="$(${pkgs.curl}/bin/curl -m 5 --connect-timeout 5 -sS https://am.i.mullvad.net/json | \
+                ${pkgs.jq}/bin/jq -r .mullvad_exit_ip_hostname)"
+    if [ -z "$VPN_EXIT" ]; then
+      echo " vpn down"
+    else
+      echo " vpn up $VPN_EXIT"
+    fi
+  '';
+
 in
 
 {
@@ -31,6 +41,12 @@ in
         block = "custom";
         interval = 600;
         command = "${checkNixosVersion}/bin/check-nixos-version";
+      }
+
+      {
+        block = "custom";
+        interval = 60;
+        command = "${vpnStatus}/bin/vpn-status";
       }
 
       {
