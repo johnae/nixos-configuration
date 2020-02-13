@@ -317,9 +317,8 @@
 ;;For editing nix expressions.
 (use-package nix-mode
   :mode "\\.nix\\'"
-  :init
-  (add-hook 'before-save-hook #'nix-format-buffer)
-  )
+  :config
+  (add-hook 'before-save-hook #'nix-mode-format))
 
 ;; [[https://magit.vc/][Magit]] is possibly the most awesome git integration of any editor out there.
 (use-package magit
