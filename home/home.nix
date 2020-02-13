@@ -87,6 +87,11 @@ in
     chrpkgs.chromium-dev-wayland
   ];
 
+  home.sessionVariables = {
+    EDITOR = "edi";
+    VISUAL = "edi";
+  };
+
   xsession.pointerCursor = {
     package = pkgs.gnome3.defaultIconTheme;
     name = "Adwaita";
