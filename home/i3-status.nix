@@ -1,5 +1,4 @@
 { pkgs, config, lib, options }:
-
 let
   checkNixosVersion = pkgs.writeStrictShellScriptBin "check-nixos-version" ''
     CURRENT=$(${pkgs.curl}/bin/curl -sS https://howoldis.herokuapp.com/api/channels | \
@@ -33,9 +32,7 @@ let
   wifiStatus = pkgs.writeStrictShellScriptBin "wifi-status" ''
     ${pkgs.iwd}/bin/iwctl station wlan0 get-networks rssi-dbms | ${pkgs.gnugrep}/bin/grep -E '>' | sed "s,\x1B\[[0-9;]*[a-zA-Z],,g" | ${pkgs.gawk}/bin/awk '{ dbms=$4/100 ; signal_strength = (-0.0154 * dbms * dbms) - (0.3794 * dbms) + 98.182 ; printf "%s %1.0f%%", $2, signal_strength}'
   '';
-
 in
-
 {
   programs.i3status-rust = {
     enable = true;

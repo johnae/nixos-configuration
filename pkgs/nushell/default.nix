@@ -9,10 +9,8 @@
 , withStableFeatures ? true
 , withTestBinaries ? true
 }:
-
 let
   metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
-
 in
 rustPlatform.buildRustPackage rec {
   pname = metadata.repo;

@@ -39,7 +39,6 @@
 , signal-desktop
 , ...
 }:
-
 let
   emacsclient = "${my-emacs}/bin/emacsclient";
   emacs = "${my-emacs}/bin/emacs";
@@ -303,7 +302,6 @@ let
     export TERMINAL_CONFIG=
     exec ${alacritty}/bin/alacritty -e ${edi}/bin/edi -e '(mu4e)'
   '';
-
 in
 {
   paths = {

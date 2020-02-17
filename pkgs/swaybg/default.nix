@@ -11,11 +11,8 @@
 , gdk_pixbuf
 , buildDocs ? true
 }:
-
 let
-
   metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
-
 in
 stdenv.mkDerivation rec {
   name = "${metadata.repo}-${version}";

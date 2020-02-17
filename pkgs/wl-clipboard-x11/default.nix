@@ -1,9 +1,7 @@
 { stdenv, coreutils, lib, shellcheck, bash, wl-clipboard }:
 
 with lib;
-
 let
-
   setToStringSep = sep: x: fun: concatStringsSep sep (mapAttrsToList fun x);
 
   substituteInPlace = file: substitutions: ''
@@ -43,7 +41,6 @@ let
 
   wl-copy = "${wl-clipboard}/bin/wl-copy";
   wl-paste = "${wl-clipboard}/bin/wl-paste";
-
 in
 mkStrictShellScript {
   name = "xclip";

@@ -1,15 +1,12 @@
 { config, lib, pkgs, ... }:
 
 with lib;
-
 let
-
   cfg = config.services.k3s;
   isAgent = cfg.masterUrl != null;
   isMaster = !isAgent;
   k3sDir = "/var/lib/k3s";
   k3sDataDir = "${k3sDir}/data";
-
 in
 {
   options.services.k3s = {
@@ -89,7 +86,8 @@ in
       } // (if isAgent then { K3S_URL = cfg.masterUrl; } else {});
 
       script = (
-        if isAgent then ''
+        if isAgent
+        then ''
           exec ${k3s}/bin/k3s agent -d ${k3sDataDir} ${
         if cfg.docker then "--docker" else ""
         }\
@@ -115,13 +113,14 @@ in
       );
 
       postStart = (
-        if isMaster then ''
+        if isMaster
+        then ''
           echo Applying extra kubernetes manifests
           set -x
           ${lib.concatStringsSep "\n" (
           map (
             m:
-              "${kubectl}/bin/kubectl --kubeconfig /kubeconfig.yml apply -f ${m}"
+            "${kubectl}/bin/kubectl --kubeconfig /kubeconfig.yml apply -f ${m}"
           )
             cfg.extraManifests
         )}

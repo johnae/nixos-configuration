@@ -1,5 +1,4 @@
 { pkgs, config, lib, options }:
-
 let
   flavor = "gmail.com";
   realName = "John Axel Eriksson";
@@ -36,9 +35,7 @@ let
   };
 
   genGmailPasswordCommand = address: "${pkgs.gnupg}/bin/gpg2 -q --for-your-eyes-only --no-tty -d " + "${config.programs.password-store.settings.PASSWORD_STORE_DIR}/emacs/auth/authinfo.gpg | " + "${pkgs.gawk}/bin/awk '/machine imap.gmail.com login ${address}/ {print $NF}'";
-
 in
-
 {
   accounts.email = {
     maildirBasePath = ".mail";

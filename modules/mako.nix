@@ -1,7 +1,6 @@
 { config, lib, pkgs, ... }:
 
 with lib;
-
 let
   cfg = config.programs.mako;
 
@@ -9,7 +8,6 @@ let
     pkgs.writeText "config" ''
       ${concatStringsSep "\n" (mapAttrsToList (k: v: "${k}=${v}") conf)}
     '';
-
 in
 {
   options.programs.mako = {

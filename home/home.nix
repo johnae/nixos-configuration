@@ -1,12 +1,10 @@
 { pkgs, config, lib, options }:
-
 let
   chrpkgsBall = builtins.fetchTarball {
     url =
       "https://github.com/colemickens/nixpkgs-chromium/archive/master.tar.gz";
   };
   chrpkgs = import chrpkgsBall;
-
 in
 {
   nixpkgs.config = import ../nixpkgs-config.nix;
@@ -108,90 +106,90 @@ in
   home.file.".emacs".source =
     (pkgs.callPackage ../pkgs/my-emacs/config.nix {}).emacsConfig;
 
-    home.file.".icons/default" = {
-      source = "${pkgs.gnome3.defaultIconTheme}/share/icons/Adwaita";
+  home.file.".icons/default" = {
+    source = "${pkgs.gnome3.defaultIconTheme}/share/icons/Adwaita";
+  };
+
+  base16-theme.enable = true;
+
+  qt = {
+    enable = true;
+    platformTheme = "gnome";
+  };
+
+  gtk = {
+    enable = true;
+    font = {
+      package = pkgs.roboto;
+      name = "Roboto Medium 11";
     };
-
-    base16-theme.enable = true;
-
-    qt = {
-      enable = true;
-      platformTheme = "gnome";
+    iconTheme = {
+      package = pkgs.arc-icon-theme;
+      name = "Arc";
     };
-
-    gtk = {
-      enable = true;
-      font = {
-        package = pkgs.roboto;
-        name = "Roboto Medium 11";
-      };
-      iconTheme = {
-        package = pkgs.arc-icon-theme;
-        name = "Arc";
-      };
-      theme = {
-        package = pkgs.arc-theme;
-        name = "Arc-Dark";
-      };
+    theme = {
+      package = pkgs.arc-theme;
+      name = "Arc-Dark";
     };
+  };
 
-    programs.git = {
-      enable = true;
-      userName = "John Axel Eriksson";
-      userEmail = "john@insane.se";
-      signing = {
-        key = "0x04ED6F42C62F42E9";
-        signByDefault = true;
+  programs.git = {
+    enable = true;
+    userName = "John Axel Eriksson";
+    userEmail = "john@insane.se";
+    signing = {
+      key = "0x04ED6F42C62F42E9";
+      signByDefault = true;
+    };
+    extraConfig = {
+      core.editor = "${pkgs.edi}/bin/edi -t";
+      push.default = "upstream";
+      pull.rebase = true;
+      rebase.autoStash = true;
+      url."git@github.com:".insteadOf = "https://github.com/";
+      color = {
+        ui = "auto";
+        branch = "auto";
+        status = "auto";
+        diff = "auto";
+        interactive = "auto";
+        grep = "auto";
+        decorate = "auto";
+        showbranch = "auto";
+        pager = true;
       };
-      extraConfig = {
-        core.editor = "${pkgs.edi}/bin/edi -t";
-        push.default = "upstream";
-        pull.rebase = true;
-        rebase.autoStash = true;
-        url."git@github.com:".insteadOf = "https://github.com/";
-        color = {
-          ui = "auto";
-          branch = "auto";
-          status = "auto";
-          diff = "auto";
-          interactive = "auto";
-          grep = "auto";
-          decorate = "auto";
-          showbranch = "auto";
-          pager = true;
+      credential = {
+        "https://github.com" = {
+          username = "johnae";
+          helper = "pass web/github.com/johnae";
         };
-        credential = {
-          "https://github.com" = {
-            username = "johnae";
-            helper = "pass web/github.com/johnae";
-          };
-          "https://repo.insane.se" = {
-            username = "johnae";
-            helper = "pass web/repo.insane.se/johnae";
-          };
+        "https://repo.insane.se" = {
+          username = "johnae";
+          helper = "pass web/repo.insane.se/johnae";
         };
       };
     };
+  };
 
-    programs.command-not-found.enable = true;
-    programs.starship.enable = true;
-    programs.starship.settings = {
-      kubernetes.disabled = false;
-      kubernetes.style = "bold blue";
-      nix_shell.disabled = false;
-      nix_shell.use_name = true;
-      rust.symbol = " ";
-    };
+  programs.command-not-found.enable = true;
+  programs.starship.enable = true;
+  programs.starship.settings = {
+    kubernetes.disabled = false;
+    kubernetes.style = "bold blue";
+    nix_shell.disabled = false;
+    nix_shell.use_name = true;
+    rust.symbol = " ";
+  };
 
-    programs.lsd = {
-      enable = true;
-      enableAliases = true;
-    };
-    programs.direnv.enable = true;
-    programs.password-store.enable = true;
-    programs.skim.enable = true;
+  programs.lsd = {
+    enable = true;
+    enableAliases = true;
+  };
+  programs.direnv.enable = true;
+  programs.password-store.enable = true;
+  programs.skim.enable = true;
 
-    services.lorri.enable = true;
-    services.syncthing.enable = true;
+  services.lorri.enable = true;
+  services.syncthing.enable = true;
 
 }

@@ -1,19 +1,17 @@
 { stdenv, lib, fetchFromGitHub, pkgs }:
-
 let
-
   metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
-  nightlyRustPlatform = let
-    nightly = pkgs.rustChannelOf {
-      date = "2020-02-05";
-      channel = "nightly";
-    };
-  in
-    pkgs.makeRustPlatform {
-      rustc = nightly.rust;
-      cargo = nightly.rust;
-    };
-
+  nightlyRustPlatform =
+    let
+      nightly = pkgs.rustChannelOf {
+        date = "2020-02-05";
+        channel = "nightly";
+      };
+    in
+      pkgs.makeRustPlatform {
+        rustc = nightly.rust;
+        cargo = nightly.rust;
+      };
 in
   with nightlyRustPlatform;
   buildRustPackage rec {

@@ -8,9 +8,7 @@
 , runCommand
 , ...
 }:
-
 let
-
   emacsConfig = runCommand "emacs.el" {} ''
     cp ${./emacs.el} "$out"
     substituteInPlace "$out" \
@@ -27,6 +25,5 @@ let
                       --subst-var-by WLPASTE \
                       "${wl-clipboard}/bin/wl-paste"
   '';
-
 in
 { inherit emacsConfig; }

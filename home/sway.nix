@@ -1,7 +1,5 @@
 { pkgs, config, lib, options }:
-
 let
-
   swayservice = command: {
     Unit = {
       Description = "Small Sway IPC Daemon";
@@ -76,9 +74,7 @@ let
     sleep 600
     done
   '';
-
 in
-
 {
   programs.sway = {
     enable = true;
@@ -105,26 +101,27 @@ in
 
       workspaceAutoBackAndForth = true;
 
-      window = let
-        command = "floating enable, resize set width 100ppt height 120ppt";
-        floatCommand = "floating enable";
-      in
-      {
-        titlebar = false;
-        border = 0;
-        hideEdgeBorders = "smart";
-        popupDuringFullscreen = "smart";
-        commands = [
-          { inherit command; criteria = { class = "sk-window"; }; }
-          { inherit command; criteria = { title = "sk-window"; }; }
-          { inherit command; criteria = { app_id = "sk-window"; }; }
-          { command = floatCommand; criteria = { class = "input-window"; }; }
-          { command = floatCommand; criteria = { class = "gcr-prompter"; }; }
-        ];
-        noFocusCriteria = [
-          { window_role = "browser"; }
-        ];
-      };
+      window =
+        let
+          command = "floating enable, resize set width 100ppt height 120ppt";
+          floatCommand = "floating enable";
+        in
+          {
+            titlebar = false;
+            border = 0;
+            hideEdgeBorders = "smart";
+            popupDuringFullscreen = "smart";
+            commands = [
+              { inherit command; criteria = { class = "sk-window"; }; }
+              { inherit command; criteria = { title = "sk-window"; }; }
+              { inherit command; criteria = { app_id = "sk-window"; }; }
+              { command = floatCommand; criteria = { class = "input-window"; }; }
+              { command = floatCommand; criteria = { class = "gcr-prompter"; }; }
+            ];
+            noFocusCriteria = [
+              { window_role = "browser"; }
+            ];
+          };
 
       floating = {
         titlebar = false;

@@ -6,9 +6,7 @@ with lib;
 ## for all extraUsers setup on the system. Without this home-manager refuses
 ## to run on boot when setup as a nix module and the user has yet to install
 ## anything through nix.
-
 let
-
   cfg = config.services.nix-dirs;
   users = filterAttrs (_: value: value.isNormalUser) config.users.extraUsers;
   nix-dirs-services = foldr (
@@ -30,7 +28,6 @@ let
         };
       }
   ) {} (attrNames users);
-
 in
 {
   options.services.nix-dirs = {

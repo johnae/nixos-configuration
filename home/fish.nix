@@ -1,17 +1,15 @@
 { pkgs, config, lib, options }:
-
 let
-
   ## used to start "something" within a different network namespace
   ## I use it to start my compositor and other stuff within a namespace
   ## with only wireguard interface(s)
 
-  withinNetNS = executable: {netns ? "private"}:
-  lib.concatStringsSep " " [
-    "netns-exec"
-    netns
-    executable
-  ];
+  withinNetNS = executable: { netns ? "private" }:
+    lib.concatStringsSep " " [
+      "netns-exec"
+      netns
+      executable
+    ];
 
   start-sway = pkgs.writeStrictShellScript "start-sway" ''
     exec ${pkgs.dbus}/bin/dbus-launch --exit-with-session sway
@@ -19,9 +17,7 @@ let
 
   privateSway = withinNetNS start-sway {};
   privateFish = withinNetNS "fish" {};
-
 in
-
 {
 
   xdg.configFile."fish/functions/gcloud_sdk_argcomplete.fish".source = "${pkgs.google-cloud-sdk-fish-completion}/functions/gcloud_sdk_argcomplete.fish";

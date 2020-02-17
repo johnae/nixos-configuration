@@ -1,7 +1,5 @@
 { pkgs, config, lib, options }:
-
 let
-
   ## runs tmux with theme etc on remote nix machines
   remoteCommand = builtins.replaceStrings [ "\n" ] [ " " ] ''
     nix-shell -E '
@@ -37,9 +35,7 @@ let
       in pkgs.mkShell { buildInputs = [ start-tmux ]; }'
     --run start-tmux
   '';
-
 in
-
 {
   programs.ssh = {
     enable = true;

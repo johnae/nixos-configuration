@@ -1,5 +1,4 @@
 { stdenv, fetchhg, pkgconfig, wayland, wayland-protocols, gtk3 }:
-
 let
   metadata = import ./metadata.nix;
 in

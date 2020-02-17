@@ -1,9 +1,7 @@
 { config, lib, pkgs, ... }:
 
 with lib;
-
 let
-
   cfg = config.services.rbsnapper;
 
   pango = attrs: str:
@@ -70,7 +68,6 @@ let
     };
 
   };
-
 in
 {
   options.services.rbsnapper = {

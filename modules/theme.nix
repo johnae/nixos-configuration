@@ -1,7 +1,6 @@
 { config, lib, pkgs, options, ... }:
 
 with lib;
-
 let
   cfg = config.base16-theme;
   cnotation = replaceStrings [ "#" ] [ "0x" ];

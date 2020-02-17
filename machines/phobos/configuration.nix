@@ -1,7 +1,5 @@
 { config, lib, pkgs, ... }:
-
 let
-
   hostName = "phobos";
 
   nixos-hardware = import ../../nixos-hardware.nix;
@@ -20,7 +18,6 @@ let
           secretConfig.users.extraUsers
       )
     );
-
 in
   with lib; {
     imports = [

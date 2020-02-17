@@ -205,7 +205,6 @@ let
        -smbios type=2 \
        -net user,hostfwd=tcp::10022-:22 -net nic
   '';
-
 in
 pkgs.mkShell {
   buildInputs = with pkgs; [

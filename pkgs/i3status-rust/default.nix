@@ -1,5 +1,4 @@
 { stdenv, rustPlatform, fetchFromGitHub, pkgconfig, dbus, libpulseaudio }:
-
 let
   metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
 in

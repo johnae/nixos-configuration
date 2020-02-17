@@ -9,11 +9,8 @@
 , wayland-protocols
 , libpulseaudio
 }:
-
 let
-
   metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
-
 in
 stdenv.mkDerivation rec {
   name = "${metadata.repo}-${version}";

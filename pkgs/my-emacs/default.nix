@@ -7,7 +7,6 @@
 , pkgs
 , ...
 }:
-
 let
   jl-encrypt = emacsPackages.melpaBuild {
     pname = "jl-encrypt";
@@ -27,7 +26,6 @@ let
   };
 
   config = pkgs.callPackage ./config.nix {};
-
 in
 emacsWithPackagesFromUsePackage {
   config = builtins.readFile config.emacsConfig;

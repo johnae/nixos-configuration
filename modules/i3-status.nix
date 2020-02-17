@@ -1,7 +1,6 @@
 { config, lib, pkgs, ... }:
 
 with lib;
-
 let
   cfg = config.programs.i3status-rust;
 
@@ -17,7 +16,6 @@ let
           < ${pkgs.writeText "config.json" (builtins.toJSON conf)} \
           > $out
       '';
-
 in
 {
   options.programs.i3status-rust = {

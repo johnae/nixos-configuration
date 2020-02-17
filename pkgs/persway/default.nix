@@ -1,11 +1,8 @@
 { stdenv, lib, fetchFromGitHub, rustPlatform }:
 
 with rustPlatform;
-
 let
-
   metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
-
 in
 buildRustPackage rec {
   pname = metadata.repo;

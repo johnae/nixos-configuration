@@ -14,10 +14,11 @@ let
     let
       metadataDir = toString ./metadata;
       confName = (baseNameOf (dirOf config));
-      isoConf = let
-        conf = "${metadataDir}/${confName}/isoconf.json";
-      in
-        if pathExists conf then fromJSON (extraBuiltins.sops conf) else {};
+      isoConf =
+        let
+          conf = "${metadataDir}/${confName}/isoconf.json";
+        in
+          if pathExists conf then fromJSON (extraBuiltins.sops conf) else {};
       system-closure = buildConfig config;
       configuration = {
         imports = [
@@ -63,13 +64,9 @@ let
           sudo shutdown -h now
         '';
       };
-
     in
       (nixosFunc { inherit configuration; }).config.system.build.isoImage;
-
-
 in
-
 rec {
   machines = pkgs.recurseIntoAttrs {
     europa = buildConfig ./machines/europa/configuration.nix;

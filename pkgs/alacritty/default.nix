@@ -23,7 +23,6 @@
 }:
 
 with rustPlatform;
-
 let
   rpathLibs = [
     expat
@@ -61,7 +60,8 @@ buildRustPackage rec {
     install -D target/release/alacritty $out/bin/alacritty
 
   '' + (
-    if stdenv.isDarwin then ''
+    if stdenv.isDarwin
+    then ''
       mkdir $out/Applications
       cp -r target/release/osx/Alacritty.app $out/Applications/Alacritty.app
     '' else ''

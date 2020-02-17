@@ -1,5 +1,4 @@
 { config, pkgs, lib, ... }:
-
 let
   hostName = "titan";
 
@@ -18,7 +17,6 @@ let
             secretConfig.users.extraUsers
         )
     );
-
 in
 {
   imports =

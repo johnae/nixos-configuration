@@ -1,5 +1,4 @@
 { config, pkgs, lib, ... }:
-
 let
   hostName = "hyperion";
 
@@ -18,7 +17,6 @@ let
             secretConfig.users.extraUsers
         )
     );
-
 in
 {
   imports =

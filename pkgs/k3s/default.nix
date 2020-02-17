@@ -1,5 +1,4 @@
 { stdenv, fetchurl }:
-
 let
   metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
 in

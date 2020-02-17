@@ -1,5 +1,4 @@
 { ... }:
-
 let
   home-manager = with builtins;
     let
@@ -11,7 +10,6 @@ let
         ref = "master";
       };
 in
-
 {
   imports = [
     ./services.nix

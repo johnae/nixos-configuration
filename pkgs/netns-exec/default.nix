@@ -1,5 +1,4 @@
-{ stdenv, rustPlatform, fetchFromGitHub}:
-
+{ stdenv, rustPlatform, fetchFromGitHub }:
 let
   metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
 in

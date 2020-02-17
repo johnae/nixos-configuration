@@ -315,10 +315,14 @@
   (company-terraform-init))
 
 ;;For editing nix expressions.
+(defun my-nix-mode-format-before-save-hook ()
+  (when (eq major-mode 'nix-mode)
+    (nix-format-buffer)))
+
 (use-package nix-mode
   :mode "\\.nix\\'"
   :config
-  (add-hook 'before-save-hook #'nix-mode-format))
+  (add-hook 'before-save-hook #'my-nix-mode-format-before-save-hook))
 
 ;; [[https://magit.vc/][Magit]] is possibly the most awesome git integration of any editor out there.
 (use-package magit

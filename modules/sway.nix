@@ -559,44 +559,45 @@ let
       };
 
       gaps = mkOption {
-        type = types.nullOr (
-          types.submodule {
-            options = {
-              inner = mkOption {
-                type = types.nullOr types.int;
-                default = null;
-                description = "Inner gaps value.";
-                example = 12;
-              };
+        type = types.nullOr
+          (
+            types.submodule {
+              options = {
+                inner = mkOption {
+                  type = types.nullOr types.int;
+                  default = null;
+                  description = "Inner gaps value.";
+                  example = 12;
+                };
 
-              outer = mkOption {
-                type = types.nullOr types.int;
-                default = null;
-                description = "Outer gaps value.";
-                example = 5;
-              };
+                outer = mkOption {
+                  type = types.nullOr types.int;
+                  default = null;
+                  description = "Outer gaps value.";
+                  example = 5;
+                };
 
-              smartGaps = mkOption {
-                type = types.bool;
-                default = false;
-                description = ''
-                  This option controls whether to disable all gaps (outer and inner)
-                  on workspace with a single container.
-                '';
-                example = true;
-              };
+                smartGaps = mkOption {
+                  type = types.bool;
+                  default = false;
+                  description = ''
+                    This option controls whether to disable all gaps (outer and inner)
+                    on workspace with a single container.
+                  '';
+                  example = true;
+                };
 
-              smartBorders = mkOption {
-                type = types.enum [ "on" "off" "no_gaps" ];
-                default = "off";
-                description = ''
-                  This option controls whether to disable container borders on
-                  workspace with a single container.
-                '';
+                smartBorders = mkOption {
+                  type = types.enum [ "on" "off" "no_gaps" ];
+                  default = "off";
+                  description = ''
+                    This option controls whether to disable container borders on
+                    workspace with a single container.
+                  '';
+                };
               };
-            };
-          }
-        );
+            }
+          );
         default = null;
       };
     };
@@ -677,11 +678,14 @@ let
   inputStr = name: attrs:
     let
       toVal = v:
-        if isString v then
+        if isString v
+        then
           if v == "" then ''""'' else v
-        else if isBool v then
-          if v then "enabled" else "disabled"
-        else toString v;
+        else
+          if isBool v
+          then
+            if v then "enabled" else "disabled"
+          else toString v;
     in
       ''
         input "${name}" {
@@ -697,7 +701,8 @@ let
 
   configFile = pkgs.writeText "sway.config" (
     (
-      if cfg.settings != null then with cfg.settings; ''
+      if cfg.settings != null
+      then with cfg.settings; ''
         font pango:${concatStringsSep ", " fonts}
 
         floating_modifier ${floating.modifier}
