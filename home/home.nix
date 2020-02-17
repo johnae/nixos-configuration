@@ -58,8 +58,8 @@ in
     sk-run
     sk-window
     sk-passmenu
+
     #slacks
-    browse-chromium
     add-wifi-network
     update-wifi-networks
     update-wireguard-keys
@@ -83,8 +83,10 @@ in
     rust-analyzer-bin
     rnix-lsp
 
+    xdg_utils
+
     gnome3.nautilus
-    chrpkgs.chromium-dev-wayland
+    (pkgs.firejailed chrpkgs.chromium-dev-wayland)
   ];
 
   home.sessionVariables = {
@@ -106,90 +108,90 @@ in
   home.file.".emacs".source =
     (pkgs.callPackage ../pkgs/my-emacs/config.nix {}).emacsConfig;
 
-  home.file.".icons/default" = {
-    source = "${pkgs.gnome3.defaultIconTheme}/share/icons/Adwaita";
-  };
-
-  base16-theme.enable = true;
-
-  qt = {
-    enable = true;
-    platformTheme = "gnome";
-  };
-
-  gtk = {
-    enable = true;
-    font = {
-      package = pkgs.roboto;
-      name = "Roboto Medium 11";
+    home.file.".icons/default" = {
+      source = "${pkgs.gnome3.defaultIconTheme}/share/icons/Adwaita";
     };
-    iconTheme = {
-      package = pkgs.arc-icon-theme;
-      name = "Arc";
-    };
-    theme = {
-      package = pkgs.arc-theme;
-      name = "Arc-Dark";
-    };
-  };
 
-  programs.git = {
-    enable = true;
-    userName = "John Axel Eriksson";
-    userEmail = "john@insane.se";
-    signing = {
-      key = "0x04ED6F42C62F42E9";
-      signByDefault = true;
+    base16-theme.enable = true;
+
+    qt = {
+      enable = true;
+      platformTheme = "gnome";
     };
-    extraConfig = {
-      core.editor = "${pkgs.edi}/bin/edi -t";
-      push.default = "upstream";
-      pull.rebase = true;
-      rebase.autoStash = true;
-      url."git@github.com:".insteadOf = "https://github.com/";
-      color = {
-        ui = "auto";
-        branch = "auto";
-        status = "auto";
-        diff = "auto";
-        interactive = "auto";
-        grep = "auto";
-        decorate = "auto";
-        showbranch = "auto";
-        pager = true;
+
+    gtk = {
+      enable = true;
+      font = {
+        package = pkgs.roboto;
+        name = "Roboto Medium 11";
       };
-      credential = {
-        "https://github.com" = {
-          username = "johnae";
-          helper = "pass web/github.com/johnae";
-        };
-        "https://repo.insane.se" = {
-          username = "johnae";
-          helper = "pass web/repo.insane.se/johnae";
-        };
+      iconTheme = {
+        package = pkgs.arc-icon-theme;
+        name = "Arc";
+      };
+      theme = {
+        package = pkgs.arc-theme;
+        name = "Arc-Dark";
       };
     };
-  };
 
-  programs.command-not-found.enable = true;
-  programs.starship.enable = true;
-  programs.starship.settings = {
-    kubernetes.disabled = false;
-    kubernetes.style = "bold blue";
-    nix_shell.disabled = false;
-    nix_shell.use_name = true;
-    rust.symbol = " ";
-  };
+    programs.git = {
+      enable = true;
+      userName = "John Axel Eriksson";
+      userEmail = "john@insane.se";
+      signing = {
+        key = "0x04ED6F42C62F42E9";
+        signByDefault = true;
+      };
+      extraConfig = {
+        core.editor = "${pkgs.edi}/bin/edi -t";
+        push.default = "upstream";
+        pull.rebase = true;
+        rebase.autoStash = true;
+        url."git@github.com:".insteadOf = "https://github.com/";
+        color = {
+          ui = "auto";
+          branch = "auto";
+          status = "auto";
+          diff = "auto";
+          interactive = "auto";
+          grep = "auto";
+          decorate = "auto";
+          showbranch = "auto";
+          pager = true;
+        };
+        credential = {
+          "https://github.com" = {
+            username = "johnae";
+            helper = "pass web/github.com/johnae";
+          };
+          "https://repo.insane.se" = {
+            username = "johnae";
+            helper = "pass web/repo.insane.se/johnae";
+          };
+        };
+      };
+    };
 
-  programs.lsd = {
-    enable = true;
-    enableAliases = true;
-  };
-  programs.direnv.enable = true;
-  programs.password-store.enable = true;
-  programs.skim.enable = true;
+    programs.command-not-found.enable = true;
+    programs.starship.enable = true;
+    programs.starship.settings = {
+      kubernetes.disabled = false;
+      kubernetes.style = "bold blue";
+      nix_shell.disabled = false;
+      nix_shell.use_name = true;
+      rust.symbol = " ";
+    };
 
-  services.lorri.enable = true;
-  services.syncthing.enable = true;
+    programs.lsd = {
+      enable = true;
+      enableAliases = true;
+    };
+    programs.direnv.enable = true;
+    programs.password-store.enable = true;
+    programs.skim.enable = true;
+
+    services.lorri.enable = true;
+    services.syncthing.enable = true;
 
 }

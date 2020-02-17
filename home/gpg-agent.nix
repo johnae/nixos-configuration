@@ -15,8 +15,9 @@ in
     maxCacheTtlSsh = defaultCacheTtlSsh * 8;
     enableSshSupport = true;
     enableScDaemon = true;
-    pinentryFlavor = "gnome3";
+    pinentryFlavor = null;
     extraConfig = ''
+      pinentry-program ${pkgs.pinentry-gnome}/bin/pinentry-gnome3
       allow-emacs-pinentry
       allow-loopback-pinentry
     '';

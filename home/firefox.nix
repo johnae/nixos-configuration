@@ -1,7 +1,8 @@
 { pkgs, config, lib, options }:
 
 let
-  firefox-nightly = pkgs.wrapFirefox pkgs.latest.firefox-nightly-bin { browserName = "firefox"; };
+
+  firefox-nightly = pkgs.wrapFirefox (pkgs.firejailed pkgs.latest.firefox-nightly-bin) { browserName = "firefox"; };
 in
 
 {
@@ -19,11 +20,12 @@ in
           "browser.bookmarks.showMobileBookmarks" = true;
           "browser.tabs.opentabfor.middleclick" = false;
           "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
+          "media.peerconnection.enabled" = false; ## disable WebRTC
         };
 
         userChrome = ''
           #TabsToolbar {
-            visibility: collapse;
+          visibility: collapse;
           }
         '';
       };

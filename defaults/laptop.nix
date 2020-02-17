@@ -48,6 +48,7 @@ in
 
   programs.dconf.enable = true;
   programs.light.enable = true;
+  programs.firejail.enable = true;
 
   services.kbfs.enable = true;
   services.keybase.enable = true;
@@ -81,6 +82,8 @@ in
   services.disable-usb-wakeup.enable = true;
   services.pasuspender.enable = true;
   services.rbsnapper.enable = true;
+
+  security.wrappers.netns-exec.source = "${pkgs.netns-exec}/bin/netns-exec";
 
   fonts.fonts = with pkgs; [
     google-fonts

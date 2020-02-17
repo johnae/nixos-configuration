@@ -2,57 +2,62 @@
 
 let
 
-  #import-gsettings = pkgs.writeShellScriptBin "import-gsettings" ''
-  #  # usage: import-gsettings <gsettings key>:<settings.ini key> <gsettings key>:<settings.ini key> ...
-  #  PATH=${pkgs.gnused}/bin:${pkgs.glib}/bin:$PATH
-  #  expression=""
-  #  for pair in "$@"; do
-  #      IFS=:; set -- $pair
-  #      expressions="$expressions -e 's:^$2=(.*)$:gsettings set org.gnome.desktop.interface $1 \1:e'"
-  #  done
-  #  IFS=
-  #  eval exec sed -E $expressions "''${XDG_CONFIG_HOME:-$HOME/.config}"/gtk-3.0/settings.ini >/dev/null
-  #'';
+  swayservice = command: {
+    Unit = {
+      Description = "Small Sway IPC Daemon";
+      After = "graphical-session.target";
+      BindsTo = "graphical-session.target";
+    };
+
+    Service = {
+      Type = "simple";
+      ExecStart = command;
+    };
+
+    Install = {
+      WantedBy = [ "graphical-session.target" ];
+    };
+  };
 
   swaylockBackground = "~/Pictures/lockscreen.jpg";
   swaylockArgs = "-e -i ${swaylockBackground} -K -s fill --font Roboto --inside-color 00000066 --inside-clear-color 00660099 --inside-ver-color 00006699 --inside-wrong-color 66000099 --key-hl-color FFFFFF99 --ring-color GGGGGGBB --ring-wrong-color FF6666BB --ring-ver-color 6666FFBB --text-color FFFFFFFF --text-clear-color FFFFFFFF --text-wrong-color FFFFFFFF --text-ver-color FFFFFFFF";
   swaylockTimeout = "300";
   swaylockSleepTimeout = "310";
   swayidleCommand = lib.concatStringsSep " " [
-    "swayidle -w"
+    "${pkgs.swayidle}/bin/swayidle -w"
     "timeout ${swaylockTimeout}"
-    "'swaylock -f ${swaylockArgs}'"
+    "'${pkgs.swaylock}/bin/swaylock -f ${swaylockArgs}'"
     "timeout ${swaylockSleepTimeout}"
-    "'swaymsg \"output * dpms off\"'"
-    "resume 'swaymsg \"output * dpms on\"'"
-    "before-sleep 'swaylock -f ${swaylockArgs}'"
+    "'${pkgs.sway}/bin/swaymsg \"output * dpms off\"'"
+    "resume '${pkgs.sway}/bin/swaymsg \"output * dpms on\"'"
+    "before-sleep '${pkgs.swaylock}/bin/swaylock -f ${swaylockArgs}'"
   ];
 
   toggle-keyboard-layouts = pkgs.writeStrictShellScriptBin "toggle-keyboard-layouts" ''
     export PATH=${pkgs.jq}/bin''${PATH:+:}$PATH
     current_layout="$(swaymsg -t get_inputs -r | jq -r "[.[] | select(.xkb_active_layout_name != null)][0].xkb_active_layout_name")"
     if [ "$current_layout" = "English (US)" ]; then
-      swaymsg 'input "*" xkb_layout se'
+    swaymsg 'input "*" xkb_layout se'
     else
-      swaymsg 'input "*" xkb_layout us'
+    swaymsg 'input "*" xkb_layout us'
     fi
   '';
 
   random-background = pkgs.writeStrictShellScriptBin "random-background" ''
     if [ ! -d "$HOME"/Pictures/backgrounds ] ||
-       [ "$(${pkgs.findutils}/bin/find "$HOME"/Pictures/backgrounds/ -type f | wc -l)" = "0" ]; then
-       echo "$HOME"/Pictures/default-background.png
-       exit
+    [ "$(${pkgs.findutils}/bin/find "$HOME"/Pictures/backgrounds/ -type f | wc -l)" = "0" ]; then
+    echo "$HOME"/Pictures/default-background.png
+    exit
     fi
     ${pkgs.findutils}/bin/find "$HOME/Pictures/backgrounds" -type f | \
-         ${pkgs.coreutils}/bin/sort -R | ${pkgs.coreutils}/bin/tail -1
+    ${pkgs.coreutils}/bin/sort -R | ${pkgs.coreutils}/bin/tail -1
   '';
 
   random-picsum-background = pkgs.writeStrictShellScriptBin "random-picsum-background" ''
     category=''${1:-nature}
     ${pkgs.wget}/bin/wget -O /tmp/wallpaper.jpg 'https://source.unsplash.com/random/3200x1800/?'"$category" 2>/dev/null
     if [ -e "$HOME"/Pictures/wallpaper.jpg ]; then
-      mv "$HOME"/Pictures/wallpaper.jpg "$HOME"/Pictures/previous-wallpaper.jpg
+    mv "$HOME"/Pictures/wallpaper.jpg "$HOME"/Pictures/previous-wallpaper.jpg
     fi
     mv /tmp/wallpaper.jpg "$HOME"/Pictures/wallpaper.jpg
     echo "$HOME"/Pictures/wallpaper.jpg
@@ -67,8 +72,8 @@ let
   rotating-background = pkgs.writeStrictShellScriptBin "rotating-background" ''
     category=''${1:-nature}
     while true; do
-      ${sway-background}/bin/sway-background "$category"
-      sleep 600
+    ${sway-background}/bin/sway-background "$category"
+    sleep 600
     done
   '';
 
@@ -104,22 +109,22 @@ in
         command = "floating enable, resize set width 100ppt height 120ppt";
         floatCommand = "floating enable";
       in
-        {
-          titlebar = false;
-          border = 0;
-          hideEdgeBorders = "smart";
-          popupDuringFullscreen = "smart";
-          commands = [
-            { inherit command; criteria = { class = "sk-window"; }; }
-            { inherit command; criteria = { title = "sk-window"; }; }
-            { inherit command; criteria = { app_id = "sk-window"; }; }
-            { command = floatCommand; criteria = { class = "input-window"; }; }
-            { command = floatCommand; criteria = { class = "gcr-prompter"; }; }
-          ];
-          noFocusCriteria = [
-            { window_role = "browser"; }
-          ];
-        };
+      {
+        titlebar = false;
+        border = 0;
+        hideEdgeBorders = "smart";
+        popupDuringFullscreen = "smart";
+        commands = [
+          { inherit command; criteria = { class = "sk-window"; }; }
+          { inherit command; criteria = { title = "sk-window"; }; }
+          { inherit command; criteria = { app_id = "sk-window"; }; }
+          { command = floatCommand; criteria = { class = "input-window"; }; }
+          { command = floatCommand; criteria = { class = "gcr-prompter"; }; }
+        ];
+        noFocusCriteria = [
+          { window_role = "browser"; }
+        ];
+      };
 
       floating = {
         titlebar = false;
@@ -247,29 +252,14 @@ in
           command = "${pkgs.xorg.xrdb}/bin/xrdb -merge ~/.Xresources";
         }
         {
-          command = "${pkgs.persway}/bin/persway";
-        }
-        {
           command = "echo UPDATESTARTUPTTY | ${pkgs.gnupg}/bin/gpg-connect-agent";
         }
-        #{
-        #  command = "${import-gsettings}/bin/import-gsettings gtk-theme:gtk-theme-name icon-theme:gtk-icon-theme-name cursor-theme:gtk-cursor-theme-name";
-        #  always = true;
-        #}
         {
           command = "${pkgs.gnome3.gnome_settings_daemon}/libexec/gsd-xsettings";
         }
-
-        {
-          command = "${rotating-background}/bin/rotating-background art";
-        }
-
-        {
-          command = swayidleCommand;
-        }
-
         {
           command = pkgs.writeStrictShellScript "hm-graphical-session" ''
+            systemctl --user import-environment
             systemctl --user stop graphical-session.target
             systemctl --user stop graphical-session-pre.target
             systemctl --user start hm-graphical-session.target
@@ -320,4 +310,11 @@ in
       ];
     };
   };
+
+  systemd.user.services = {
+    persway = swayservice "${pkgs.persway}/bin/persway";
+    rotating-background = swayservice "${rotating-background}/bin/rotating-background art";
+    swayidle = swayservice swayidleCommand;
+  };
+
 }
