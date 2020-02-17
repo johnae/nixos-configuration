@@ -21,8 +21,6 @@ current=current
 
 noleadingslash_volume=$(echo $volume | sed -s 's|^\/||g')
 
-progress=pv
-
 if [ $(stat --format=%i $volume) -ne 256 ]; then
   echo >&2 "$volume is not a btrfs subvolume, sorry."
   exit 1

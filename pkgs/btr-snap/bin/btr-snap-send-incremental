@@ -21,14 +21,12 @@ current=current
 
 noleadingslash_volume=$(echo $volume | sed -s 's|^\/||g')
 
-progress=pv
-
 if [ $(stat --format=%i $volume) -ne 256 ]; then
   echo >&2 "$volume is not a btrfs subvolume, sorry."
   exit 1
 fi
 
-if ! btrfs send -p $volume/$snapshot-$current $volume/$snapshot-$new | $progress | $self/btr-ssh $host $port $sshkey receive $remotedir/$hostname/$noleadingslash_volume; then
+if ! btrfs send -p $volume/$snapshot-$current $volume/$snapshot-$new | $self/btr-ssh $host $port $sshkey receive $remotedir/$hostname/$noleadingslash_volume; then
    btrfs subvolume delete $volume/$snapshot-$new
    echo >&2 "error sending incremental snapshot to $host:$port - giving up"
    exit 1
