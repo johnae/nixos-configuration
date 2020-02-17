@@ -11,11 +11,7 @@ let
       executable
     ];
 
-  start-sway = pkgs.writeStrictShellScript "start-sway" ''
-    exec ${pkgs.dbus}/bin/dbus-launch --exit-with-session sway
-  '';
-
-  privateSway = withinNetNS start-sway {};
+  privateSway = withinNetNS "sway" {};
   privateFish = withinNetNS "fish" {};
 in
 {
@@ -108,7 +104,7 @@ in
       export QT_STYLE_OVERRIDE=gtk
       export _JAVA_AWT_WM_NONREPARENTING=1
 
-      set RUN (echo -e "sway private\texec ${privateSway}\nsway\texec ${start-sway}\nfish private\texec ${privateFish}\nfish\texec fish" | \
+      set RUN (echo -e "sway private\texec ${privateSway}\nsway\texec sway\nfish private\texec ${privateFish}\nfish\texec fish" | \
       ${pkgs.skim}/bin/sk -p "launch >> " --color BW --height=40 --no-hscroll --no-mouse --reverse --delimiter='\t' --with-nth 1 | ${pkgs.gawk}/bin/awk -F'\t' '{print $2}')
       eval "$RUN"
       end
