@@ -24,6 +24,10 @@ stdenv.mkDerivation rec {
     ${gnused}/bin/sed -i"" 's|\(/bin/cat\)|${coreutils}\1|g' src/wl-paste.c
   '';
 
+  mesonFlags = [
+    "-Dfishcompletiondir=no"
+  ];
+
   nativeBuildInputs = [ meson ninja pkgconfig git ];
   buildInputs = [ wayland wayland-protocols ];
 
