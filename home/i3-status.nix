@@ -23,9 +23,9 @@ let
     VPN_EXIT="$(${pkgs.curl}/bin/curl -m 5 --connect-timeout 5 -sS https://am.i.mullvad.net/json | \
     ${pkgs.jq}/bin/jq -r .mullvad_exit_ip_hostname)"
     if [ "$VPN_EXIT" = "null" ]; then
-    echo " vpn down"
+    echo " vpn: down"
     else
-    echo " vpn up $VPN_EXIT"
+    echo " vpn: $VPN_EXIT"
     fi
   '';
 
@@ -50,13 +50,23 @@ in
         command = "${vpnStatus}/bin/vpn-status";
       }
 
-      ## using this rather than the network block since
-      ## I usually run sway within a network namespace
-      ## with only wireguard interfaces.
       {
         block = "custom";
         interval = 60;
         command = "${wifiStatus}/bin/wifi-status";
+      }
+
+      ## ssid/signal_strength won't work
+      ## when in private mode (eg. only wireguard
+      ## interfaces in namespace)
+      {
+        block = "net";
+        device = "wlan0";
+        ssid = false;
+        signal_strength = false;
+        speed_up = true;
+        graph_up = false;
+        interval = 5;
       }
 
       {

@@ -65,7 +65,7 @@ in
   services.printing.enable = true;
   services.printing.drivers = [ pkgs.gutenprint pkgs.hplip pkgs.gutenprintBin ];
 
-  services.dbus.packages = with pkgs; [ gnome2.GConf gnome3.gcr gnome3.dconf gnome3.sushi ];
+  services.dbus.packages = with pkgs; [ gcr dconf gnome3.sushi ];
   services.udev.packages = with pkgs; [ gnome3.gnome-settings-daemon ];
 
   services.logind.lidSwitch = "suspend-then-hibernate";
