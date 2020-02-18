@@ -24,7 +24,7 @@ let
 
       preStart = with pkgs; ''
         ${udev}/bin/systemctl set-environment \
-          STARTED_AT=$(${coreutils}/bin/date +%s)
+          STARTED_AT="$(${coreutils}/bin/date +%s)"
       '';
 
       script = with pkgs; ''
@@ -39,28 +39,28 @@ let
         if [ -e /run/user/1337/env-vars ]; then
            source /run/user/1337/env-vars
         fi
-        PID="$(pgrep -u 1337 sway | head -1)"
+        PID="$(${procps}/bin/pgrep -u 1337 sway | head -1)"
         if [ -n "$PID" ]; then
           USER_PROCESS_ENV=/proc/"$PID"/environ
-          if cat "$USER_PROCESS_ENV" | egrep -z DBUS_SESSION_BUS_ADDRESS; then
-             export $(cat "$USER_PROCESS_ENV" | egrep -z DBUS_SESSION_BUS_ADDRESS)
+          if cat "$USER_PROCESS_ENV" | ${gnugrep}/bin/egrep -z DBUS_SESSION_BUS_ADDRESS; then
+             export "$(cat "$USER_PROCESS_ENV" | ${gnugrep}/bin/egrep -z DBUS_SESSION_BUS_ADDRESS)"
           fi
         fi
         export DISPLAY=:0
-        ENDED_AT=$(${coreutils}/bin/date +%s)
-        DURATION=$(($ENDED_AT - $STARTED_AT))
+        ENDED_AT="$(${coreutils}/bin/date +%s)"
+        DURATION="$((ENDED_AT - STARTED_AT))"
         NOTIFY="${notify-desktop}/bin/notify-desktop"
         if [ "$EXIT_STATUS" = "0" ]; then
            MSG="${pango { font_weight = "bold"; } "Completed"} ${
       toLower description
       } in $DURATION"s.
-           ${busybox}/bin/su $USER -s /bin/sh -c \
+           ${busybox}/bin/su "$USER" -s /bin/sh -c \
              "$NOTIFY -i emblem-insync-syncing \"Backup\" \"$MSG\""
         else
            MSG="${pango { font_weight = "bold"; } "Failed"} ${
       toLower description
       } after $DURATION"s.
-           ${busybox}/bin/su $USER -s /bin/sh -c \
+           ${busybox}/bin/su "$USER" -s /bin/sh -c \
              "$NOTIFY -i dialog-error -u critical \"Backup\" \"$MSG\""
         fi;
       '';
