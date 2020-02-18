@@ -4,8 +4,11 @@ let
   ## I use it to start my compositor and other stuff within a namespace
   ## with only wireguard interface(s)
 
+  ## we need to start the dbus session outside of the namespace
+  ## that's why it's here - otherwise pinentry-gnome etc won't work
   withinNetNS = executable: { netns ? "private" }:
     lib.concatStringsSep " " [
+      "${pkgs.dbus}/bin/dbus-run-session"
       "netns-exec"
       netns
       executable
