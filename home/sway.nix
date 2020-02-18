@@ -90,7 +90,7 @@ in
           scale = "1.0";
         };
         "*" = {
-          bg = "~/Pictures/background.jpg fill";
+          bg = "~/Pictures/wallpaper.jpg fill";
         };
       };
 
