@@ -100,15 +100,16 @@ in
       end
     '';
     loginShellInit = ''
-      if test "$DISPLAY" = ""; and test (tty) = /dev/tty1; and test "$XDG_SESSION_TYPE" = "tty"
+      if test "$DISPLAY" = ""; and test (tty) = /dev/tty1 || test (tty) = /dev/tty2; and test "$XDG_SESSION_TYPE" = "tty"
       export GDK_BACKEND=wayland
       export MOZ_ENABLE_WAYLAND=1
       export XCURSOR_THEME=default
       export QT_STYLE_OVERRIDE=gtk
       export _JAVA_AWT_WM_NONREPARENTING=1
 
+      clear
       set RUN (echo -e "sway private\texec ${privateSway}\nsway\texec sway\nfish private\texec ${privateFish}\nfish\texec fish" | \
-      ${pkgs.skim}/bin/sk -p "launch >> " --color BW --height=40 --no-hscroll --no-mouse --reverse --delimiter='\t' --with-nth 1 | ${pkgs.gawk}/bin/awk -F'\t' '{print $2}')
+      ${pkgs.skim}/bin/sk -p "start >> " --margin 40%,40% --color BW --height=40 --no-hscroll --no-mouse --reverse --delimiter='\t' --with-nth 1 | ${pkgs.gawk}/bin/awk -F'\t' '{print $2}')
       eval "$RUN"
       end
     '';
