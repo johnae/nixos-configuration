@@ -170,6 +170,9 @@ let
     ${updateNixos}/bin/update-nixos
     ${updateNixosHardware}/bin/update-nixos-hardware
     ${updateHomeManager}/bin/update-home-manager
+    ${updateRustAnalyzer}/bin/update-rust-analyzer
+    ${updateK3s}/bin/update-k3s
+    ${updateUserNixpkgs}/bin/update-user-nixpkgs
   '';
 
   bootVmFromIso = pkgs.writeShellScriptBin "boot-vm-from-iso" ''
