@@ -8,7 +8,6 @@ let
   ## that's why it's here - otherwise pinentry-gnome etc won't work
   withinNetNS = executable: { netns ? "private" }:
     lib.concatStringsSep " " [
-      "${pkgs.dbus}/bin/dbus-run-session"
       "netns-exec"
       netns
       executable
@@ -108,8 +107,8 @@ in
       export _JAVA_AWT_WM_NONREPARENTING=1
 
       clear
-      set RUN (echo -e "sway private\texec ${privateSway}\nsway\texec sway\nfish private\texec ${privateFish}\nfish\texec fish" | \
-      ${pkgs.skim}/bin/sk -p "start >> " --margin 40%,40% --color BW --height=40 --no-hscroll --no-mouse --reverse --delimiter='\t' --with-nth 1 | ${pkgs.gawk}/bin/awk -F'\t' '{print $2}')
+      set RUN (echo -e "sway private\texec ${pkgs.dbus}/bin/dbus-run-session ${privateSway}\nsway\texec ${pkgs.dbus}/bin/dbus-run-session sway\nfish private\texec ${pkgs.dbus}/bin/dbus-run-session ${privateFish}\nfish\texec ${pkgs.dbus}/bin/dbus-run-session fish" | \
+      ${pkgs.skim}/bin/sk -p "start >> " --inline-info --margin 40%,40% --color BW --height=40 --no-hscroll --no-mouse --reverse --delimiter='\t' --with-nth 1 | ${pkgs.gawk}/bin/awk -F'\t' '{print $2}')
       eval "$RUN"
       end
     '';
