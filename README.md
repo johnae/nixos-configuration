@@ -38,4 +38,4 @@ Updating a remote system using a locally built configuration is done like this:
 To also reboot the remote system when updated.
 
 
-There's a metadata submodule in this repo accessible only to me. It contains encrypted secrets which I didn't feel like sharing with the world even though they're encrypted. If anyone finds this repo it should be pretty easy to figure out what data it provides (it's basically json which becomes an import).
+There's a metadata submodule in this repo accessible only to me. It contains encrypted secrets which I didn't feel like sharing with the world even though they're encrypted. If anyone finds this repo it should be pretty easy to figure out what data it provides (it's basically json which becomes an import). These secrets are encrypted using [mozilla sops](https://github.com/mozilla/sops) - there's also a helper in this repo for integrating sops with Nix using the extra-builtins feature of Nix (which is relatively recent, see: https://github.com/NixOS/nix/pull/1854).
