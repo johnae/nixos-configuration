@@ -5,9 +5,10 @@ let
   ## with only wireguard interface(s)
   withinNetNS = executable: { netns ? "private" }:
     lib.concatStringsSep " " [
+      "${pkgs.dbus}/bin/dbus-run-session" ## sway is actually wrapped and does this, but fish doesn't for example. No harm doing it even for sway.
+      "${pkgs.netns-dbus-proxy}/bin/netns-dbus-proxy"
       "netns-exec"
       netns
-      "${pkgs.dbus}/bin/dbus-run-session" ## sway is actually wrapped and does this, but fish doesn't for example. No harm doing it even for sway.
       executable
     ];
 

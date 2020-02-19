@@ -75,6 +75,7 @@ in
       rnix-lsp
 
       xdg_utils
+      netns-dbus-proxy
 
       gnome3.nautilus
       (pkgs.firejailed chrpkgs.chromium-dev-wayland)

@@ -6,7 +6,7 @@ let
   '';
 in
 {
-  services.my-gpg-agent = rec {
+  services.gpg-agent = rec {
     enable = true;
     defaultCacheTtl = 1800;
     defaultCacheTtlSsh = 1800;
@@ -19,13 +19,12 @@ in
       allow-emacs-pinentry
       allow-loopback-pinentry
     '';
-    networkNamespace = "private";
   };
 
   systemd.user.services.gpg-key-import = {
     Unit = {
       Description = "GnuPG public key auto import with trust";
-      After = "my-gpg-agent.service";
+      After = "gpg-agent.service";
     };
 
     Service = {
@@ -35,7 +34,7 @@ in
     };
 
     Install = {
-      WantedBy = [ "my-gpg-agent.service" ];
+      WantedBy = [ "gpg-agent.service" ];
     };
   };
 }
