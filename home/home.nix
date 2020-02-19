@@ -5,87 +5,80 @@ let
       "https://github.com/colemickens/nixpkgs-chromium/archive/master.tar.gz";
   };
   chrpkgs = import chrpkgsBall;
+
+  importsFrom = with lib; dir: mapAttrsToList (
+    name: _: dir + "/${name}"
+  ) (filterAttrs (name: _: hasSuffix ".nix" name)
+    (builtins.readDir dir)
+  );
 in
 {
   nixpkgs.config = import ../nixpkgs-config.nix;
   nixpkgs.overlays = import ../nixpkgs-overlays.nix;
 
-  imports = [
-    ../modules/sway.nix
-    ../modules/i3-status.nix
-    ../modules/theme.nix
-    ../modules/mako.nix
-    ./accounts.nix
-    ./sway.nix
-    ./mako.nix
-    ./alacritty.nix
-    ./ssh.nix
-    ./gpg-agent.nix
-    ./terminfo.nix
-    ./i3-status.nix
-    ./pulseaudio.nix
-    ./firefox.nix
-    ./redshift.nix
-    ./mbsync.nix
-    ./fish.nix
-  ];
+  imports = with lib; (
+    importsFrom ../hm-modules
+  ) ++ (
+    filter (path: path != ./home.nix) (importsFrom ./.)
+  );
 
-  home.packages = with pkgs; [
-    sway
-    swaybg
-    swayidle
-    swaylock
-    xwayland
-    iw
-    mako
-    spotifyd
-    spotnix
-    my-emacs
-    mu
-    edit
-    edi
-    bat
-    mail
-    wofi
-    emacs-server
-    alacritty
-    project-select
-    launch
-    git-credential-pass
-    sk-sk
-    sk-run
-    sk-window
-    sk-passmenu
+  home.packages = with pkgs;
+    [
+      sway
+      swaybg
+      swayidle
+      swaylock
+      xwayland
+      iw
+      mako
+      spotifyd
+      spotnix
+      my-emacs
+      mu
+      edit
+      edi
+      bat
+      mail
+      wofi
+      emacs-server
+      alacritty
+      project-select
+      launch
+      git-credential-pass
+      sk-sk
+      sk-run
+      sk-window
+      sk-passmenu
 
-    #slacks
-    add-wifi-network
-    update-wifi-networks
-    update-wireguard-keys
-    spotify-cmd
-    spotify-play-album
-    spotify-play-track
-    spotify-play-artist
-    spotify-play-playlist
-    wl-clipboard
-    wl-clipboard-x11
-    wf-recorder
-    nordic
-    nordic-polar
+      #slacks
+      add-wifi-network
+      update-wifi-networks
+      update-wireguard-keys
+      spotify-cmd
+      spotify-play-album
+      spotify-play-track
+      spotify-play-artist
+      spotify-play-playlist
+      wl-clipboard
+      wl-clipboard-x11
+      wf-recorder
+      nordic
+      nordic-polar
 
-    # nixfmt ## using below instead
-    nixpkgs-fmt
-    google-cloud-sdk
-    kubectl
-    kustomize
-    fzf # # for certain utilities that depend on it
-    rust-analyzer-bin
-    rnix-lsp
+      # nixfmt ## using below instead
+      nixpkgs-fmt
+      google-cloud-sdk
+      kubectl
+      kustomize
+      fzf # # for certain utilities that depend on it
+      rust-analyzer-bin
+      rnix-lsp
 
-    xdg_utils
+      xdg_utils
 
-    gnome3.nautilus
-    (pkgs.firejailed chrpkgs.chromium-dev-wayland)
-  ];
+      gnome3.nautilus
+      (pkgs.firejailed chrpkgs.chromium-dev-wayland)
+    ];
 
   home.sessionVariables = {
     EDITOR = "edi";

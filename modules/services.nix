@@ -8,7 +8,7 @@ with lib;
   )
     (
       filterAttrs
-        (name: _: lib.hasSuffix ".nix" name)
+        (name: _: hasSuffix ".nix" name)
         (builtins.readDir ./services)
     );
 }
