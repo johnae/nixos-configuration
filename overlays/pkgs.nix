@@ -64,7 +64,7 @@ rec {
   google-cloud-sdk-fish-completion = super.callPackage ../pkgs/google-cloud-sdk-fish-completion {};
 
   inherit (super.callPackage ../pkgs/strictShellScript.nix {})
-    writeStrictShellScript writeStrictShellScriptBin
+    writeStrictShellScript writeStrictShellScriptBin mkStrictShellScript
     ;
 
   initInstall = super.callPackage ../pkgs/initInstall.nix {};
