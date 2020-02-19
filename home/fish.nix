@@ -3,13 +3,11 @@ let
   ## used to start "something" within a different network namespace
   ## I use it to start my compositor and other stuff within a namespace
   ## with only wireguard interface(s)
-
-  ## we need to start the dbus session outside of the namespace
-  ## that's why it's here - otherwise pinentry-gnome etc won't work
   withinNetNS = executable: { netns ? "private" }:
     lib.concatStringsSep " " [
       "netns-exec"
       netns
+      "${pkgs.dbus}/bin/dbus-run-session" ## sway is actually wrapped and does this, but fish doesn't for example. No harm doing it even for sway.
       executable
     ];
 
@@ -107,7 +105,7 @@ in
       export _JAVA_AWT_WM_NONREPARENTING=1
 
       clear
-      set RUN (echo -e "sway private\texec ${pkgs.dbus}/bin/dbus-run-session ${privateSway}\nsway\texec ${pkgs.dbus}/bin/dbus-run-session sway\nfish private\texec ${pkgs.dbus}/bin/dbus-run-session ${privateFish}\nfish\texec ${pkgs.dbus}/bin/dbus-run-session fish" | \
+      set RUN (echo -e "sway private\texec ${privateSway}\nsway\texec sway\nfish private\texec ${privateFish}\nfish\texec ${pkgs.dbus}/bin/dbus-run-session fish" | \
       ${pkgs.skim}/bin/sk -p "start >> " --inline-info --margin 40%,40% --color BW --height=40 --no-hscroll --no-mouse --reverse --delimiter='\t' --with-nth 1 | ${pkgs.gawk}/bin/awk -F'\t' '{print $2}')
       eval "$RUN"
       end
