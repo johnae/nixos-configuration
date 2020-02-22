@@ -12,4 +12,4 @@ else
 fi
 
 echo Building "$@" 1>&2
-nix-build $args --option extra-builtins-file "$(pwd)"/extra-builtins.nix $@
+nix-build $args --arg overlays [] --option extra-builtins-file "$(pwd)"/extra-builtins.nix $@
