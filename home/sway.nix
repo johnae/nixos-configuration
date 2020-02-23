@@ -21,14 +21,15 @@ let
   swaylockArgs = "-e -i ${swaylockBackground} -K -s fill --font Roboto --inside-color 00000066 --inside-clear-color 00660099 --inside-ver-color 00006699 --inside-wrong-color 66000099 --key-hl-color FFFFFF99 --ring-color GGGGGGBB --ring-wrong-color FF6666BB --ring-ver-color 6666FFBB --text-color FFFFFFFF --text-clear-color FFFFFFFF --text-wrong-color FFFFFFFF --text-ver-color FFFFFFFF";
   swaylockTimeout = "300";
   swaylockSleepTimeout = "310";
+
   swayidleCommand = lib.concatStringsSep " " [
     "${pkgs.swayidle}/bin/swayidle -w"
     "timeout ${swaylockTimeout}"
-    "'${pkgs.swaylock}/bin/swaylock -f ${swaylockArgs}'"
+    "'${pkgs.swaylock-dope}/bin/swaylock-dope'"
     "timeout ${swaylockSleepTimeout}"
     "'${pkgs.sway}/bin/swaymsg \"output * dpms off\"'"
     "resume '${pkgs.sway}/bin/swaymsg \"output * dpms on\"'"
-    "before-sleep '${pkgs.swaylock}/bin/swaylock -f ${swaylockArgs}'"
+    "before-sleep '${pkgs.swaylock-dope}/bin/swaylock-dope'"
   ];
 
   toggle-keyboard-layouts = pkgs.writeStrictShellScriptBin "toggle-keyboard-layouts" ''
@@ -215,7 +216,7 @@ in
 
         "${modifier}+Control+k" = ''exec ${toggle-keyboard-layouts}/bin/toggle-keyboard-layouts'';
 
-        "${modifier}+Control+l" = ''exec swaylock -f ${swaylockArgs}'';
+        "${modifier}+Control+l" = ''exec ${pkgs.swaylock-dope}/bin/swaylock-dope'';
 
 
         "${modifier}+i" = ''exec swaymsg inhibit_idle open'';
