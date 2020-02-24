@@ -8,6 +8,7 @@ let
   isoname = "result-iso";
 
   updateK3s = pkgs.writeShellScriptBin "update-k3s" ''
+    export PATH=${pkgs.curl}/bin:${pkgs.jq}/bin:$PATH
     VERSION="$1"
     if [ -z "$VERSION" ]; then
       VERSION="$(curl https://api.github.com/repos/rancher/k3s/releases | jq -r '[.[] | select(.prerelease == false)]' | jq -r '. | first.tag_name')"
