@@ -8,8 +8,9 @@ stdenv.mkDerivation rec {
   src = fetchurl { inherit (metadata) hash url; };
   installPhase = ''
     mkdir -p $out/bin
-    cp ${src} $out/bin/ra_lsp_server
-    chmod +x $out/bin/ra_lsp_server
+    cp ${src} $out/bin/rust-analyzer
+    chmod +x $out/bin/rust-analyzer
+    ln -s $out/bin/rust-analyzer $out/bin/ra_lsp_server
   '';
 
   unpackPhase = "true";

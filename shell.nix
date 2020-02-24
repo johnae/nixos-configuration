@@ -30,7 +30,7 @@ let
     if [ -z "$VERSION" ]; then
       VERSION="$(curl https://api.github.com/repos/rust-analyzer/rust-analyzer/releases | jq -r first.tag_name)"
     fi
-    URL="https://github.com/rust-analyzer/rust-analyzer/releases/download/$VERSION/ra_lsp_server-linux"
+    URL="https://github.com/rust-analyzer/rust-analyzer/releases/download/$VERSION/rust-analyzer-linux"
     HASH="$(nix-prefetch-url "$URL" 2>&1 | tail -1)"
     cat<<EOF>pkgs/rust-analyzer-bin/metadata.json
     {
@@ -144,7 +144,7 @@ let
 
       attr="$1"
       path=$(EDITOR=ls nix edit -f . packages."$attr")
-      sed -i 's|cargoSha256.*|cargoSha256 = "0000000000000000000000000000000000000000000000000000";|' "$path";
+      sed -i 's|cargoSha256.*|cargoSha256 = "0000000000000000000000000000000000000000000000000000";|' "$path"
       ./build.sh -A packages."$attr" 2>&1 | tee /tmp/nix-rustbuild-log-"$attr" || true
       cargoSha256="$(grep 'got:.*sha256:.*' /tmp/nix-rustbuild-log-"$attr" | cut -d':' -f3-)"
       echo Setting cargoSha256 for "$attr" to "$cargoSha256"
