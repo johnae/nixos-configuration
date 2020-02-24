@@ -34,8 +34,9 @@ pipeline [
         for change in $(git diff-index --name-only HEAD); do
           pkg="$(echo "$change" | awk -F'/' '{print $2}')"
           git add "pkgs/$pkg"
-          if ! git diff --staged --exit-code; then
+          if ! git diff --quiet --staged --exit-code; then
             echo --- Committing changes to pkg "pkgs/$pkg"
+            git diff --staged
             git commit -m "Auto updated $pkg"
           fi
         done
@@ -47,8 +48,9 @@ pipeline [
           pkg="$(basename "$change" .json)"
 
           git add "$change"
-          if ! git diff --staged --exit-code; then
+          if ! git diff --quiet --staged --exit-code; then
             echo --- Committing changes to "$pkg"
+            git diff --staged
             git commit -m "Auto updated $pkg"
           fi
         done
