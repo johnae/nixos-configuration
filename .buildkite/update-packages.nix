@@ -30,7 +30,7 @@ pipeline [
         nix-shell --run update-rust-analyzer
 
         for change in $(git diff-index HEAD | awk '{print $NF}'); do
-          pkg="$(echo "$change" | awk -F'/' {print $2})"
+          pkg="$(echo "$change" | awk -F'/' '{print $2}')"
           echo --- Committing changes to pkg "pkgs/$pkg"
           git add "pkgs/$pkg"
           git commit -m "Auto updated $pkg"
