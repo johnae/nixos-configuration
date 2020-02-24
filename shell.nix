@@ -85,7 +85,7 @@ let
       rm -f "$dir"/metadata.tmp.json
 
       if jq -e ".owner == null or .repo == null" < "$metadata" >/dev/null; then
-        clr "$NEUTRAL" "skipping "$(basename "$dir")" - metadata not supported"
+        clr "$NEUTRAL" "skipping "$(basename "$dir")" - metadata not supported\n"
         exit 0
       fi
 
@@ -148,7 +148,7 @@ let
       echo Updating metadata.json files in pkgs...
 
       ${findutils}/bin/find pkgs/ -type f -name metadata.json | \
-        ${findutils}/bin/xargs -I{} -n1 -P3 ${updateUserNixpkg}/bin/update-user-nixpkg {} 2>/dev/null
+        ${findutils}/bin/xargs -I{} -n1 -P3 ${updateUserNixpkg}/bin/update-user-nixpkg {}
 
       pkgs_updated=0
       for pkg in pkgs/*; do
