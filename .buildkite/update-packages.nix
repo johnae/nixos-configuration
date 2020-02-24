@@ -40,7 +40,7 @@ pipeline [
         nix-shell --run update-nixos-hardware
 
         for change in $(git diff-index HEAD | awk '{print $NF}'); do
-          pkg="$(basename change .json)"
+          pkg="$(basename "$change" .json)"
           echo --- Committing changes to "$pkg"
           git add "$change"
           git commit -m "Auto updated $pkg"
