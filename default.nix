@@ -1,7 +1,8 @@
 let
   pkgs-meta = with builtins; fromJSON (readFile ./nixpkgs.json);
-  pkgs = with builtins;
-    import (fetchTarball { inherit (pkgs-meta) url sha256; }) {};
+  nixpkgs = with builtins;
+    import (fetchTarball { inherit (pkgs-meta) url sha256; });
+  pkgs = nixpkgs {};
   lib = pkgs.lib;
 
   nixosFunc = import (pkgs.path + "/nixos");
@@ -75,6 +76,19 @@ rec {
     titan = buildConfig ./machines/titan/configuration.nix;
     hyperion = buildConfig ./machines/hyperion/configuration.nix;
   };
+  packages =
+    let
+      pkgs = nixpkgs {
+        overlays = [ (import ./overlays/pkgs.nix) ];
+      };
+    in with pkgs;
+    {
+      inherit alacritty nushell sway swaybg
+        swayidle swaylock swaylock-dope
+        mako spotifyd netns-exec spotnix
+        wl-clipboard wl-clipboard-x11 wf-recorder
+        nixpkgs-fmt i3status-rust;
+    };
   installers = {
     europa = buildIso ./machines/europa/configuration.nix;
     phobos = buildIso ./machines/phobos/configuration.nix;
