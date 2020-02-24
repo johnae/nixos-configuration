@@ -82,7 +82,7 @@ rec {
         overlays = [ (import ./overlays/pkgs.nix) ];
       };
     in with pkgs;
-    {
+    pkgs.recurseIntoAttrs {
       inherit alacritty nushell sway swaybg
         swayidle swaylock swaylock-dope
         mako spotifyd netns-exec spotnix

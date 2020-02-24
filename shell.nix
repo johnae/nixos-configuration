@@ -133,6 +133,24 @@ let
 
     '';
 
+  updateRustPackageCargo = with pkgs;
+    writeShellScriptBin "update-rust-package-cargo" ''
+      set -euo pipefail
+      if [ -z "$1" ]; then
+          echo "USAGE: $0 <attribute>"
+          echo "EXAMPLE: $0 ripgrep"
+          exit 1
+      fi
+
+      attr="$1"
+      path=$(EDITOR=ls nix edit -f . packages."$attr")
+      sed -i 's|cargoSha256.*|cargoSha256 = "0000000000000000000000000000000000000000000000000000";|' "$path";
+      ./build.sh -A packages."$attr" 2>&1 | tee /tmp/nix-rustbuild-log-"$attr" || true
+      cargoSha256="$(grep 'got:.*sha256:.*' /tmp/nix-rustbuild-log-"$attr" | cut -d':' -f3-)"
+      echo Setting cargoSha256 for "$attr" to "$cargoSha256"
+      sed -i "s|cargoSha256.*|cargoSha256 = \"$cargoSha256\";|" "$path"
+    '';
+
   updateUserNixpkgs = with pkgs;
     writeShellScriptBin "update-user-nixpkgs" ''
 
@@ -159,6 +177,9 @@ let
                mv "$pkg"/metadata.tmp.json "$pkg"/metadata.json
              fi
              rm -f "$pkg"/metadata.tmp.json
+             if grep "cargoSha256" "$pkg"/default.nix; then
+               ${updateRustPackageCargo}/bin/update-rust-package-cargo "$(basename "$pkg")"
+             fi
           fi
       done
 
