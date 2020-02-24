@@ -33,7 +33,7 @@ pipeline [
           pkg="$(echo "$change" | awk -F'/' '{print $2}')"
           echo --- Committing changes to pkg "pkgs/$pkg"
           git add "pkgs/$pkg"
-          git commit -m "Auto updated $pkg"
+          git commit -m "Auto updated $pkg" || true
         done
 
         nix-shell --run update-home-manager
@@ -43,7 +43,7 @@ pipeline [
           pkg="$(basename "$change" .json)"
           echo --- Committing changes to "$pkg"
           git add "$change"
-          git commit -m "Auto updated $pkg"
+          git commit -m "Auto updated $pkg" || true
         done
       '';
     }
