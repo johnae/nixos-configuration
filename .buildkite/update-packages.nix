@@ -21,22 +21,23 @@ pipeline [
         remote=origin
         branch="$BUILDKITE_BRANCH"
 
+        echo --- Resetting git repo
         git fetch "$remote" "$branch"
         git checkout "$branch"
         git reset --hard "$remote/$branch"
 
+        echo --- Updating packages
         nix-shell --run update-k3s 2>/dev/null
         nix-shell --run update-user-nixpkgs 2>/dev/null
         nix-shell --run update-rust-analyzer 2>/dev/null
 
-        git diff-index HEAD
-
-        for change in $(git diff-index HEAD | awk '{print $NF}'); do
+        for change in $(git diff-index --name-only HEAD); do
           pkg="$(echo "$change" | awk -F'/' '{print $2}')"
-          echo --- Committing changes to pkg "pkgs/$pkg"
           git add "pkgs/$pkg"
-          git diff --staged
-          git commit -m "Auto updated $pkg" || true
+          if ! git diff --staged --exit-code; then
+            echo --- Committing changes to pkg "pkgs/$pkg"
+            git commit -m "Auto updated $pkg"
+          fi
         done
 
         nix-shell --run update-home-manager 2>/dev/null
@@ -44,10 +45,12 @@ pipeline [
 
         for change in $(git diff-index HEAD | awk '{print $NF}'); do
           pkg="$(basename "$change" .json)"
-          echo --- Committing changes to "$pkg"
+
           git add "$change"
-          git diff --staged
-          git commit -m "Auto updated $pkg" || true
+          if ! git diff --staged --exit-code; then
+            echo --- Committing changes to "$pkg"
+            git commit -m "Auto updated $pkg"
+          fi
         done
       '';
     }
