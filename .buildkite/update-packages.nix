@@ -35,6 +35,7 @@ pipeline [
           pkg="$(echo "$change" | awk -F'/' '{print $2}')"
           echo --- Committing changes to pkg "pkgs/$pkg"
           git add "pkgs/$pkg"
+          git diff --staged
           git commit -m "Auto updated $pkg" || true
         done
 
@@ -45,6 +46,7 @@ pipeline [
           pkg="$(basename "$change" .json)"
           echo --- Committing changes to "$pkg"
           git add "$change"
+          git diff --staged
           git commit -m "Auto updated $pkg" || true
         done
       '';
