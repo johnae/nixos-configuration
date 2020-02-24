@@ -6,20 +6,23 @@ let
 in
 rec {
 
-  firejailed = pkg: super.stdenv.mkDerivation {
-    name = "firejail-wrapped-${pkg.name}";
+  toIgnoreOptions = ignore: super.lib.concatStringsSep " "
+    (map (option: "--ignore=${option}") ignore);
+
+  firejailed = { package, ignore ? [] }: super.stdenv.mkDerivation {
+    name = "firejail-wrapped-${package.name}";
     buildCommand = ''
       mkdir -p $out/bin
-      for bin in ${pkg}/bin/*; do
+      for bin in ${package}/bin/*; do
       cat <<_EOF >$out/bin/"$(basename "$bin")"
       #!${super.stdenv.shell} -e
-      /run/wrappers/bin/firejail "$bin" "\$@"
+      /run/wrappers/bin/firejail ${toIgnoreOptions ignore} "$bin" "\$@"
       _EOF
       chmod 0755 $out/bin/"$(basename "$bin")"
       done
     '';
     meta = {
-      description = "Jailed ${pkg.name}";
+      description = "Jailed ${package.name}";
     };
   };
 

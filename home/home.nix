@@ -78,7 +78,7 @@ in
       netns-dbus-proxy
 
       gnome3.nautilus
-      (pkgs.firejailed chrpkgs.chromium-dev-wayland)
+      (pkgs.firejailed { package = chrpkgs.chromium-dev-wayland; ignore = [ "nou2f" ]; })
     ];
 
   home.sessionVariables = {
