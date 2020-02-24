@@ -84,7 +84,7 @@ let
 
       rm -f "$dir"/metadata.tmp.json
 
-      if jq -e ".owner == null or .repo == null" < "$metadata" >/dev/null; then
+      if ${jq}/bin/jq -e ".owner == null or .repo == null" < "$metadata" >/dev/null; then
         clr "$NEUTRAL" "skipping "$(basename "$dir")" - metadata not supported\n"
         exit 0
       fi
