@@ -146,7 +146,7 @@ let
       echo Updating metadata.json files in pkgs...
 
       ${findutils}/bin/find pkgs/ -type f -name metadata.json | \
-        ${findutils}/bin/xargs -I{} -n1 -P3 ${updateUserNixpkg}/bin/update-user-nixpkg {}
+        ${findutils}/bin/xargs -I{} -n1 -P3 ${updateUserNixpkg}/bin/update-user-nixpkg {} 2>/dev/null
 
       pkgs_updated=0
       for pkg in pkgs/*; do
