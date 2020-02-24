@@ -25,9 +25,11 @@ pipeline [
         git checkout "$branch"
         git reset --hard "$remote/$branch"
 
-        nix-shell --run update-k3s
-        nix-shell --run update-user-nixpkgs
-        nix-shell --run update-rust-analyzer
+        nix-shell --run update-k3s 2>/dev/null
+        nix-shell --run update-user-nixpkgs 2>/dev/null
+        nix-shell --run update-rust-analyzer 2>/dev/null
+
+        git diff-index HEAD
 
         for change in $(git diff-index HEAD | awk '{print $NF}'); do
           pkg="$(echo "$change" | awk -F'/' '{print $2}')"
@@ -36,8 +38,8 @@ pipeline [
           git commit -m "Auto updated $pkg" || true
         done
 
-        nix-shell --run update-home-manager
-        nix-shell --run update-nixos-hardware
+        nix-shell --run update-home-manager 2>/dev/null
+        nix-shell --run update-nixos-hardware 2>/dev/null
 
         for change in $(git diff-index HEAD | awk '{print $NF}'); do
           pkg="$(basename "$change" .json)"
