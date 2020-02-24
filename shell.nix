@@ -83,13 +83,15 @@ let
       retries=$max_retries
 
       rm -f "$dir"/metadata.tmp.json
-      # shellcheck disable=SC2046
-      set $(${jq}/bin/jq -r '.owner + " " + .repo' < "$metadata")
-      ## above sets $1 and $2
-      if [ -z "$1" ] || [ -z "$2" ]; then
+
+      if jq -e ".owner == null or .repo == null" < "$metadata" >/dev/null; then
         clr "$NEUTRAL" "skipping "$(basename "$dir")" - metadata not supported"
         exit 0
       fi
+
+      # shellcheck disable=SC2046
+      set $(${jq}/bin/jq -r '.owner + " " + .repo' < "$metadata")
+      ## above sets $1 and $2
 
       while true; do
         clr "$NEUTRAL" "Prefetching $1/$2 master branch...\n"
