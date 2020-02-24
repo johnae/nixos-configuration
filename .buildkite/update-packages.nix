@@ -29,8 +29,8 @@ pipeline [
         nix-shell --run update-user-nixpkgs
         nix-shell --run update-rust-analyzer
 
-        for change in "$(git diff-index HEAD | awk '{print $NF}')"; do
-          pkg="$(echo "$change" | awk -F'/' ''${print $2})"
+        for change in $(git diff-index HEAD | awk '{print $NF}'); do
+          pkg="$(echo "$change" | awk -F'/' {print $2})"
           echo --- Committing changes to pkg "pkgs/$pkg"
           git add "pkgs/$pkg"
           git commit -m "Auto updated $pkg"
@@ -39,7 +39,7 @@ pipeline [
         nix-shell --run update-home-manager
         nix-shell --run update-nixos-hardware
 
-        for change in "$(git diff-index HEAD | awk '{print $NF}')"; do
+        for change in $(git diff-index HEAD | awk '{print $NF}'); do
           pkg="$(basename change .json)"
           echo --- Committing changes to "$pkg"
           git add "$change"
