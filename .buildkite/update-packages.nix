@@ -67,6 +67,19 @@ pipeline [
             git commit -m "Auto updated $pkg"
           fi
         done
+
+        echo --- Current revisions
+        echo "local: $(git rev-parse HEAD)"
+        echo "remote: $(git rev-parse "$remote/$branch")"
+
+        LATEST="$(git rev-parse HEAD)"
+        if ! git branch -r --contains "$LATEST" 2> /dev/null | grep -q "origin/master"; then
+          echo --- Pushing to origin
+          git push "$remote" "$branch"
+        else
+          echo --- Nothing to push
+        fi
+
       '';
     }
   )
