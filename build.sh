@@ -2,6 +2,10 @@
 
 set -euo pipefail
 
+unset NIX_PATH NIXPKGS_CONFIG
+NIX_PATH=nixpkgs="$(pwd)/nixpkgs.nix"
+export NIX_PATH
+
 NIX_OUTLINK=${NIX_OUTLINK:-}
 args=
 

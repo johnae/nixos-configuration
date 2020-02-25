@@ -1,7 +1,5 @@
 let
-  pkgs-meta = with builtins; fromJSON (readFile ./nixpkgs.json);
-  nixpkgs = with builtins;
-    import (fetchTarball { inherit (pkgs-meta) url sha256; });
+  nixpkgs = import ./nixpkgs.nix;
   pkgs = nixpkgs {};
   lib = pkgs.lib;
 
