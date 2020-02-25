@@ -1,5 +1,5 @@
 {
-  "hash": "sha256:0g22gfl3kbjxfa5vrv6wghi70cvcjsq3z2j79gqggfv57h8raw31",
-  "url": "https://github.com/rust-analyzer/rust-analyzer/releases/download/2020-02-17/ra_lsp_server-linux",
-  "version": "2020-02-17"
+  "hash": "sha256:08bnwzfkgmkvkmkn2l9hl87ngvw4vmcs1yxaxbids6xllklhq891",
+  "url": "https://github.com/rust-analyzer/rust-analyzer/releases/download/2020-02-24/rust-analyzer-linux",
+  "version": "2020-02-24"
 }
