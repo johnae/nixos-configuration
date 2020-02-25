@@ -85,7 +85,7 @@ rec {
     pkgs.recurseIntoAttrs {
       inherit alacritty nushell sway swaybg
         swayidle swaylock swaylock-dope
-        mako spotifyd netns-exec spotnix
+        mako spotifyd netns-exec spotnix persway
         wl-clipboard wl-clipboard-x11 wf-recorder
         nixpkgs-fmt i3status-rust rust-analyzer-bin;
     };
