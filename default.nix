@@ -87,7 +87,7 @@ rec {
       inherit alacritty nushell sway swaybg
         swayidle swaylock swaylock-dope blur emacsGit-nox
         mako spotifyd netns-exec spotnix persway lorri
-        wl-clipboard wl-clipboard-x11 wf-recorder
+        wl-clipboard wl-clipboard-x11 wf-recorder wlroots
         nixpkgs-fmt i3status-rust rust-analyzer-bin;
     };
   installers = {
