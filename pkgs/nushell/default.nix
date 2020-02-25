@@ -15,6 +15,7 @@ in
 rustPlatform.buildRustPackage rec {
   pname = metadata.repo;
   version = metadata.rev;
+  doCheck = false;
 
   src = fetchFromGitHub metadata;
 
