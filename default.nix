@@ -74,7 +74,7 @@ rec {
     titan = buildConfig ./machines/titan/configuration.nix;
     hyperion = buildConfig ./machines/hyperion/configuration.nix;
   };
-  packages =
+  packagesToCache =
     let
       pkgs = nixpkgs {
         overlays = [
@@ -82,14 +82,16 @@ rec {
           (import ./overlays/emacs-overlay.nix)
         ];
       };
+      toCache = lib.mapAttrs'
+        (
+          name: _: lib.nameValuePair name pkgs."${name}"
+        ) (
+        lib.filterAttrs
+          (name: type: type == "directory" && name != "scripts")
+          (builtins.readDir ./pkgs)
+      );
     in with pkgs;
-    pkgs.recurseIntoAttrs {
-      inherit alacritty nushell sway swaybg
-        swayidle swaylock swaylock-dope blur emacsGit-nox
-        mako spotifyd netns-exec spotnix persway lorri
-        wl-clipboard wl-clipboard-x11 wf-recorder wlroots
-        nixpkgs-fmt i3status-rust rust-analyzer-bin;
-    };
+    pkgs.recurseIntoAttrs toCache;
   installers = {
     europa = buildIso ./machines/europa/configuration.nix;
     phobos = buildIso ./machines/phobos/configuration.nix;
