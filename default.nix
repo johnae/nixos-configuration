@@ -87,7 +87,7 @@ rec {
         swayidle swaylock swaylock-dope
         mako spotifyd netns-exec spotnix
         wl-clipboard wl-clipboard-x11 wf-recorder
-        nixpkgs-fmt i3status-rust;
+        nixpkgs-fmt i3status-rust rust-analyzer-bin;
     };
   installers = {
     europa = buildIso ./machines/europa/configuration.nix;
