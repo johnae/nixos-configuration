@@ -77,13 +77,16 @@ rec {
   packages =
     let
       pkgs = nixpkgs {
-        overlays = [ (import ./overlays/pkgs.nix) ];
+        overlays = [
+          (import ./overlays/pkgs.nix)
+          (import ./overlays/emacs-overlay.nix)
+        ];
       };
     in with pkgs;
     pkgs.recurseIntoAttrs {
       inherit alacritty nushell sway swaybg
-        swayidle swaylock swaylock-dope blur
-        mako spotifyd netns-exec spotnix persway
+        swayidle swaylock swaylock-dope blur emacsGit-nox
+        mako spotifyd netns-exec spotnix persway lorri
         wl-clipboard wl-clipboard-x11 wf-recorder
         nixpkgs-fmt i3status-rust rust-analyzer-bin;
     };
