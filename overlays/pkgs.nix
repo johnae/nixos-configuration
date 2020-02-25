@@ -3,11 +3,11 @@ let
   importFromGithubMeta = with builtins;
     path:
     import (super.fetchFromGitHub (fromJSON (readFile path)));
-in
-rec {
 
   toIgnoreOptions = ignore: super.lib.concatStringsSep " "
     (map (option: "--ignore=${option}") ignore);
+in
+rec {
 
   firejailed = { package, ignore ? [] }: super.stdenv.mkDerivation {
     name = "firejail-wrapped-${package.name}";
