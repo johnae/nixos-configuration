@@ -8,10 +8,9 @@ with builtins;
 with lib;
 with buildkite;
 let
-  skipPackages = [ "wlroots" ];
+  skipPackages = [];
 in
 pipeline [
-
   (
     run "Update packages" {
       command = ''
@@ -81,7 +80,6 @@ pipeline [
         fi
 
       '';
-    }
-  )
+    })
 
 ]
