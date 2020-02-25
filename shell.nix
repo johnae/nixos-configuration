@@ -247,6 +247,7 @@ pkgs.mkShell {
     updateUserNixpkg
     updateUserNixpkgs
     updateRustAnalyzer
+    updateRustPackageCargo
   ];
   SOPS_PGP_FP = "782517BE26FBB0CC5DA3EFE59D91E5C4D9515D9E";
 }
