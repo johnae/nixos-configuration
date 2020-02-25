@@ -43,6 +43,7 @@ rec {
   swayidle = super.callPackage ../pkgs/swayidle {};
   swaylock = super.callPackage ../pkgs/swaylock {};
   swaylock-dope = super.callPackage ../pkgs/swaylock-dope {};
+  blur = super.callPackage ../pkgs/blur {};
   wlroots = super.callPackage ../pkgs/wlroots {};
   alacritty = super.callPackage ../pkgs/alacritty {};
   fire = super.callPackage ../pkgs/fire {};

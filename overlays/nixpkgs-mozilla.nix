@@ -1,5 +1,5 @@
 let
-  meta = builtins.fromJSON (builtins.readFile ./mozilla.json);
+  meta = builtins.fromJSON (builtins.readFile ./nixpkgs-mozilla.json);
 in
 import (
   builtins.fetchGit {

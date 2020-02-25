@@ -7,13 +7,13 @@ rustPlatform.buildRustPackage rec {
   version = metadata.rev;
 
   src = fetchFromGitHub metadata;
-  cargoSha256 = "0z5klzpykfp4sjin6vhhhxy5q1a6s42sd6c26p4bzw84hjghfddn";
+  cargoSha256 = "1h0jp4nka9bcx2mlwn51sclnfjzg2s8n4hnlpjhnr0s54zjhpdhr";
 
   doCheck = false;
 
   meta = with stdenv.lib; {
-    description = "Nix code formatter for nixpkgs";
-    homepage = "https://github.com/nix-community/nixpkgs-fmt";
+    description = "Blurring etc for sway lock screen";
+    homepage = "https://github.com/johnae/blur";
     license = licenses.mit;
     maintainers = [
       {

@@ -8,10 +8,9 @@ with builtins;
 with lib;
 with buildkite;
 let
-  skipPackages = [ "wlroots" ];
+  skipPackages = [];
 in
 pipeline [
-
   (
     run "Update packages" {
       command = ''
@@ -38,7 +37,7 @@ pipeline [
           pkg="$(echo "$change" | awk -F'/' '{print $2}')"
           for skip in $SKIP; do
             if [ "$skip" = "$pkg" ]; then
-              echo Skipping package "$pkg" because of skiplist
+              echo --- Skipping package "$pkg" because of skiplist
               git checkout "pkgs/$pkg"
             fi
           done
@@ -47,15 +46,17 @@ pipeline [
           pkg="$(echo "$change" | awk -F'/' '{print $2}')"
           git add "pkgs/$pkg"
           if ! git diff --quiet --staged --exit-code; then
-            echo --- Committing changes to pkg "pkgs/$pkg"
+            echo --- Building and caching pkg "pkgs/$pkg"
             git diff --staged
             ./build.sh -A packages."$pkg" | cachix push insane
+            echo --- Committing changes to pkg "pkgs/$pkg"
             git commit -m "Auto updated $pkg"
           fi
         done
 
         nix-shell --run update-home-manager
         nix-shell --run update-nixos-hardware
+        nix-shell --run update-overlays
 
         for change in $(git diff-index HEAD | awk '{print $NF}'); do
           pkg="$(basename "$change" .json)"
@@ -81,7 +82,6 @@ pipeline [
         fi
 
       '';
-    }
-  )
+    })
 
 ]
