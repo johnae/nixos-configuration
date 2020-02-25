@@ -82,14 +82,7 @@ rec {
           (import ./overlays/emacs-overlay.nix)
         ];
       };
-    in with pkgs;
-    pkgs.recurseIntoAttrs {
-      inherit alacritty nushell sway swaybg
-        swayidle swaylock swaylock-dope blur emacsGit-nox
-        mako spotifyd netns-exec spotnix persway lorri
-        wl-clipboard wl-clipboard-x11 wf-recorder
-        nixpkgs-fmt i3status-rust rust-analyzer-bin;
-    };
+    in pkgs;
   installers = {
     europa = buildIso ./machines/europa/configuration.nix;
     phobos = buildIso ./machines/phobos/configuration.nix;
