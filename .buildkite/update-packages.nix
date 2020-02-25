@@ -7,7 +7,9 @@ with import <insanepkgs> {};
 with builtins;
 with lib;
 with buildkite;
-
+let
+  skipPackages = [ "wlroots" ];
+in
 pipeline [
 
   (
@@ -31,6 +33,16 @@ pipeline [
         nix-shell --run update-rust-analyzer
         nix-shell --run update-user-nixpkgs
 
+        SKIP="${concatStringsSep " " skipPackages}"
+        for change in $(git diff-index --name-only HEAD); do
+          pkg="$(echo "$change" | awk -F'/' '{print $2}')"
+          for skip in $SKIP; do
+            if [ "$skip" = "$pkg" ]; then
+              echo Skipping package "$pkg" because of skiplist
+              git checkout "pkgs/$pkg"
+            fi
+          done
+        done
         for change in $(git diff-index --name-only HEAD); do
           pkg="$(echo "$change" | awk -F'/' '{print $2}')"
           git add "pkgs/$pkg"
