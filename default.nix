@@ -74,7 +74,7 @@ rec {
     titan = buildConfig ./machines/titan/configuration.nix;
     hyperion = buildConfig ./machines/hyperion/configuration.nix;
   };
-  packagesToCache =
+  packages =
     let
       pkgs = nixpkgs {
         overlays = [
