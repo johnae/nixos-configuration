@@ -182,11 +182,11 @@ let
                pkgs_updated=$((pkgs_updated + 1))
                clr "$BOLD" "Package $(basename "$pkg") was updated\n"
                mv "$pkg"/metadata.tmp.json "$pkg"/metadata.json
+               if grep "cargoSha256" "$pkg"/default.nix; then
+                 ${updateRustPackageCargo}/bin/update-rust-package-cargo "$(basename "$pkg")"
+               fi
              fi
              rm -f "$pkg"/metadata.tmp.json
-             if grep "cargoSha256" "$pkg"/default.nix; then
-               ${updateRustPackageCargo}/bin/update-rust-package-cargo "$(basename "$pkg")"
-             fi
           fi
       done
 
