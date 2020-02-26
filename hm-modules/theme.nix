@@ -103,8 +103,7 @@ in
             critical_bg = alpha cfg.base0B "DD";
             critical_fg = cfg.base04;
           };
-        }
-      )
+        })
     ]
   );
 

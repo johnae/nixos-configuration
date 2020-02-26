@@ -80,10 +80,12 @@ in
       description = "Lightweight kubernetes";
       after = [ "network-online.target" ];
       enable = true;
-      environment = {
-        K3S_NODE_NAME = cfg.nodeName;
-        K3S_CLUSTER_SECRET = cfg.clusterSecret;
-      } // (if isAgent then { K3S_URL = cfg.masterUrl; } else {});
+      environment =
+        {
+          K3S_NODE_NAME = cfg.nodeName;
+          K3S_CLUSTER_SECRET = cfg.clusterSecret;
+        }
+        // (if isAgent then { K3S_URL = cfg.masterUrl; } else {});
 
       script = (
         if isAgent
