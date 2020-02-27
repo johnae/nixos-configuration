@@ -310,7 +310,7 @@ in
   };
 
   systemd.user.services = {
-    persway = swayservice "${pkgs.persway}/bin/persway";
+    persway = swayservice "${pkgs.persway}/bin/persway -a";
     rotating-background = swayservice "${rotating-background}/bin/rotating-background art";
     swayidle = swayservice swayidleCommand;
   };
