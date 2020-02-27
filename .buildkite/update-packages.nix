@@ -57,6 +57,7 @@ pipeline [
         nix-shell --run update-home-manager
         nix-shell --run update-nixos-hardware
         nix-shell --run update-overlays
+        nix-shell --run update-nixos
 
         for change in $(git diff-index HEAD | awk '{print $NF}'); do
           pkg="$(basename "$change" .json)"
@@ -82,6 +83,7 @@ pipeline [
         fi
 
       '';
-    })
+    }
+  )
 
 ]
