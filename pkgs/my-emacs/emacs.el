@@ -4,14 +4,16 @@
 ;; Set the file-name-handler to nil (because regexing is cpu intensive)
 (setq file-name-handler-alist nil)
 
-;; Basically disable gc during initialization
+;; Set this much higher for better performance
 (setq gc-cons-threshold 100000000)
 
-;; Reset gc threshold and file-name-handler-alist after initialization
+;; The default is very low - 4k, lsp responses are easily 1+ MB
+(setq read-process-output-max (* 1024 1024)) ;; 1mb
+
+;; Reset file-name-handler-alist after initialization
 (add-hook 'after-init-hook
   (lambda ()
     (garbage-collect)
-    (setq gc-cons-threshold (car (get 'gc-cons-threshold 'standard-value)))
     (setq file-name-handler-alist file-name-handler-alist-actual)) t)
 
 ;; Default to using bash as shell
@@ -435,7 +437,9 @@
 ;; See: https://github.com/emacs-lsp/lsp-mode
 (use-package lsp-mode
   :after (direnv evil)
-  :init (setq lsp-keymap-prefix "C-c a")
+  :init
+  (setq lsp-keymap-prefix "C-c a")
+  (setq lsp-prefer-capf t)
   :config
   (setq lsp-prefer-flymake nil)
   (setq lsp-enable-snippet nil)
