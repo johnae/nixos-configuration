@@ -564,16 +564,44 @@ let
             types.submodule {
               options = {
                 inner = mkOption {
-                  type = types.nullOr types.int;
+                  type = types.nullOr (types.either types.int types.str);
                   default = null;
                   description = "Inner gaps value.";
                   example = 12;
                 };
 
                 outer = mkOption {
-                  type = types.nullOr types.int;
+                  type = types.nullOr (types.either types.int types.str);
                   default = null;
                   description = "Outer gaps value.";
+                  example = 5;
+                };
+
+                top = mkOption {
+                  type = types.nullOr (types.either types.int types.str);
+                  default = null;
+                  description = "Outer top gaps value.";
+                  example = 5;
+                };
+
+                bottom = mkOption {
+                  type = types.nullOr (types.either types.int types.str);
+                  default = null;
+                  description = "Outer bottom gaps value.";
+                  example = 5;
+                };
+
+                left = mkOption {
+                  type = types.nullOr (types.either types.int types.str);
+                  default = null;
+                  description = "Outer left gaps value.";
+                  example = 5;
+                };
+
+                right = mkOption {
+                  type = types.nullOr (types.either types.int types.str);
+                  default = null;
+                  description = "Outer right gaps value.";
                   example = 5;
                 };
 
@@ -659,9 +687,13 @@ let
       }
     '';
 
-  gapsStr = with cfg.config.gaps; ''
+  gapsStr = with cfg.settings.gaps; ''
     ${optionalString (inner != null) "gaps inner ${toString inner}"}
     ${optionalString (outer != null) "gaps outer ${toString outer}"}
+    ${optionalString (top != null) "gaps top ${toString top}"}
+    ${optionalString (bottom != null) "gaps bottom ${toString bottom}"}
+    ${optionalString (left != null) "gaps left ${toString left}"}
+    ${optionalString (right != null) "gaps right ${toString right}"}
     ${optionalString smartGaps "smart_gaps on"}
     ${optionalString (smartBorders != "off") "smart_borders ${smartBorders}"}
   '';
