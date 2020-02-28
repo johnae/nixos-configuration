@@ -1,15 +1,15 @@
 { pkgs, config, lib, options }:
 let
-  swayservice = command: {
+  swayservice = Description: ExecStart: {
     Unit = {
-      Description = "Small Sway IPC Daemon";
+      inherit Description;
       After = "graphical-session.target";
       BindsTo = "graphical-session.target";
     };
 
     Service = {
       Type = "simple";
-      ExecStart = command;
+      inherit ExecStart;
     };
 
     Install = {
@@ -310,9 +310,9 @@ in
   };
 
   systemd.user.services = {
-    persway = swayservice "${pkgs.persway}/bin/persway -a";
-    rotating-background = swayservice "${rotating-background}/bin/rotating-background art";
-    swayidle = swayservice swayidleCommand;
+    persway = swayservice "Small Sway IPC Deamon" "${pkgs.persway}/bin/persway -a -w";
+    rotating-background = swayservice "Rotating background service for Sway" "${rotating-background}/bin/rotating-background art";
+    swayidle = swayservice "Sway Idle Service - lock screen etc" swayidleCommand;
   };
 
 }
