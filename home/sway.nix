@@ -118,6 +118,7 @@ in
               { inherit command; criteria = { app_id = "sk-window"; }; }
               { command = floatCommand; criteria = { class = "input-window"; }; }
               { command = floatCommand; criteria = { class = "gcr-prompter"; }; }
+              { command = "inhibit_idle fullscreen"; criteria = { shell = ".*"; }; }
             ];
             noFocusCriteria = [
               { window_role = "browser"; }
@@ -175,6 +176,13 @@ in
           childBorder = "#BF616A";
         };
 
+      };
+
+      gaps = {
+        inner = 4;
+        top = "-5";
+        left = "-5";
+        right = "-5";
       };
 
       modes = {
