@@ -10,7 +10,6 @@ rec {
         padding.x = 2;
         padding.y = 2;
       };
-      tabspaces = 8;
       draw_bold_text_with_bright_colors = true;
       scrolling = {
         history = 20000;
