@@ -1,6 +1,6 @@
 {
     "owner": "nix-community",
     "repo": "emacs-overlay",
-    "rev": "374f158a14e8160bedfca7a838b39651c43f2df4",
-    "sha256": "1phh15r7c7iyz5lgm0adj51469wzir5wyln16hrycxahw8hyld5z"
+    "rev": "34247abeb9c38f84f4756706d0aa76817a9f455c",
+    "sha256": "08sw6pr1p887w1fqpdplvwrj50wi2pj5lhg882bqc6ldpxgwk9jh"
 }
