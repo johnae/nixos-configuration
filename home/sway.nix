@@ -181,6 +181,7 @@ in
       gaps = {
         inner = 4;
         top = "-5";
+        bottom = "-5";
         left = "-5";
         right = "-5";
       };
