@@ -307,45 +307,45 @@ let
     ${updateUserNixpkgs}/bin/update-user-nixpkgs
   '';
 
-  #bootVmFromIso = pkgs.writeStrictShellScriptBin "boot-vm-from-iso" ''
-  #  export PATH=${pkgs.e2fsprogs}/bin:$PATH
+  bootVmFromIso = pkgs.writeStrictShellScriptBin "boot-vm-from-iso" ''
+    export PATH=${pkgs.e2fsprogs}/bin:$PATH
 
-  #  echo 'Removing ${diskname}, unless you ctrl-c now'
-  #  read -r
+    echo 'Removing ${diskname}, unless you ctrl-c now'
+    read -r
 
-  #  rm -f ${diskname}
-  #  ${pkgs.qemu}/bin/qemu-img create -f qcow2 ${diskname} 200G
-  #  chattr +C ${diskname}
+    rm -f ${diskname}
+    ${pkgs.qemu}/bin/qemu-img create -f qcow2 ${diskname} 200G
+    chattr +C ${diskname}
 
-  #  rm -f ${altdiskname}
-  #  ${pkgs.qemu}/bin/qemu-img create -f qcow2 ${altdiskname} 20G
-  #  chattr +C ${altdiskname}
+    rm -f ${altdiskname}
+    ${pkgs.qemu}/bin/qemu-img create -f qcow2 ${altdiskname} 20G
+    chattr +C ${altdiskname}
 
-  #  actualIsoPath="$(readlink ${isoname})"
-  #  actualIso="$actualIsoPath"/iso/nixos-"$(echo "$actualIsoPath" | awk -F 'nixos-' '{print $2}')"
+    actualIsoPath="$(readlink ${isoname})"
+    actualIso="$actualIsoPath"/iso/nixos-"$(echo "$actualIsoPath" | awk -F 'nixos-' '{print $2}')"
 
-  #  qemu-system-x86_64 -enable-kvm -smp 2 -boot d -cdrom "$actualIso" -m 1024 -hda ${diskname} \
-  #     -drive if=pflash,format=raw,readonly,file=${pkgs.OVMF.fd}/FV/OVMF_CODE.fd \
-  #     -drive if=pflash,format=raw,readonly,file=${pkgs.OVMF.fd}/FV/OVMF_VARS.fd \
-  #     -smbios type=2 \
-  #     -net user,hostfwd=tcp::10022-:22 -net nic
-  #'';
+    qemu-system-x86_64 -enable-kvm -smp 2 -boot d -cdrom "$actualIso" -m 1024 -hda ${diskname} \
+       -drive if=pflash,format=raw,readonly,file=${pkgs.OVMF.fd}/FV/OVMF_CODE.fd \
+       -drive if=pflash,format=raw,readonly,file=${pkgs.OVMF.fd}/FV/OVMF_VARS.fd \
+       -smbios type=2 \
+       -net user,hostfwd=tcp::10022-:22 -net nic
+  '';
 
-  #bootVm = pkgs.writeStrictShellScriptBin "boot-vm" ''
-  #  # -boot c
-  #  echo starting qemu
-  #  qemu-system-x86_64 -enable-kvm -smp 2 -m 1024 -hda ${diskname} \
-  #     -drive if=pflash,format=raw,readonly,file=${pkgs.OVMF.fd}/FV/OVMF_CODE.fd \
-  #     -drive if=pflash,format=raw,readonly,file=${pkgs.OVMF.fd}/FV/OVMF_VARS.fd \
-  #     -smbios type=2 \
-  #     -net user,hostfwd=tcp::10022-:22 -net nic
-  #'';
+  bootVm = pkgs.writeStrictShellScriptBin "boot-vm" ''
+    # -boot c
+    echo starting qemu
+    qemu-system-x86_64 -enable-kvm -smp 2 -m 1024 -hda ${diskname} \
+       -drive if=pflash,format=raw,readonly,file=${pkgs.OVMF.fd}/FV/OVMF_CODE.fd \
+       -drive if=pflash,format=raw,readonly,file=${pkgs.OVMF.fd}/FV/OVMF_VARS.fd \
+       -smbios type=2 \
+       -net user,hostfwd=tcp::10022-:22 -net nic
+  '';
 in
 pkgs.mkShell {
   buildInputs = with pkgs; [
-    #qemu
-    #bootVm
-    #bootVmFromIso
+    qemu
+    bootVm
+    bootVmFromIso
     sops
     updateK3s
     updateNixos
