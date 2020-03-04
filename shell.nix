@@ -1,15 +1,29 @@
 let
+  SOPS_PGP_FP = "782517BE26FBB0CC5DA3EFE59D91E5C4D9515D9E";
+
   pkgs-meta = with builtins; fromJSON (readFile ./nixpkgs.json);
   pkgs = with builtins;
     import (fetchTarball { inherit (pkgs-meta) url sha256; }) {};
 
   nixosChannelPath = toString ./nixos-channel;
   nixpkgsPath = toString ./nixpkgs.nix;
-  extraBuiltinsPath = toString ./extra-builtins.nix;
+
+  ## enables reading from encrypted json within nix expressions
+  nixSops = pkgs.writeStrictShellScriptBin "nix-sops" ''
+    export SOPS_PGP_FP="${SOPS_PGP_FP}"
+    ## can't read from fifo's it seems, which is a bit unfortunate
+    ${pkgs.sops}/bin/sops exec-file --no-fifo "$1" 'nix-instantiate --eval -E "builtins.readFile {}"'
+  '';
+
+  ## ditto - points to the above
+  extraBuiltins = pkgs.writeText "extra-builtins.nix" ''
+    { exec, ... }: { sops = path: exec [ ${nixSops}/bin/nix-sops path ]; }
+  '';
 
   ## this will build an attribute such as a machine from default.nix
   ## or a package from the package collection - used by the update*system helpers
-  ## below
+  ## below. We're enabling the extra-builtins here so that we can read from
+  ## encrypted metadata (provided we have the keys ofc).
   build = pkgs.writeStrictShellScriptBin "build" ''
     unset NIX_PATH NIXPKGS_CONFIG
     NIX_PATH=nixpkgs="${nixpkgsPath}"
@@ -24,7 +38,7 @@ let
     fi
 
     echo Building "$@" 1>&2
-    nix-build "$args" --arg overlays [] --option extra-builtins-file ${extraBuiltinsPath} "$@"
+    nix-build "$args" --arg overlays [] --option extra-builtins-file ${extraBuiltins} "$@"
   '';
 
   ## this updates the local system, assuming the machine attribute to be the hostname
@@ -347,5 +361,5 @@ pkgs.mkShell {
     updateSystem
     updateRemoteSystem
   ];
-  SOPS_PGP_FP = "782517BE26FBB0CC5DA3EFE59D91E5C4D9515D9E";
+  inherit SOPS_PGP_FP;
 }
