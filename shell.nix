@@ -3,7 +3,11 @@ let
 
   pkgs-meta = with builtins; fromJSON (readFile ./nixpkgs.json);
   pkgs = with builtins;
-    import (fetchTarball { inherit (pkgs-meta) url sha256; }) {};
+    import (fetchTarball { inherit (pkgs-meta) url sha256; }) {
+      overlays = [
+        (import ./overlays/pkgs.nix)
+      ];
+    };
 
   nixosChannelPath = toString ./nixos-channel;
   nixpkgsPath = toString ./nixpkgs.nix;
