@@ -1,13 +1,10 @@
 let
   SOPS_PGP_FP = "782517BE26FBB0CC5DA3EFE59D91E5C4D9515D9E";
 
-  pkgs-meta = with builtins; fromJSON (readFile ./nixpkgs.json);
-  pkgs = with builtins;
-    import (fetchTarball { inherit (pkgs-meta) url sha256; }) {
-      overlays = [
-        (import ./overlays/pkgs.nix)
-      ];
-    };
+  nixpkgs = import ./nixpkgs.nix;
+  pkgs = nixpkgs {
+    overlays = (import ./nixpkgs-overlays.nix);
+  };
 
   nixosChannelPath = toString ./nixos-channel;
   nixpkgsPath = toString ./nixpkgs.nix;

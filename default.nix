@@ -1,6 +1,8 @@
 let
   nixpkgs = import ./nixpkgs.nix;
-  pkgs = nixpkgs {};
+  pkgs = nixpkgs {
+    overlays = (import ./nixpkgs-overlays.nix);
+  };
   lib = pkgs.lib;
 
   nixosFunc = import (pkgs.path + "/nixos");
@@ -76,12 +78,6 @@ rec {
   };
   packages =
     let
-      pkgs = nixpkgs {
-        overlays = [
-          (import ./overlays/pkgs.nix)
-          (import ./overlays/emacs-overlay.nix)
-        ];
-      };
       toCache = lib.mapAttrs'
         (
           name: _: lib.nameValuePair name pkgs."${name}"
