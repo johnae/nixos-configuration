@@ -12,8 +12,9 @@ pipeline [
   (
     run "Cachix cache" {
       command = ''
-        ./build.sh -A packages | cachix push insane
+        nix-shell --run "build -A packages" | cachix push insane
       '';
-    })
+    }
+  )
 
 ]

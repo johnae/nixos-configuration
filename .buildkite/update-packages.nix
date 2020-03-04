@@ -48,7 +48,7 @@ pipeline [
           if ! git diff --quiet --staged --exit-code; then
             echo --- Building and caching pkg "pkgs/$pkg"
             git diff --staged
-            ./build.sh -A packages."$pkg" | cachix push insane
+            nix-shell --run "build -A packages.$pkg" | cachix push insane
             echo --- Committing changes to pkg "pkgs/$pkg"
             git commit -m "Auto updated $pkg"
           fi

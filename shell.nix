@@ -3,11 +3,97 @@ let
   pkgs = with builtins;
     import (fetchTarball { inherit (pkgs-meta) url sha256; }) {};
 
+  nixosChannelPath = toString ./nixos-channel;
+  nixpkgsPath = toString ./nixpkgs.nix;
+  extraBuiltinsPath = toString ./extra-builtins.nix;
+
+  ## this will build an attribute such as a machine from default.nix
+  ## or a package from the package collection - used by the update*system helpers
+  ## below
+  build = pkgs.writeStrictShellScriptBin "build" ''
+    unset NIX_PATH NIXPKGS_CONFIG
+    NIX_PATH=nixpkgs="${nixpkgsPath}"
+    export NIX_PATH
+
+    NIX_OUTLINK=''${NIX_OUTLINK:-}
+    args=
+    if [ -n "$NIX_OUTLINK" ]; then
+        args="-o $NIX_OUTLINK"
+    else
+        args="--no-out-link"
+    fi
+
+    echo Building "$@" 1>&2
+    nix-build "$args" --arg overlays [] --option extra-builtins-file ${extraBuiltinsPath} "$@"
+  '';
+
+  ## this updates the local system, assuming the machine attribute to be the hostname
+  updateSystem = pkgs.writeStrictShellScriptBin "update-system" ''
+    profile=/nix/var/nix/profiles/system
+    pathToConfig="$(${build}/bin/build -A machines."$(hostname)")"
+
+    echo Ensuring nix-channel set in git repo is used
+    sudo nix-channel --add "$(tr -d '\n' < ${nixosChannelPath})" nixos
+    sudo nix-channel --update
+
+    echo Updating system profile
+    sudo nix-env -p "$profile" --set "$pathToConfig"
+
+    echo Switching to new configuration
+    if ! sudo "$pathToConfig"/bin/switch-to-configuration switch; then
+            echo "warning: error(s) occurred while switching to the new configuration" >&2
+            exit 1
+    fi
+  '';
+
+  ## this updates a remote system over ssh
+  updateRemoteSystem = pkgs.writeStrictShellScriptBin "update-remote-system" ''
+    machine=''${1:-}
+    reboot=''${2:-}
+    after_update=
+
+    if [ -n "$reboot" ]; then
+        after_update="sudo shutdown -r now"
+    fi
+
+    profile=/nix/var/nix/profiles/system
+    pathToConfig="$(${build}/bin/build -A machines."$machine")"
+
+    export NIX_SSHOPTS="-T -o RemoteCommand=none"
+
+    CHANNEL="$(tr -d '\n' < ${nixosChannelPath})"
+
+    echo Copying closure to remote
+    nix-copy-closure "$machine" "$pathToConfig"
+
+    ## below requires sudo without password on remote, also requires an ssh config
+    ## where the given machines are configured so they can be accessed via their
+    ## names
+    # shellcheck disable=SC2087
+    ssh "$machine" -t -o RemoteCommand=none nix-shell -p bash --run bash <<SSH
+
+    echo Ensuring nix-channel set in git repo is used
+    sudo nix-channel --add '$CHANNEL' nixos && sudo nix-channel --update
+
+    sudo nix-env -p '$profile' --set '$pathToConfig'
+    echo Updating system profile
+
+    echo Switching to new configuration
+    if ! sudo '$pathToConfig'/bin/switch-to-configuration switch; then
+        echo "warning: error(s) occurred while switching to the new configuration" >&2
+        exit 1
+    fi
+
+    $after_update
+
+    SSH
+  '';
+
   diskname = "testdisk.img";
   altdiskname = "testdiskalt.img";
   isoname = "result-iso";
 
-  updateK3s = pkgs.writeShellScriptBin "update-k3s" ''
+  updateK3s = pkgs.writeStrictShellScriptBin "update-k3s" ''
     export PATH=${pkgs.curl}/bin:${pkgs.jq}/bin:$PATH
     VERSION="$1"
     if [ -z "$VERSION" ]; then
@@ -24,7 +110,7 @@ let
     EOF
   '';
 
-  updateRustAnalyzer = pkgs.writeShellScriptBin "update-rust-analyzer" ''
+  updateRustAnalyzer = pkgs.writeStrictShellScriptBin "update-rust-analyzer" ''
     export PATH=${pkgs.curl}/bin:${pkgs.jq}/bin:$PATH
     VERSION="$1"
     if [ -z "$VERSION" ]; then
@@ -41,7 +127,7 @@ let
     EOF
   '';
 
-  updateNixos = pkgs.writeShellScriptBin "update-nixos" ''
+  updateNixos = pkgs.writeStrictShellScriptBin "update-nixos" ''
     export PATH=${pkgs.curl}/bin:${pkgs.gnugrep}/bin:${pkgs.gawk}/bin:$PATH
     curl -sS -I https://nixos.org/channels/nixos-unstable | grep Location: | awk '{printf "%s",$2}' | tr -d '\r\n' > nixos-channel
     nixpkgsUrl="$(cat nixos-channel)"/nixexprs.tar.xz
@@ -54,23 +140,24 @@ let
     EOF
   '';
 
-  updateOverlays = pkgs.writeShellScriptBin "update-overlays" ''
+  updateOverlays = pkgs.writeStrictShellScriptBin "update-overlays" ''
     for overlay in overlays/*.json; do
+      # shellcheck disable=SC2046
       set $(${pkgs.jq}/bin/jq -r '.owner + " " + .repo' < "$overlay")
       ${pkgs.nix-prefetch-github}/bin/nix-prefetch-github --rev master "$1" "$2" > "$overlay"
     done
   '';
 
-  updateHomeManager = pkgs.writeShellScriptBin "update-home-manager" ''
+  updateHomeManager = pkgs.writeStrictShellScriptBin "update-home-manager" ''
     ${pkgs.nix-prefetch-github}/bin/nix-prefetch-github --rev master rycee home-manager > modules/home-manager.json
   '';
 
-  updateNixosHardware = pkgs.writeShellScriptBin "update-nixos-hardware" ''
+  updateNixosHardware = pkgs.writeStrictShellScriptBin "update-nixos-hardware" ''
     ${pkgs.nix-prefetch-github}/bin/nix-prefetch-github --rev master nixos nixos-hardware > nixos-hardware.json
   '';
 
   updateUserNixpkg = with pkgs;
-    writeShellScriptBin "update-user-nixpkg" ''
+    writeStrictShellScriptBin "update-user-nixpkg" ''
       metadata=''${1:-} ## the metadata.json file
         if [ -z "$metadata" ]; then
           echo "Please give me the metadata.json"
@@ -92,7 +179,7 @@ let
         rm -f "$dir"/metadata.tmp.json
 
         if ${jq}/bin/jq -e ".owner == null or .repo == null" < "$metadata" >/dev/null; then
-          clr "$NEUTRAL" "skipping "$(basename "$dir")" - metadata not supported\n"
+          clr "$NEUTRAL" "skipping $(basename "$dir") - metadata not supported\n"
           exit 0
         fi
 
@@ -141,7 +228,7 @@ let
     '';
 
   updateRustPackageCargo = with pkgs;
-    writeShellScriptBin "update-rust-package-cargo" ''
+    writeStrictShellScriptBin "update-rust-package-cargo" ''
       set -euo pipefail
       if [ -z "$1" ]; then
           echo "USAGE: $0 <attribute>"
@@ -150,7 +237,7 @@ let
       fi
 
       attr="$1"
-      path=$(EDITOR=ls nix edit -f . packages."$attr")
+      path="$(EDITOR="ls" nix edit -f . packages."$attr")"
       sed -i 's|cargoSha256.*|cargoSha256 = "0000000000000000000000000000000000000000000000000000";|' "$path"
       ./build.sh -A packages."$attr" 2>&1 | tee /tmp/nix-rustbuild-log-"$attr" || true
       cargoSha256="$(grep 'got:.*sha256:.*' /tmp/nix-rustbuild-log-"$attr" | cut -d':' -f3-)"
@@ -159,7 +246,7 @@ let
     '';
 
   updateUserNixpkgs = with pkgs;
-    writeShellScriptBin "update-user-nixpkgs" ''
+    writeStrictShellScriptBin "update-user-nixpkgs" ''
 
       #RED='\033[0;31m'
       GREEN='\033[0;32m'
@@ -197,7 +284,7 @@ let
       fi
     '';
 
-  updateAll = pkgs.writeShellScriptBin "update-all" ''
+  updateAll = pkgs.writeStrictShellScriptBin "update-all" ''
     ${updateNixos}/bin/update-nixos
     ${updateNixosHardware}/bin/update-nixos-hardware
     ${updateHomeManager}/bin/update-home-manager
@@ -206,11 +293,11 @@ let
     ${updateUserNixpkgs}/bin/update-user-nixpkgs
   '';
 
-  bootVmFromIso = pkgs.writeShellScriptBin "boot-vm-from-iso" ''
+  bootVmFromIso = pkgs.writeStrictShellScriptBin "boot-vm-from-iso" ''
     export PATH=${pkgs.e2fsprogs}/bin:$PATH
 
     echo 'Removing ${diskname}, unless you ctrl-c now'
-    read
+    read -r
 
     rm -f ${diskname}
     ${pkgs.qemu}/bin/qemu-img create -f qcow2 ${diskname} 200G
@@ -230,7 +317,7 @@ let
        -net user,hostfwd=tcp::10022-:22 -net nic
   '';
 
-  bootVm = pkgs.writeShellScriptBin "boot-vm" ''
+  bootVm = pkgs.writeStrictShellScriptBin "boot-vm" ''
     # -boot c
     echo starting qemu
     qemu-system-x86_64 -enable-kvm -smp 2 -m 1024 -hda ${diskname} \
@@ -256,6 +343,9 @@ pkgs.mkShell {
     updateRustAnalyzer
     updateRustPackageCargo
     updateOverlays
+    build
+    updateSystem
+    updateRemoteSystem
   ];
   SOPS_PGP_FP = "782517BE26FBB0CC5DA3EFE59D91E5C4D9515D9E";
 }
