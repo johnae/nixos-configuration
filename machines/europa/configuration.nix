@@ -2,7 +2,7 @@
 let
   hostName = "europa";
 
-  nixos-hardware = import ../../nixos-hardware.nix;
+  nixos-hardware = import ../../nix/nixos-hardware.nix;
 
   ## some of the important values come from secrets as they are
   ## sensitive - otherwise works like any module.

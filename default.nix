@@ -1,7 +1,7 @@
 let
-  nixpkgs = import ./nixpkgs.nix;
+  nixpkgs = import ./nix/nixpkgs.nix;
   pkgs = nixpkgs {
-    overlays = (import ./nixpkgs-overlays.nix);
+    overlays = (import ./nix/nixpkgs-overlays.nix);
   };
   lib = pkgs.lib;
 

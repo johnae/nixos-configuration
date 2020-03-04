@@ -13,8 +13,8 @@ let
   );
 in
 {
-  nixpkgs.config = import ../nixpkgs-config.nix;
-  nixpkgs.overlays = import ../nixpkgs-overlays.nix;
+  nixpkgs.config = import ../nix/nixpkgs-config.nix;
+  nixpkgs.overlays = import ../nix/nixpkgs-overlays.nix;
 
   imports = with lib; (
     importsFrom ../hm-modules
@@ -93,7 +93,7 @@ in
 
   xdg.enable = true;
 
-  xdg.configFile."nixpkgs/config.nix".source = ../nixpkgs-config.nix;
+  xdg.configFile."nixpkgs/config.nix".source = ../nix/nixpkgs-config.nix;
   xdg.configFile."nixpkgs/overlays".source = ../overlays;
   xdg.configFile."nixpkgs/pkgs".source = ../pkgs;
 

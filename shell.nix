@@ -1,13 +1,13 @@
 let
   SOPS_PGP_FP = "782517BE26FBB0CC5DA3EFE59D91E5C4D9515D9E";
 
-  nixpkgs = import ./nixpkgs.nix;
+  nixpkgs = import ./nix/nixpkgs.nix;
   pkgs = nixpkgs {
-    overlays = (import ./nixpkgs-overlays.nix);
+    overlays = (import ./nix/nixpkgs-overlays.nix);
   };
 
-  nixosChannelPath = toString ./nixos-channel;
-  nixpkgsPath = toString ./nixpkgs.nix;
+  nixosChannelPath = toString ./nix/nixos-channel;
+  nixpkgsPath = toString ./nix/nixpkgs.nix;
 
   ## enables reading from encrypted json within nix expressions
   nixSops = pkgs.writeStrictShellScriptBin "nix-sops" ''
@@ -144,8 +144,8 @@ let
 
   updateNixos = pkgs.writeStrictShellScriptBin "update-nixos" ''
     export PATH=${pkgs.curl}/bin:${pkgs.gnugrep}/bin:${pkgs.gawk}/bin:$PATH
-    curl -sS -I https://nixos.org/channels/nixos-unstable | grep Location: | awk '{printf "%s",$2}' | tr -d '\r\n' > nixos-channel
-    nixpkgsUrl="$(cat nixos-channel)"/nixexprs.tar.xz
+    curl -sS -I https://nixos.org/channels/nixos-unstable | grep Location: | awk '{printf "%s",$2}' | tr -d '\r\n' > ${nixosChannelPath}
+    nixpkgsUrl="$(cat ${nixosChannelPath})"/nixexprs.tar.xz
     hash="$(nix-prefetch-url --type sha256 --unpack "$nixpkgsUrl")"
     cat<<EOF>nixpkgs.json
     {
@@ -168,7 +168,7 @@ let
   '';
 
   updateNixosHardware = pkgs.writeStrictShellScriptBin "update-nixos-hardware" ''
-    ${pkgs.nix-prefetch-github}/bin/nix-prefetch-github --rev master nixos nixos-hardware > nixos-hardware.json
+    ${pkgs.nix-prefetch-github}/bin/nix-prefetch-github --rev master nixos nixos-hardware > nix/nixos-hardware.json
   '';
 
   updateUserNixpkg = with pkgs;
