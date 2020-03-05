@@ -33,7 +33,8 @@ in
       (
         {
 
-          programs.sway.settings.colors = rec {
+
+          wayland.windowManager.sway.config.colors = rec {
             focused = {
               border = cfg.base0A;
               background = cfg.base0A;

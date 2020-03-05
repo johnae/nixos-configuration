@@ -72,7 +72,7 @@ in
     home-manager.users."${userName}" = { ... }: {
       imports = [ ../../home/home.nix ];
 
-      programs.sway.settings.output = {
+      wayland.windowManager.sway.config.output = {
         "eDP-1" = {
           scale = "2.0";
           pos = "0 0";

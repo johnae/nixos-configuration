@@ -3,8 +3,8 @@ let
   swayservice = Description: ExecStart: {
     Unit = {
       inherit Description;
-      After = "graphical-session.target";
-      BindsTo = "graphical-session.target";
+      After = "sway-session.target";
+      BindsTo = "sway-session.target";
     };
 
     Service = {
@@ -13,7 +13,7 @@ let
     };
 
     Install = {
-      WantedBy = [ "graphical-session.target" ];
+      WantedBy = [ "sway-session.target" ];
     };
   };
 
@@ -77,9 +77,10 @@ let
   '';
 in
 {
-  programs.sway = {
+  wayland.windowManager.sway = {
     enable = true;
-    settings = rec {
+    systemdIntegration = true;
+    config = rec {
       fonts = [ "Roboto" "Font Awesome 5 Free" "Font Awesome 5 Brands" "Arial" "sans-serif" "Bold 10" ];
       modifier = "Mod4";
 
@@ -111,7 +112,7 @@ in
             titlebar = false;
             border = 0;
             hideEdgeBorders = "smart";
-            popupDuringFullscreen = "smart";
+            #popupDuringFullscreen = "smart";
             commands = [
               { inherit command; criteria = { class = "sk-window"; }; }
               { inherit command; criteria = { title = "sk-window"; }; }
@@ -120,9 +121,9 @@ in
               { command = floatCommand; criteria = { class = "gcr-prompter"; }; }
               { command = "inhibit_idle fullscreen"; criteria = { shell = ".*"; }; }
             ];
-            noFocusCriteria = [
-              { window_role = "browser"; }
-            ];
+            #noFocusCriteria = [
+            #  { window_role = "browser"; }
+            #];
           };
 
       floating = {
@@ -135,17 +136,17 @@ in
           xkb_layout = "us";
           xkb_model = "pc105";
           xkb_options = "ctrl:nocaps,lv3:lalt_switch,compose:ralt,lv3:ralt_alt";
-          xkb_variant = "";
+          xkb_variant = "\"\"";
         };
         "1739:30383:DLL075B:01_06CB:76AF_Touchpad" = {
-          dwt = true;
-          natural_scroll = true;
-          tap = true;
+          dwt = "true";
+          natural_scroll = "true";
+          tap = "true";
         };
         "1739:30383:DELL07E6:00_06CB:76AF_Touchpad" = {
-          dwt = true;
-          natural_scroll = true;
-          tap = true;
+          dwt = "true";
+          natural_scroll = "true";
+          tap = "true";
         };
       };
 
@@ -180,10 +181,10 @@ in
 
       gaps = {
         inner = 4;
-        top = "-5";
-        bottom = "-5";
-        left = "-5";
-        right = "-5";
+        top = -5;
+        bottom = -5;
+        left = -5;
+        right = -5;
       };
 
       modes = {
@@ -264,20 +265,15 @@ in
         {
           command = "${pkgs.gnome3.gnome_settings_daemon}/libexec/gsd-xsettings";
         }
-        {
-          command = pkgs.writeStrictShellScript "hm-graphical-session" ''
-            systemctl --user import-environment
-            systemctl --user stop graphical-session.target
-            systemctl --user stop graphical-session-pre.target
-            systemctl --user start hm-graphical-session.target
-          '';
-        }
       ];
 
       bars = [
         {
           inherit fonts;
-          height = 25;
+          extraConfig = ''
+            height 25
+          '';
+          statusCommand = "${pkgs.i3status-rust}/bin/i3status-rs ~/.config/i3status-rust/config";
           colors = {
             background = "#2E3440AA";
             statusline = "#88C0D0";
@@ -316,6 +312,10 @@ in
         }
       ];
     };
+    extraConfig = ''
+      no_focus [window_role="browser"]
+      popup_during_fullscreen smart
+    '';
   };
 
   systemd.user.services = {
