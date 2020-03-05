@@ -29,7 +29,7 @@ let
 
         environment.etc = {
           "install.sh" = {
-            source = ./install.sh;
+            source = ./installer/install.sh;
             mode = "0700";
           };
           "system-closure-path" = {

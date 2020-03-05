@@ -1,8 +1,8 @@
 { pkgs, config, lib, options }:
 let
   gpgImport = pkgs.writeShellScript "gpg-import" ''
-    ${pkgs.gnupg}/bin/gpg --import ${../public.key.gpg}
-    ${pkgs.gnupg}/bin/gpg --import-ownertrust ${../gpg.ownertrust.txt}
+    ${pkgs.gnupg}/bin/gpg --import ${../files/public.key.gpg}
+    ${pkgs.gnupg}/bin/gpg --import-ownertrust ${../files/gpg.ownertrust.txt}
   '';
 in
 {
