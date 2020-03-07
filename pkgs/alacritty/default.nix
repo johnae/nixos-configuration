@@ -44,7 +44,7 @@ buildRustPackage rec {
   doCheck = false;
 
   src = fetchFromGitHub metadata;
-  cargoSha256 = "05jhl04vhwjhjq3ixkjblcy0w82qsdszqa7kai33b3r8xkr5678s";
+  cargoSha256 = "0hk2rymssgw4jgw79mdgm1rkm3pp8kljqr22n42q8fc031xcq00v";
 
   nativeBuildInputs = [ cmake makeWrapper pkgconfig ncurses gzip python3 ];
 
