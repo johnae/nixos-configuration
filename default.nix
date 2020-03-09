@@ -87,7 +87,7 @@ rec {
           (builtins.readDir ./pkgs)
       );
     in with pkgs;
-    pkgs.recurseIntoAttrs (toCache // { inherit lorri; });
+    pkgs.recurseIntoAttrs toCache;
   installers = {
     europa = buildIso ./machines/europa/configuration.nix;
     phobos = buildIso ./machines/phobos/configuration.nix;

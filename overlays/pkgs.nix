@@ -1,9 +1,5 @@
 self: super:
 let
-  importFromGithubMeta = with builtins;
-    path:
-    import (super.fetchFromGitHub (fromJSON (readFile path)));
-
   toIgnoreOptions = ignore: super.lib.concatStringsSep " "
     (map (option: "--ignore=${option}") ignore);
 in
@@ -31,7 +27,6 @@ rec {
   san-francisco-mono-font = super.callPackage ../pkgs/san-francisco-mono-font {};
   office-code-pro-font = super.callPackage ../pkgs/office-code-pro-font {};
   btr-snap = super.callPackage ../pkgs/btr-snap {};
-  lorri = importFromGithubMeta ./lorri.json {};
 
   netns-dbus-proxy = super.callPackage ../pkgs/netns-dbus-proxy {};
   nushell = super.callPackage ../pkgs/nushell {};
