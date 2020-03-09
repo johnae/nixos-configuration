@@ -66,6 +66,8 @@ rec {
   fish-kubectl-completions = super.callPackage ../pkgs/fish-kubectl-completions {};
   google-cloud-sdk-fish-completion = super.callPackage ../pkgs/google-cloud-sdk-fish-completion {};
 
+  wayvnc = super.callPackage ../pkgs/wayvnc {};
+
   inherit (super.callPackage ../pkgs/strictShellScript.nix {})
     writeStrictShellScript writeStrictShellScriptBin mkStrictShellScript
     ;

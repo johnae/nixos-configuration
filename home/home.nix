@@ -65,7 +65,7 @@ in
       nordic
       nordic-polar
 
-      # nixfmt ## using below instead
+      wayvnc
       nixpkgs-fmt
       google-cloud-sdk
       kubectl
