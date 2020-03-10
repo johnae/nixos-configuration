@@ -40,8 +40,7 @@
 
 ;; Setup auth sources to use pass gpg files.
 (setq auth-sources
-    '((:source (concat (getenv "PASSWORD_STORE") "/emacs/auth/authinfo.gpg"))))
-
+    '((:source "~/.local/share/password/emacs/auth/authinfo.gpg")))
 
 ;; The famous [[https://orgmode.org/][org mode]]. Default settings I use and stuff.
 
