@@ -1,15 +1,14 @@
 { stdenv, fetchgit, wget, perl, cacert }:
-
+let
+  metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
+in
 stdenv.mkDerivation rec {
-  version = "0.9.7-pre";
+  version = metadata.rev;
   name = "spook-${version}";
   SPOOK_VERSION = version;
 
   src = fetchgit {
-    url = "https://github.com/johnae/spook";
-    rev = "11230f63b740afd77cee710c5dcb27161e7c50ca";
-    sha256 = "1y8rx12ivd9n703haas9wm0b0bsqy9qiyppwgwb62pp6gqijf14q";
-    fetchSubmodules = true;
+    inherit (metadata) url rev sha256 fetchSubmodules;
   };
 
   installPhase = ''

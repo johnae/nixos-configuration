@@ -77,6 +77,8 @@ in
       xdg_utils
       netns-dbus-proxy
 
+      spook
+
       gnome3.nautilus
       (pkgs.firejailed { package = chrpkgs.chromium-dev-wayland; ignore = [ "nou2f" ]; })
     ];
