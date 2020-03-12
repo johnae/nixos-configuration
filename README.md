@@ -1,3 +1,5 @@
+[![Build status](https://badge.buildkite.com/4e0d9ed7873fec61b569bd1e43d580393ae98ca1e1e8243ee4.svg)](https://buildkite.com/insane/nixos-configuration)
+
 ## NixOS Configuration
 
 This repo contains NixOS configuration for all my machines. The initial bootstrapping of a machine is done by building a self-installing iso like this:
