@@ -7,7 +7,7 @@ rustPlatform.buildRustPackage rec {
   version = metadata.rev;
 
   src = fetchFromGitHub metadata;
-  cargoSha256 = "1ni98my5q289haizmxsp0vz38sci96r0bgy3h3lj5nrmb5nad8h6";
+  cargoSha256 = "0wg66qr4sgfk3aqvhpn7dp0vvfqzqq9yfskqmwcwvp90y03qb03i";
 
   doCheck = false;
 
