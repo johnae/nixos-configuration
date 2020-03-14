@@ -37,6 +37,11 @@ stdenv.mkDerivation rec {
     librsvg
   ];
 
+  ## we handle this elsewhere
+  mesonFlags = [
+    "-Dsystemd=disabled"
+  ];
+
   postInstall = ''
     wrapProgram $out/bin/mako \
      --set GDK_PIXBUF_MODULE_FILE "${librsvg}/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache"
