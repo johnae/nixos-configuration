@@ -12,6 +12,7 @@
 , wayland
 , wayland-protocols
 , pipewire
+, libdrm
 , systemd
 , gdk_pixbuf
 }:
@@ -26,7 +27,16 @@ stdenv.mkDerivation rec {
 
   nativeBuildInputs = [ meson ninja pkgconfig git scdoc makeWrapper ];
 
-  buildInputs = [ cairo pango wayland wayland-protocols systemd gdk_pixbuf pipewire ];
+  buildInputs = [
+    cairo
+    pango
+    wayland
+    wayland-protocols
+    systemd
+    gdk_pixbuf
+    pipewire
+    libdrm
+  ];
 
   meta = with stdenv.lib; {
     description = "screen sharing for wayland";
