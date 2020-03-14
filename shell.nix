@@ -144,7 +144,7 @@ let
 
   updateNixos = pkgs.writeStrictShellScriptBin "update-nixos" ''
     export PATH=${pkgs.curl}/bin:${pkgs.gnugrep}/bin:${pkgs.gawk}/bin:$PATH
-    curl -sS -I https://nixos.org/channels/nixos-unstable | grep Location: | awk '{printf "%s",$2}' | tr -d '\r\n' > ${nixosChannelPath}
+    curl -sS -I https://nixos.org/channels/nixos-unstable | grep -i Location: | awk '{printf "%s",$2}' | tr -d '\r\n' > ${nixosChannelPath}
     nixpkgsUrl="$(cat ${nixosChannelPath})"/nixexprs.tar.xz
     hash="$(nix-prefetch-url --type sha256 --unpack "$nixpkgsUrl")"
     cat<<EOF>nixpkgs.json
