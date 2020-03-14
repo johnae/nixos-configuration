@@ -54,9 +54,13 @@ pipeline [
           fi
         done
 
+        echo --- Updating home-manager
         nix-shell --run update-home-manager
+        echo --- Updating nixos-hardware
         nix-shell --run update-nixos-hardware
+        echo --- Updating overlays
         nix-shell --run update-overlays
+        echo --- Updating nixos
         nix-shell --run update-nixos
 
         for change in $(git diff-index HEAD | awk '{print $NF}'); do
