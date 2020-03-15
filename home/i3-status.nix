@@ -1,11 +1,15 @@
 { pkgs, config, lib, options }:
 let
   checkNixosVersion = pkgs.writeStrictShellScriptBin "check-nixos-version" ''
-    CURRENT=$(${pkgs.curl}/bin/curl -sS https://howoldis.herokuapp.com/api/channels | \
-              ${pkgs.jq}/bin/jq -r '.[] | select(.name == "nixos-unstable") | "\(.link) \(.time)"')
+    PATH=${pkgs.stdenv}/bin:${pkgs.dateutils}/bin:${pkgs.yq}/bin:${pkgs.curl}/bin:$PATH
+    RELEASES="$(mktemp nixos-version.XXXXXXXXXXX)"
+    curl -sS 'https://nix-releases.s3.amazonaws.com/?delimiter=/&prefix=nixos/unstable/' | \
+      xq -r '.ListBucketResult.Contents[] | "\(.Key) \(.LastModified)"' > "$RELEASES"
+    trap 'rm -f "$RELEASES"; exit' EXIT
 
-    AGE_SECS=$(echo "$CURRENT" | awk '{print $2}')
-    AGE_DAYS="$(echo "$AGE_SECS / 60 / 60 / 24" | ${pkgs.bc}/bin/bc)"
+    CURRENT="$(tail -n1 "$RELEASES" | awk '{print $1}')"
+    LAST_MODIFIED="$(tail -n1 "$RELEASES" | awk '{print $2}')"
+    AGE_DAYS="$(ddiff -f '%d' "$LAST_MODIFIED" now)"
 
     if [ "$AGE_DAYS" = "1" ]; then
       AGE_DAYS="$AGE_DAYS day ago"
@@ -13,7 +17,7 @@ let
       AGE_DAYS="$AGE_DAYS days ago"
     fi
 
-    LATEST=$(echo "$CURRENT" | awk '{print $1}' | awk -F'.' '{print $NF}')
+    LATEST=$(echo "$CURRENT" | awk -F'.' '{print $NF}')
     LOCAL=$(awk -F'.' '{print $2}' < ~/.nix-defexpr/channels_root/nixos/.version-suffix)
 
     if [ "$LOCAL" != "$LATEST" ]; then
