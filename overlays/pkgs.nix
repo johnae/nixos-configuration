@@ -65,7 +65,7 @@ rec {
 
   pipewire = super.callPackage ../pkgs/pipewire {};
 
-  ion-latest = super.callPackage ../pkgs/ion {};
+  ion-latest = super.callPackage ../pkgs/ion-latest {};
 
   inherit (super.callPackage ../pkgs/strictShellScript.nix {})
     writeStrictShellScript writeStrictShellScriptBin mkStrictShellScript
