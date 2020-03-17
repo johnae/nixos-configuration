@@ -7,6 +7,7 @@ in
 buildRustPackage rec {
   pname = metadata.repo;
   version = metadata.rev;
+  doCheck = false;
 
   src = fetchFromGitHub {
     owner = metadata.owner;
