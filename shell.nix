@@ -29,6 +29,7 @@ let
     unset NIX_PATH NIXPKGS_CONFIG
     NIX_PATH=nixpkgs="${nixpkgsPath}"
     export NIX_PATH
+    export PATH=${pkgs.git}/bin:$PATH
 
     NIX_OUTLINK=''${NIX_OUTLINK:-}
     args=
@@ -39,13 +40,13 @@ let
     fi
 
     echo Building "$@" 1>&2
-    nix-build "$args" --arg overlays [] --option extra-builtins-file ${extraBuiltins} "$@"
+    ${pkgs.nix}/bin/nix-build "$args" --arg overlays [] --option extra-builtins-file ${extraBuiltins} "$@"
   '';
 
   ## this updates the local system, assuming the machine attribute to be the hostname
   updateSystem = pkgs.writeStrictShellScriptBin "update-system" ''
     profile=/nix/var/nix/profiles/system
-    pathToConfig="$(${build}/bin/build -A machines."$(hostname)")"
+    pathToConfig="$(${build}/bin/build -A machines."$(${pkgs.hostname}/bin/hostname)")"
 
     echo Ensuring nix-channel set in git repo is used
     sudo nix-channel --add "$(tr -d '\n' < ${nixosChannelPath})" nixos
