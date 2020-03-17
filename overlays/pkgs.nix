@@ -63,6 +63,10 @@ rec {
 
   wayvnc = super.callPackage ../pkgs/wayvnc {};
 
+  pipewire = super.callPackage ../pkgs/pipewire {};
+
+  ion-latest = super.callPackage ../pkgs/ion {};
+
   inherit (super.callPackage ../pkgs/strictShellScript.nix {})
     writeStrictShellScript writeStrictShellScriptBin mkStrictShellScript
     ;
