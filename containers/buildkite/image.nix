@@ -1,8 +1,6 @@
 { dockerRegistry, dockerTag ? "latest" }:
 let
-  pkgs = (import ../../nix/nixpkgs.nix) {
-    overlays = (import ../../nix/nixpkgs-overlays.nix);
-  };
+  pkgs = import ../../nix { };
   paths = with pkgs; [
     buildkite-latest
     bashInteractive
@@ -16,13 +14,27 @@ let
     cacert
   ];
 
+  nixconf = pkgs.writeText "nix.conf" ''
+    sandbox = false
+    plugin-files = ${pkgs.nix-plugins}/lib/nix/plugins/libnix-extra-builtins.so
+  '';
+
+  rootfs = pkgs.stdenv.mkDerivation {
+    version = "1";
+    name = "rootfs-buildkite";
+    buildCommand = ''
+      mkdir -p $out/{root,etc/nix}
+      cp ${nixconf} $out/etc/nix/nix.conf
+    '';
+  };
+
   nixImage = import ../nixpkgs-image.nix { inherit pkgs; };
 in
   with pkgs; dockerTools.buildImage {
     name = "${dockerRegistry}/buildkite-nix";
     tag = dockerTag;
     fromImage = nixImage;
-    contents = paths ++ [ cacert iana-etc ./rootfs ];
+    contents = paths ++ [ cacert iana-etc rootfs ];
     config = {
       Entrypoint = [
         "${tini}/bin/tini"

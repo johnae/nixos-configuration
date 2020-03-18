@@ -1,8 +1,6 @@
 { dockerRegistry, dockerTag ? "latest" }:
 let
-  pkgs = (import ../../nix/nixpkgs.nix) {
-    overlays = (import ../../nix/nixpkgs-overlays.nix);
-  };
+  pkgs = import ../../nix { };
   lib = pkgs.lib;
 
   rbreceive = with pkgs; writeStrictShellScriptBin "rbreceive" ''
@@ -183,6 +181,20 @@ let
 
     exec ${openssh}/bin/sshd -e -D -p 22
   '';
+
+  passwd = pkgs.writeText "passwd" ''
+    root:x:0:0:System administrator:/root:/bin/bash
+    sshd:x:498:65534:SSH privilege separation user:/var/empty:/bin/nologin
+  '';
+
+  rootfs = pkgs.stdenv.mkDerivation {
+    version = "1";
+    name = "rootfs-btrfs-backups";
+    buildCommand = ''
+      mkdir -p $out/etc
+      cp ${passwd} $out/etc/passwd
+    '';
+  };
 in
 pkgs.dockerTools.buildLayeredImage {
   name = "${dockerRegistry}/btrfs-backups";
