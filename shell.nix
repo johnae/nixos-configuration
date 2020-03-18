@@ -1,13 +1,10 @@
 let
   SOPS_PGP_FP = "782517BE26FBB0CC5DA3EFE59D91E5C4D9515D9E";
 
-  nixpkgs = import ./nix/nixpkgs.nix;
-  pkgs = nixpkgs {
-    overlays = (import ./nix/nixpkgs-overlays.nix);
-  };
+  nixpkgsPath = toString ./nix;
+  pkgs = import nixpkgsPath { };
 
   nixosChannelPath = toString ./nix/nixos-channel;
-  nixpkgsPath = toString ./nix/nixpkgs.nix;
 
   ## enables reading from encrypted json within nix expressions
   nixSops = pkgs.writeStrictShellScriptBin "nix-sops" ''
@@ -377,7 +374,7 @@ let
   '';
 in
 pkgs.mkShell {
-  NIX_PATH = "nixpkgs=${toString ./nix/nixpkgs.nix}:nixpkgs-overlays=${toString ./nix/nixpkgs-overlays.nix}";
+  NIX_PATH = "nixpkgs=${nixpkgsPath}";
   buildInputs = with pkgs; [
     qemu
     bootVm

@@ -1,8 +1,5 @@
 let
-  nixpkgs = import ./nix/nixpkgs.nix;
-  pkgs = nixpkgs {
-    overlays = (import ./nix/nixpkgs-overlays.nix);
-  };
+  pkgs = import ./nix { };
   lib = pkgs.lib;
 
   nixosFunc = import (pkgs.path + "/nixos");
