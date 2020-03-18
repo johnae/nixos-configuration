@@ -6,8 +6,8 @@ echo --- Running agent pre-command hook
 echo +++ Setting up nix environment
 
 export INSANEPKGS_REF=${INSANEPKGS_REF:-master} ## can be a commit hash, tag or branch
-export INSANEPKGS="$(nix-shell "$BUILDKITE_HOOKS_PATH"/insanepkgs.nix --run fetch-insanepkgs | tail -n -1)"
-export NIX_PATH=insanepkgs="$INSANEPKGS"/nix/nixpkgs.nix:"$NIX_PATH"
+export INSANEPKGS="$(nix-shell "$BUILDKITE_HOOKS_PATH"/insanepkgs.nix --run fetch-insanepkgs | tail -n -1)/nix"
+export NIX_PATH=insanepkgs="$INSANEPKGS":"$NIX_PATH"
 
 echo "Using NIX_PATH: $NIX_PATH"
 
