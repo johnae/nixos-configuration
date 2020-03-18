@@ -89,7 +89,7 @@ rec {
       );
     in with pkgs;
     pkgs.recurseIntoAttrs toCache;
-  installers = pkgs.recurseIntoAttrs {
+  installers = {
     europa = buildIso ./machines/europa/configuration.nix;
     phobos = buildIso ./machines/phobos/configuration.nix;
     rhea = buildIso ./machines/rhea/configuration.nix;
