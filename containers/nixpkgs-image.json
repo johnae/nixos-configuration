@@ -1,0 +1,7 @@
+{
+  "imageName": "nixpkgs/nix",
+  "imageDigest": "sha256:8c829a38b8d5a0d65a433d1b12649c320b5c712d045ce7ad436acdbbba310a45",
+  "sha256": "1mr0s0xvkg2cvw886xlry874vpb84xfjv9al5z0b8kahcwzhya1m",
+  "finalImageName": "nixpkgs/nix",
+  "finalImageTag": "latest"
+}
