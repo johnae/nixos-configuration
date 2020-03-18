@@ -1,13 +1,17 @@
 { config, lib, pkgs, ... }:
 let
+  loadSecretMetadata = path: with builtins;
+    if getEnv "NIX_TEST" != ""
+    then fromJSON (readFile (path + "/meta.test.json"))
+    else fromJSON (extraBuiltins.sops (path + "/meta.json"));
+
   hostName = "europa";
 
   nixos-hardware = import ../../nix/nixos-hardware.nix;
 
   ## some of the important values come from secrets as they are
   ## sensitive - otherwise works like any module.
-  secretConfig = with builtins;
-    fromJSON (extraBuiltins.sops ../../metadata/europa/meta.json);
+  secretConfig = loadSecretMetadata ../../metadata/europa;
 
   ## determine what username we're using so we define it in one
   ## place
