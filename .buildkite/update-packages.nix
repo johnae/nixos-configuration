@@ -3,12 +3,14 @@
 ## nix eval -f .buildkite/pipeline.nix --json steps
 
 ##
-with import <insanepkgs> {};
+with (import ../nix/nixpkgs.nix) {
+  overlays = (import ../nix/nixpkgs-overlays.nix);
+};
 with builtins;
 with lib;
 with buildkite;
 let
-  skipPackages = [];
+  skipPackages = [ ];
 in
 pipeline [
   (
