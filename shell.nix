@@ -113,7 +113,8 @@ let
     export PATH=${pkgs.curl}/bin:${pkgs.jq}/bin:$PATH
     VERSION=''${1:-}
     if [ -z "$VERSION" ]; then
-      VERSION="$(curl https://api.github.com/repos/rancher/k3s/releases | jq -r '[.[] | select(.prerelease == false)]' | jq -r '. | first.tag_name')"
+      VERSION="$(curl https://api.github.com/repos/rancher/k3s/releases | \
+                 jq -r '[.[] | select(.prerelease == false)]' | jq -r '. | first.tag_name')"
     fi
     URL="https://github.com/rancher/k3s/releases/download/$VERSION/k3s"
     HASH="$(nix-prefetch-url "$URL" 2>&1 | tail -1)"
@@ -122,6 +123,32 @@ let
       "hash": "sha256:$HASH",
       "url": "$URL",
       "version": "$VERSION"
+    }
+    EOF
+  '';
+
+  updateBuildkiteVersion = pkgs.writeStrictShellScriptBin "update-buildkite-version" ''
+    export PATH=${pkgs.nix}/bin:$PATH
+    VERSION=''${1:-}
+    if [ -z "$VERSION" ]; then
+      VERSION="$(curl https://api.github.com/repos/buildkite/agent/releases | \
+                 jq -r '[.[] | select(.prerelease == false)]' | jq -r '. | first.tag_name' | sed 's|^v||g')"
+    fi
+    darwin_url="https://github.com/buildkite/agent/releases/download/v$VERSION/buildkite-agent-darwin-amd64-$VERSION.tar.gz"
+    linux_url="https://github.com/buildkite/agent/releases/download/v$VERSION/buildkite-agent-linux-amd64-$VERSION.tar.gz"
+    darwin_hash=$(nix-prefetch-url "$darwin_url")
+    linux_hash=$(nix-prefetch-url "$linux_url")
+    cat<<EOF>pkgs/buildkite/metadata.json
+    {
+      "version": "$VERSION",
+      "x86_64-linux": {
+        "sha256": "$linux_hash",
+        "url": "$linux_url"
+      },
+      "x86_64-darwin": {
+        "sha256": "$darwin_hash",
+        "url": "$darwin_url"
+      }
     }
     EOF
   '';
@@ -300,6 +327,10 @@ let
       fi
     '';
 
+  updateNixpkgsDockerImage = pkgs.writeStrictShellScriptBin "update-nixpkgs-docker-image" ''
+    ${pkgs.nix-prefetch-docker}/bin/nix-prefetch-docker nixpkgs/nix latest --quiet --json > containers/nixpkgs-image.json
+  '';
+
   updateAll = pkgs.writeStrictShellScriptBin "update-all" ''
     ${updateNixos}/bin/update-nixos
     ${updateNixosHardware}/bin/update-nixos-hardware
@@ -307,6 +338,8 @@ let
     ${updateRustAnalyzer}/bin/update-rust-analyzer
     ${updateK3s}/bin/update-k3s
     ${updateUserNixpkgs}/bin/update-user-nixpkgs
+    ${updateNixpkgsDockerImage}/bin/update-nixpkgs-docker-image
+    ${updateBuildkiteVersion}/bin/update-buildkite-version
   '';
 
   bootVmFromIso = pkgs.writeStrictShellScriptBin "boot-vm-from-iso" ''
@@ -344,6 +377,7 @@ let
   '';
 in
 pkgs.mkShell {
+  NIX_PATH = "nixpkgs=${toString ./nix/nixpkgs.nix}:nixpkgs-overlays=${toString ./nix/nixpkgs-overlays.nix}";
   buildInputs = with pkgs; [
     qemu
     bootVm
@@ -362,6 +396,8 @@ pkgs.mkShell {
     build
     updateSystem
     updateRemoteSystem
+    updateNixpkgsDockerImage
+    updateBuildkiteVersion
   ];
   inherit SOPS_PGP_FP;
 }
