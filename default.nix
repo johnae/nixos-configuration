@@ -19,7 +19,7 @@ let
         let
           conf = "${metadataDir}/${confName}/isoconf.json";
         in
-          if pathExists conf then fromJSON (extraBuiltins.sops conf) else {};
+          if pathExists conf then fromJSON (extraBuiltins.sops conf) else { };
       system-closure = buildConfig config;
       configuration = {
         imports = [
@@ -54,8 +54,8 @@ let
           fi
 
           ${lib.concatMapStringsSep "\n"
-          (s: "export ${s}")
-          (lib.mapAttrsToList (name: value: "${name}=\"${value}\"") isoConf)}
+            (s: "export ${s}")
+            (lib.mapAttrsToList (name: value: "${name}=\"${value}\"") isoConf)}
 
           sudo --preserve-env=DISK_PASSWORD,ADDITIONAL_VOLUMES,ADDITIONAL_DISK \
                 /etc/install.sh
@@ -76,6 +76,10 @@ rec {
     titan = buildConfig ./machines/titan/configuration.nix;
     hyperion = buildConfig ./machines/hyperion/configuration.nix;
   };
+  containers = pkgs.recurseIntoAttrs {
+    buildkite = import ./containers/buildkite/image.nix;
+    btrfs-backups = import ./containers/btrfs-backups/image.nix;
+  };
   packages =
     let
       toCache = lib.mapAttrs'
@@ -83,12 +87,12 @@ rec {
           name: _: lib.nameValuePair name pkgs."${name}"
         ) (
         lib.filterAttrs
-          (name: type: type == "directory" && name != "scripts")
+          (name: type: type == "directory")
           (builtins.readDir ./pkgs)
       );
     in with pkgs;
     pkgs.recurseIntoAttrs toCache;
-  installers = {
+  installers = pkgs.recurseIntoAttrs {
     europa = buildIso ./machines/europa/configuration.nix;
     phobos = buildIso ./machines/phobos/configuration.nix;
     rhea = buildIso ./machines/rhea/configuration.nix;
