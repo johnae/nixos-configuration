@@ -28,6 +28,7 @@ pipeline [
         NIX_TEST = "yep"; ## uses dummy metadata
       };
       command = ''
+        cachix use nixpkgs-wayland
         nix-shell --run build
       '';
     }
