@@ -1,0 +1,32 @@
+#!/usr/bin/env sh
+set -euo pipefail
+
+echo --- Running agent pre-command hook
+
+echo +++ Setting up nix environment
+
+export INSANEPKGS_REF=${INSANEPKGS_REF:-master} ## can be a commit hash, tag or branch
+export INSANEPKGS="$(nix-shell "$BUILDKITE_HOOKS_PATH"/insanepkgs.nix --run fetch-insanepkgs | tail -n -1)"
+export NIX_PATH=insanepkgs="$INSANEPKGS"/nix/nixpkgs.nix:"$NIX_PATH"
+
+echo "Using NIX_PATH: $NIX_PATH"
+
+if [ -e "/tmp/$BUILDKITE_AGENT_ID-cache" ]; then
+  echo --- Insane cachix cache already enabled - skipping
+else
+  echo --- "Installing the cachix cli tools..."
+  nix-env -iA cachix -f https://cachix.org/api/v1/install
+  echo --- "Enabling the cachix cache..."
+  cachix use insane
+fi
+touch "/tmp/$BUILDKITE_AGENT_ID-cache"
+
+if [ -e "/tmp/$BUILDKITE_AGENT_ID-docker" ]; then
+  echo --- Already logged in to docker registry
+else
+  echo --- Logging in to docker registry
+  nix-shell -I nixpkgs="$INSANEPKGS" -p docker -p insane-lib.strict-bash --run strict-bash <<EOF
+    echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+EOF
+fi
+touch "/tmp/$BUILDKITE_AGENT_ID-docker"
