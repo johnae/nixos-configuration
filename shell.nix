@@ -169,10 +169,10 @@ let
 
   updateNixos = pkgs.writeStrictShellScriptBin "update-nixos" ''
     export PATH=${pkgs.curl}/bin:${pkgs.gnugrep}/bin:${pkgs.gawk}/bin:$PATH
-    curl -sS -I https://nixos.org/channels/nixos-unstable | grep -i Location: | awk '{printf "%s",$2}' | tr -d '\r\n' > ${nixosChannelPath}
+    curl -sS -I https://channels.nixos.org/nixos-unstable | grep -i Location: | awk '{printf "%s",$2}' | tr -d '\r\n' > ${nixosChannelPath}
     nixpkgsUrl="$(cat ${nixosChannelPath})"/nixexprs.tar.xz
     hash="$(nix-prefetch-url --type sha256 --unpack "$nixpkgsUrl")"
-    cat<<EOF>nixpkgs.json
+    cat<<EOF>${nixpkgsPath}/nixpkgs.json
     {
       "url": "$nixpkgsUrl",
       "sha256": "$hash"
@@ -182,9 +182,19 @@ let
 
   updateOverlays = pkgs.writeStrictShellScriptBin "update-overlays" ''
     for overlay in overlays/*.json; do
+      echo Updating "$overlay"
+      noext="$(dirname "$overlay")"/"$(basename "$overlay" .json)"
       # shellcheck disable=SC2046
       set $(${pkgs.jq}/bin/jq -r '.owner + " " + .repo' < "$overlay")
-      ${pkgs.nix-prefetch-github}/bin/nix-prefetch-github --rev master "$1" "$2" > "$overlay"
+      echo Prefetching branch master of "$1/$2"
+      ${pkgs.nix-prefetch-github}/bin/nix-prefetch-github --rev master "$1" "$2" > "$noext".tmp.json
+      if [ -s "$noext".tmp.json ]; then
+        mv "$noext".tmp.json "$overlay"
+      else
+        echo ERROR: "$noext".tmp.json is empty
+        rm "$noext".tmp.json
+        exit 1
+      fi
     done
   '';
 
