@@ -23,7 +23,7 @@ pipeline [
         image="$(build -A containers.buildkite \
                        --argstr dockerRegistry "$DOCKER_REGISTRY" \
                        --argstr dockerTag bk-"$BUILDKITE_BUILD_NUMBER")"
-        docker load "$image"
+        docker load < "$image"
         nixhash="$(basename "$image" | awk -F'-' '{print $1}')"
         buildkite-agent meta-data set "nixhash" "$nixhash"
         docker tag \
