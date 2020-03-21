@@ -26,10 +26,10 @@ pipeline [
         nixhash="$(basename "$image" | awk -F'-' '{print $1}')"
         buildkite-agent meta-data set "nixhash" "$nixhash"
         docker tag \
-          "$DOCKER_REGISTRY/$PROJECT_NAME":bk-"$BUILDKITE_BUILD_NUMBER" \
-          "$DOCKER_REGISTRY/$PROJECT_NAME":"$nixhash" \
+          "$DOCKER_REGISTRY/$PROJECT_NAME:bk-$BUILDKITE_BUILD_NUMBER" \
+          "$DOCKER_REGISTRY/$PROJECT_NAME:$nixhash" \
         echo +++ Docker push
-        docker push "$DOCKER_REGISTRY/$PROJECT_NAME":"$nixhash"
+        docker push "$DOCKER_REGISTRY/$PROJECT_NAME:$nixhash"
       '';
     }
   )
