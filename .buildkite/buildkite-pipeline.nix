@@ -37,7 +37,7 @@ pipeline [
   )
   (
     deploy {
-      manifestsPath = "containers/kubernetes/buildkite-agent";
+      manifestsPath = "containers/kubernetes/buildkite";
       image = "${DOCKER_REGISTRY}/${PROJECT_NAME}";
       imageTag = "$(buildkite-agent meta-data get 'nixhash')";
       waitForCompletion = false;
