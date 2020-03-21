@@ -62,6 +62,7 @@ rec {
   google-cloud-sdk-fish-completion = super.callPackage ../pkgs/google-cloud-sdk-fish-completion { };
 
   wayvnc = super.callPackage ../pkgs/wayvnc { };
+  aml = super.callPackage ../pkgs/aml { };
 
   pipewire = super.callPackage ../pkgs/pipewire { };
 
