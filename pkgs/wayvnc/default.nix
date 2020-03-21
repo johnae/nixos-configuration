@@ -9,7 +9,7 @@
 , libvncserver
 , libpthreadstubs
 , pixman
-, libuv
+, aml
 , libglvnd
 , neatvnc
 , libX11
@@ -32,7 +32,7 @@ stdenv.mkDerivation rec {
     libvncserver
     libpthreadstubs
     pixman
-    libuv
+    aml
     libglvnd
     neatvnc
     libX11
