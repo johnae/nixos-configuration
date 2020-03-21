@@ -28,7 +28,7 @@ pipeline [
         buildkite-agent meta-data set "nixhash" "$nixhash"
         docker tag \
           "$DOCKER_REGISTRY/$PROJECT_NAME:bk-$BUILDKITE_BUILD_NUMBER" \
-          "$DOCKER_REGISTRY/$PROJECT_NAME:$nixhash" \
+          "$DOCKER_REGISTRY/$PROJECT_NAME:$nixhash"
         echo +++ Docker push
         docker push "$DOCKER_REGISTRY/$PROJECT_NAME:$nixhash"
         SH
