@@ -19,11 +19,17 @@ pipeline [
       env = { inherit PROJECT_NAME; };
       command = ''
         echo +++ Nix build and import image
-        docker load < "$(build -A containers.buildkite \
-                          --argstr dockerRegistry "$DOCKER_REGISTRY" \
-                          --argstr dockerTag bk-"$BUILDKITE_BUILD_NUMBER")"
+        image="$(build -A containers.buildkite \
+                       --argstr dockerRegistry "$DOCKER_REGISTRY" \
+                       --argstr dockerTag bk-"$BUILDKITE_BUILD_NUMBER")"
+        docker load "$image"
+        nixhash="$(basename "$image" | awk -F'-' '{print $1}')"
+        buildkite-agent meta-data set "nixhash" "$nixhash"
+        docker tag \
+          "$DOCKER_REGISTRY/$PROJECT_NAME":bk-"$BUILDKITE_BUILD_NUMBER" \
+          "$DOCKER_REGISTRY/$PROJECT_NAME":"$nixhash" \
         echo +++ Docker push
-        docker push "$DOCKER_REGISTRY/$PROJECT_NAME":bk-"$BUILDKITE_BUILD_NUMBER"
+        docker push "$DOCKER_REGISTRY/$PROJECT_NAME":"$nixhash"
       '';
     }
   )
@@ -31,7 +37,7 @@ pipeline [
     deploy {
       manifestsPath = "containers/kubernetes/buildkite-agent";
       image = "${DOCKER_REGISTRY}/${PROJECT_NAME}";
-      image-tag = "bk-${getEnv "BUILDKITE_BUILD_NUMBER"}";
+      imageTag = "$(buildkite-agent meta-data get 'nixhash')";
       waitForCompletion = false;
       dependsOn = [ "docker" ];
     }
