@@ -19,12 +19,10 @@ pipeline [
       env = { inherit PROJECT_NAME; };
       command = ''
         echo +++ Nix build and import image
-        image="$(nix-shell --run strict-bash <<'SH'
-                   build -A containers.buildkite \
-                         --argstr dockerRegistry "$DOCKER_REGISTRY" \
-                         --argstr dockerTag bk-"$BUILDKITE_BUILD_NUMBER"
-                 SH
-                )"
+        nix-shell --run strict-bash <<'SH'
+        image="$(build -A containers.buildkite \
+                       --argstr dockerRegistry "$DOCKER_REGISTRY" \
+                       --argstr dockerTag bk-"$BUILDKITE_BUILD_NUMBER")"
         docker load "$image"
         nixhash="$(basename "$image" | awk -F'-' '{print $1}')"
         buildkite-agent meta-data set "nixhash" "$nixhash"
@@ -33,6 +31,7 @@ pipeline [
           "$DOCKER_REGISTRY/$PROJECT_NAME:$nixhash" \
         echo +++ Docker push
         docker push "$DOCKER_REGISTRY/$PROJECT_NAME:$nixhash"
+        SH
       '';
     }
   )
