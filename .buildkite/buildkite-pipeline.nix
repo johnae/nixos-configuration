@@ -22,12 +22,12 @@ pipeline [
         nix-shell --run strict-bash <<'SH'
         image="$(build -A containers.buildkite \
                        --argstr dockerRegistry "$DOCKER_REGISTRY" \
-                       --argstr dockerTag bk-"$BUILDKITE_BUILD_NUMBER")"
+                       --argstr dockerTag latest)"
         docker load < "$image"
         nixhash="$(basename "$image" | awk -F'-' '{print $1}')"
         buildkite-agent meta-data set "nixhash" "$nixhash"
         docker tag \
-          "$DOCKER_REGISTRY/$PROJECT_NAME:bk-$BUILDKITE_BUILD_NUMBER" \
+          "$DOCKER_REGISTRY/$PROJECT_NAME:latest" \
           "$DOCKER_REGISTRY/$PROJECT_NAME:$nixhash"
         echo +++ Docker push
         docker push "$DOCKER_REGISTRY/$PROJECT_NAME:$nixhash"
