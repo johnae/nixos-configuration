@@ -30,7 +30,7 @@ pipeline [
 
         nixhash="$(basename "$image" | awk -F'-' '{print $1}')"
 
-        buildkite-agent meta-data set "nixhash" "$nixhash"
+        buildkite-agent meta-data set "${name}-nixhash" "$nixhash"
 
         docker tag \
           "${DOCKER_REGISTRY}/${PROJECT_NAME}:latest" \
@@ -47,7 +47,7 @@ pipeline [
       application = "ssh-forwarder";
       manifestsPath = "containers/ssh-forwarder/kubernetes";
       image = "${DOCKER_REGISTRY}/${PROJECT_NAME}";
-      imageTag = "$(buildkite-agent meta-data get 'nixhash')";
+      imageTag = "$(buildkite-agent meta-data get '${name}-nixhash')";
       dependsOn = [ "${name}-docker" ];
     }
   )
