@@ -3,7 +3,7 @@
 {
 
   xdg.configFile."terminfo/xterm-24bits.conf".text = ''
-    # Use colon separators. Blah
+    # Use colon separators.
     xterm-24bit|xterm with 24-bit direct color mode,
       use=xterm-256color,
       setb24=\E[48:2:%p1%{65536}%/%d:%p1%{256}%/%{255}%&%d:%p1%{255}%&%dm,
