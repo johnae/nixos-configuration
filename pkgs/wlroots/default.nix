@@ -17,7 +17,6 @@
 , xcbutilerrors
 , mesa_noglu
 , libpng
-, ffmpeg_4 # , freerdp
 }:
 let
   metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
@@ -34,7 +33,7 @@ stdenv.mkDerivation rec {
 
   mesonFlags = [
     "-Dlibcap=enabled"
-    "-Dlogind=enabled"
+    "-Dlogind-provider=systemd"
     "-Dxwayland=enabled"
     "-Dx11-backend=enabled"
     "-Dxcb-icccm=enabled"
@@ -56,7 +55,6 @@ stdenv.mkDerivation rec {
     xcbutilerrors
     mesa_noglu
     libpng
-    ffmpeg_4 # freerdp
   ];
 
   meta = with stdenv.lib; {
