@@ -1,4 +1,4 @@
-{ dockerRegistry, dockerTag ? "latest" }:
+{ dockerRegistry ? "johnae", dockerTag ? "latest" }:
 let
   pkgs = import ../../nix { };
   paths = with pkgs; [

@@ -74,9 +74,9 @@ rec {
     hyperion = buildConfig ./machines/hyperion/configuration.nix;
   };
   containers = pkgs.recurseIntoAttrs {
-    buildkite = import ./containers/buildkite/image.nix;
-    btrfs-backups = import ./containers/btrfs-backups/image.nix;
-    ssh-forwarder = import ./containers/ssh-forwarder/image.nix;
+    buildkite = import ./containers/buildkite/image.nix { };
+    btrfs-backups = import ./containers/btrfs-backups/image.nix { };
+    ssh-forwarder = import ./containers/ssh-forwarder/image.nix { };
   };
   packages =
     let
