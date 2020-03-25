@@ -24,6 +24,10 @@ stdenv.mkDerivation rec {
 
   src = fetchFromGitHub metadata;
 
+  #patches = [
+  #  ./disable-input.patch
+  #];
+
   nativeBuildInputs = [ pkgconfig meson ninja ];
   buildInputs = [
     wayland

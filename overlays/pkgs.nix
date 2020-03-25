@@ -63,6 +63,7 @@ rec {
 
   wayvnc = super.callPackage ../pkgs/wayvnc { };
   aml = super.callPackage ../pkgs/aml { };
+  neatvnc = super.callPackage ../pkgs/neatvnc { };
 
   pipewire = super.callPackage ../pkgs/pipewire { };
 
