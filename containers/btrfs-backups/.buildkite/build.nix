@@ -1,4 +1,6 @@
-with import <insanepkgs> {};
+with (import ../../../nix/nixpkgs.nix) {
+  overlays = (import ../../../nix/nixpkgs-overlays.nix);
+};
 with pkgs;
 stdenv.mkDerivation {
   name = "build";

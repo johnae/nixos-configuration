@@ -1,5 +1,5 @@
-with (import ../nix/nixpkgs.nix) {
-  overlays = (import ../nix/nixpkgs-overlays.nix);
+with (import ../../../nix/nixpkgs.nix) {
+  overlays = (import ../../../nix/nixpkgs-overlays.nix);
 };
 stdenv.mkDerivation {
   name = "build";
