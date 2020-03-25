@@ -26,11 +26,18 @@ pipeline [
       ];
       key = "subprojects";
       command = ''
+        buildkiteDepends="[ "
         for container in containers/*; do
           if [ ! -d "$container" ]; then continue; fi
-          nix eval -f "$container"/.buildkite/pipeline.nix --argstr name "$(basename "$container")" --json steps \
-                   | buildkite-agent pipeline upload --no-interpolation
+          if [ "$(basename "$container")" = "buildkite" ]; then continue; fi
+          name="$(basename "$container")"
+          buildkiteDepends="$buildkiteDepends \"$name-deploy\""
+          nix eval -f "$container"/.buildkite/pipeline.nix --argstr name "$name" --json steps \
+                     | buildkite-agent pipeline upload --no-interpolation
         done
+        buildkiteDepends="$buildkiteDepends \"build\" ]"
+        nix eval -f containers/buildkite/.buildkite/pipeline.nix --argstr name "buildkite" --arg dependsOn "$buildkiteDepends" --json steps \
+                     | buildkite-agent pipeline upload --no-interpolation
       '';
     }
   )
@@ -39,6 +46,7 @@ pipeline [
       dependsOn = [
         "cachix"
       ];
+      key = "build";
       env = {
         NIX_TEST = "yep"; ## uses dummy metadata
       };

@@ -1,4 +1,4 @@
-{ name }:
+{ name, dependsOn ? [ ] }:
 ## To generate the buildkite json, run this on the command line:
 ##
 ## nix eval -f .buildkite/pipeline.nix --argstr name somename --json steps
@@ -19,7 +19,7 @@ pipeline [
     run ":pipeline: Build and Push image" {
       key = "${name}-docker";
       env = { inherit PROJECT_NAME; };
-      inherit buildNixPath;
+      inherit buildNixPath dependsOn;
       command = ''
         echo +++ Nix build and import image
         image="$(nix-shell --run strict-bash <<'SH'
@@ -46,12 +46,13 @@ pipeline [
   (
     deploy {
       inherit buildNixPath;
+      key = "${name}-deploy";
       application = "buildkite-agent";
       manifestsPath = "containers/buildkite/kubernetes";
       image = "${DOCKER_REGISTRY}/${PROJECT_NAME}";
       imageTag = "$(buildkite-agent meta-data get '${name}-nixhash')";
       waitForCompletion = false;
-      dependsOn = [ "${name}-docker" ];
+      dependsOn = dependsOn ++ [ "${name}-docker" ];
     }
   )
 ]
