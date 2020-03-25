@@ -27,6 +27,8 @@ in
     shellAbbrs = {
       cat = "bat";
       g = "git";
+      e = "emacsclient -t -a=";
+      em = "emacs -nw";
     };
     shellAliases = {
       k8s-run = "${pkgs.kubectl}/bin/kubectl run tmp-shell --generator=run-pod/v1 --rm -i --tty --image=nixpkgs/nix-unstable --restart=Never --attach -- nix-shell -p bashInteractive --run bash";
@@ -48,7 +50,7 @@ in
               cd $dir
               set -lx file (${fd}/bin/fd -H -E "\.git" . | "${skim}"/bin/sk --color=bw)
               if [ "$file" != "" ]
-                ${edi}/bin/edi "$file"
+                emacsclient -t -a= "$file"
               end
             end
           end
@@ -66,7 +68,7 @@ in
             set -lx SK_DEFAULT_OPTS "--color=bw --height $SK_TMUX_HEIGHT $SK_DEFAULT_OPTS --tiebreak=index --bind=ctrl-r:toggle-sort $SK_CTRL_R_OPTS +m"
             set -lx file (${fd}/bin/fd -H -E "\.git" . | "${skim}"/bin/sk)
             if [ "$file" != "" ]
-              ${edi}/bin/edi "$file"
+              emacsclient -t -a= "$file"
             end
           end
           commandline -f repaint

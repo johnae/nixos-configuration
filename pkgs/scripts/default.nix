@@ -41,7 +41,6 @@
 }:
 let
   emacsclient = "${my-emacs}/bin/emacsclient";
-  emacs = "${my-emacs}/bin/emacs";
 
   random-name = writeStrictShellScriptBin "random-name" ''
     NAME=''${1:-}
@@ -50,33 +49,6 @@ let
       exit 1
     fi
     echo "$NAME-$(openssl rand 4 -hex)"
-  '';
-
-  emacs-server = writeStrictShellScriptBin "emacs-server" ''
-    FORCE=''${1:-}
-    if [ "$FORCE" == "--force" ]; then
-       ${procps}/bin/pkill -f "emacs --daemon=server"
-    elif [ -e /run/user/1337/emacs/server ]; then
-       exit 0
-    fi
-    ${coreutils}/bin/rm -rf /run/user/1337/emacs
-    TMPDIR=/run/user/1337 exec ${emacs} --daemon=server
-  '';
-
-  edit = writeStrictShellScriptBin "edit" ''
-    ${emacs-server}/bin/emacs-server
-    exec ${emacsclient} -n -c \
-         -s /run/user/1337/emacs/server "$@" >/dev/null 2>&1
-  '';
-
-  edi = writeStrictShellScriptBin "edi" ''
-    ${emacs-server}/bin/emacs-server
-    export TERM=xterm-24bits
-    exec ${emacsclient} -t -s /run/user/1337/emacs/server "$@"
-  '';
-
-  emacs-run = writeStrictShellScriptBin "emacs-run" ''
-    exec ${emacsclient} -s /run/user/1337/emacs/server "$@"
   '';
 
   git-credential-pass = writeStrictShellScriptBin "git-credential-pass" ''
@@ -300,15 +272,14 @@ let
   '';
 
   mail = writeStrictShellScriptBin "mail" ''
-    export TERMINAL_CONFIG=
-    exec ${alacritty}/bin/alacritty -e ${edi}/bin/edi -e '(mu4e)'
+    exec ${alacritty}/bin/alacritty -e ${emacsclient} -t -a= -e '(mu4e)'
   '';
 in
 {
   paths = {
-    inherit edit edi emacs-run emacs-server mail project-select launch
-      git-credential-pass sk-sk sk-run sk-window sk-passmenu browse-chromium
-      signal screenshot random-name add-wifi-network update-wifi-networks
+    inherit mail project-select launch git-credential-pass sk-sk
+      sk-run sk-window sk-passmenu browse-chromium signal
+      screenshot random-name add-wifi-network update-wifi-networks
       update-wireguard-keys spotify-play-album spotify-play-track spotify-cmd
       spotify-play-artist spotify-play-playlist
       ;

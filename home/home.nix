@@ -8,8 +8,9 @@ let
 
   importsFrom = with lib; dir: mapAttrsToList (
     name: _: dir + "/${name}"
-  ) (filterAttrs (name: _: hasSuffix ".nix" name)
-    (builtins.readDir dir)
+  ) (
+    filterAttrs (name: _: hasSuffix ".nix" name)
+      (builtins.readDir dir)
   );
 in
 {
@@ -35,12 +36,9 @@ in
       spotnix
       my-emacs
       mu
-      edit
-      edi
       bat
       mail
       wofi
-      emacs-server
       alacritty
       project-select
       launch
@@ -83,9 +81,9 @@ in
       (pkgs.firejailed { package = chrpkgs.chromium-dev-wayland; ignore = [ "nou2f" ]; })
     ];
 
-  home.sessionVariables = {
-    EDITOR = "edi";
-    VISUAL = "edi";
+  home.sessionVariables = rec {
+    EDITOR = "emacsclient -t -a=";
+    VISUAL = EDITOR;
   };
 
   xsession.pointerCursor = {
@@ -100,7 +98,7 @@ in
   xdg.configFile."nixpkgs/pkgs".source = ../pkgs;
 
   home.file.".emacs".source =
-    (pkgs.callPackage ../pkgs/my-emacs/config.nix {}).emacsConfig;
+    (pkgs.callPackage ../pkgs/my-emacs/config.nix { }).emacsConfig;
 
   home.file.".icons/default" = {
     source = "${pkgs.gnome3.defaultIconTheme}/share/icons/Adwaita";
@@ -138,7 +136,7 @@ in
       signByDefault = true;
     };
     extraConfig = {
-      core.editor = "${pkgs.edi}/bin/edi -t";
+      core.editor = "${pkgs.my-emacs}/bin/emacsclient -t -a=";
       push.default = "upstream";
       pull.rebase = true;
       rebase.autoStash = true;

@@ -240,7 +240,7 @@ in
 
         "${modifier}+b" = ''exec sway-background'';
 
-        "${modifier}+Shift+e" = ''exec alacritty -t edit -e edi'';
+        "${modifier}+Shift+e" = ''exec alacritty -t edit -e emacsclient -t -a='';
 
         "${modifier}+Shift+b" = ''exec firefox'';
 

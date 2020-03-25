@@ -82,8 +82,8 @@ rec {
   initInstall = super.callPackage ../pkgs/initInstall.nix { };
 
   inherit ((super.callPackage ../pkgs/scripts { }).paths)
-    edit edi emacs-run emacs-server mail project-select launch
-    git-credential-pass sk-sk sk-run sk-window sk-passmenu browse-chromium
+    mail project-select launch git-credential-pass sk-sk
+    sk-run sk-window sk-passmenu browse-chromium
     screenshot random-name add-wifi-network update-wifi-networks
     update-wireguard-keys spotify-play-album spotify-play-track spotify-cmd
     spotify-play-artist spotify-play-playlist
