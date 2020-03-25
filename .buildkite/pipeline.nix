@@ -16,6 +16,7 @@ pipeline [
       key = "cachix";
       command = ''
         nix-shell --run "build -A packages" | cachix push insane
+        nix-shell --run "build -A containers" | cachix push insane
       '';
     }
   )
