@@ -2,42 +2,40 @@
 ##
 ## nix eval -f .buildkite/pipeline.nix --json steps
 
-##
-with (import ../nix/nixpkgs.nix) {
-  overlays = (import ../nix/nixpkgs-overlays.nix);
-};
+with import <insanepkgs> { };
 with builtins;
 with lib;
 with buildkite;
 let
-  PROJECT_NAME = "buildkite-nix";
+  PROJECT_NAME = "btrfs-backups";
 in
 pipeline [
   (
-    run ":pipeline: Build and Push image" {
+    (run ":pipeline: Build and Push image" {
       key = "docker";
-      env = { inherit PROJECT_NAME; };
       command = ''
         echo +++ Nix build and import image
-        nix-shell --run strict-bash <<'SH'
         image="$(build -A containers.buildkite \
-                       --argstr dockerRegistry "$DOCKER_REGISTRY" \
+                       --argstr dockerRegistry "${DOCKER_REGISTRY}" \
                        --argstr dockerTag latest)"
         docker load < "$image"
+
         nixhash="$(basename "$image" | awk -F'-' '{print $1}')"
+
         buildkite-agent meta-data set "nixhash" "$nixhash"
+
         docker tag \
-          "$DOCKER_REGISTRY/$PROJECT_NAME:latest" \
-          "$DOCKER_REGISTRY/$PROJECT_NAME:$nixhash"
+          "${DOCKER_REGISTRY}/${PROJECT_NAME}:latest" \
+          "${DOCKER_REGISTRY}/${PROJECT_NAME}:$nixhash"
+
         echo +++ Docker push
-        docker push "$DOCKER_REGISTRY/$PROJECT_NAME:$nixhash"
-        SH
+        docker push "${DOCKER_REGISTRY}/${PROJECT_NAME}:$nixhash"
       '';
-    }
+    })
   )
   (
     deploy {
-      manifestsPath = "containers/buildkite/kubernetes";
+      manifestsPath = "containers/btrfs-backups/kubernetes";
       image = "${DOCKER_REGISTRY}/${PROJECT_NAME}";
       imageTag = "$(buildkite-agent meta-data get 'nixhash')";
       waitForCompletion = false;
