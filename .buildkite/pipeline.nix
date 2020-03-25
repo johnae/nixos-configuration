@@ -20,6 +20,21 @@ pipeline [
     }
   )
   (
+    run "Build subprojects" {
+      dependsOn = [
+        "cachix"
+      ];
+      key = "subprojects";
+      command = ''
+        for container in containers/*; do
+          if [ ! -d "$container" ]; then continue; fi
+          nix eval -f "$container"/.buildkite/pipeline.nix --argstr name "$(basename "$container")" --json steps \
+                   | buildkite-agent pipeline upload --no-interpolation
+        done
+      '';
+    }
+  )
+  (
     run "Build" {
       dependsOn = [
         "cachix"

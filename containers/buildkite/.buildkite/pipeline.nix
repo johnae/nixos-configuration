@@ -1,6 +1,7 @@
+{ name }:
 ## To generate the buildkite json, run this on the command line:
 ##
-## nix eval -f .buildkite/pipeline.nix --json steps
+## nix eval -f .buildkite/pipeline.nix --argstr name somename --json steps
 
 ##
 with (import ../../../nix/nixpkgs.nix) {
@@ -16,7 +17,7 @@ in
 pipeline [
   (
     run ":pipeline: Build and Push image" {
-      key = "docker";
+      key = "${name}-docker";
       env = { inherit PROJECT_NAME; };
       inherit buildNixPath;
       command = ''
@@ -45,11 +46,12 @@ pipeline [
   (
     deploy {
       inherit buildNixPath;
+      application = "buildkite-agent";
       manifestsPath = "containers/buildkite/kubernetes";
       image = "${DOCKER_REGISTRY}/${PROJECT_NAME}";
       imageTag = "$(buildkite-agent meta-data get 'nixhash')";
       waitForCompletion = false;
-      dependsOn = [ "docker" ];
+      dependsOn = [ "${name}-docker" ];
     }
   )
 ]

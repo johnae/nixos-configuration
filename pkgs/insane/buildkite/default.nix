@@ -274,12 +274,13 @@ let
         "waitForCompletion"
         "dependsOn"
       ];
+      runArgsKey = if hasAttr "key" runArgs then "-${toString runArgs.key}" else "";
     in
       [
         (
           dynamicTrigger ":github: Deploy ${application}: commit cluster state" {
             inherit trigger dependsOn;
-            key = "trigger-deploy-${application}";
+            key = "trigger-deploy-${application}${runArgsKey}";
             build = {
               env = {
                 APPLICATION = application;
@@ -297,7 +298,7 @@ let
           run ":k8s: Deploying ${application}: waiting for cluster state convergence"
             (
               {
-                dependsOn = dependsOn ++ [ "trigger-deploy-${application}" ];
+                dependsOn = dependsOn ++ [ "trigger-deploy-${application}${runArgsKey}" ];
                 exactCommand = ''
                   nix-shell -I nixpkgs="$INSANEPKGS" \
                   -p insane-lib.strict-bash \
