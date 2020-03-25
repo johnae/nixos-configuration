@@ -71,6 +71,9 @@ spec:
          secret:
            secretName: buildkite-agent-ssh
            defaultMode: 0400
+     nodeSelector:
+       cpu: high
+       mem: high
  volumeClaimTemplates:
    - metadata:
        name: buildkite
