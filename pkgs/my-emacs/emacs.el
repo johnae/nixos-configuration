@@ -39,8 +39,9 @@
 (add-to-list 'load-path "@MUSE_LOAD_PATH@")
 
 ;; Setup auth sources to use pass gpg files.
+
 (setq auth-sources
-    '((:source "~/.local/share/password/emacs/auth/authinfo.gpg")))
+    '((:source "~/.local/share/password-store/emacs/auth/authinfo.gpg")))
 
 ;; The famous [[https://orgmode.org/][org mode]]. Default settings I use and stuff.
 
@@ -965,7 +966,7 @@
   (replace-regexp-in-string "\n\\'" ""
    (shell-command-to-string
     (concat "gpg --decrypt "
-            "~/.password-store/" storepath ".gpg 2>/dev/null"))))
+            "~/.local/share/password-store/" storepath ".gpg 2>/dev/null"))))
 
 ;; Define a function to set the telephone line theme. This is so that when using emacsclient we
 ;; can just call this rather than duplicate code. So we need to be able to set the theme more
