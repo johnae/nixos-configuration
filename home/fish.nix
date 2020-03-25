@@ -12,8 +12,8 @@ let
       executable
     ];
 
-  privateSway = withinNetNS "sway" {};
-  privateFish = withinNetNS "fish" {};
+  privateSway = withinNetNS "sway" { };
+  privateFish = withinNetNS "fish" { };
 in
 {
 
@@ -42,11 +42,11 @@ in
         function skim-jump-to-project-widget -d "Show list of projects"
           set -q SK_TMUX_HEIGHT; or set SK_TMUX_HEIGHT 40%
           begin
-            set -lx SK_DEFAULT_OPTS "--height $SK_TMUX_HEIGHT $SK_DEFAULT_OPTS --tiebreak=index --bind=ctrl-r:toggle-sort $SK_CTRL_R_OPTS +m"
+            set -lx SK_DEFAULT_OPTS "--color=bw --height $SK_TMUX_HEIGHT $SK_DEFAULT_OPTS --tiebreak=index --bind=ctrl-r:toggle-sort $SK_CTRL_R_OPTS +m"
             set -lx dir (${project-select}/bin/project-select ~/Development ~/.config)
             if [ "$dir" != "" ]
               cd $dir
-              set -lx file (${fd}/bin/fd -H -E "\.git" . | "${skim}"/bin/sk)
+              set -lx file (${fd}/bin/fd -H -E "\.git" . | "${skim}"/bin/sk --color=bw)
               if [ "$file" != "" ]
                 ${edi}/bin/edi "$file"
               end
@@ -63,7 +63,7 @@ in
         function skim-jump-to-file-widget -d "Show list of file to open in editor"
           set -q SK_TMUX_HEIGHT; or set SK_TMUX_HEIGHT 40%
           begin
-            set -lx SK_DEFAULT_OPTS "--height $SK_TMUX_HEIGHT $SK_DEFAULT_OPTS --tiebreak=index --bind=ctrl-r:toggle-sort $SK_CTRL_R_OPTS +m"
+            set -lx SK_DEFAULT_OPTS "--color=bw --height $SK_TMUX_HEIGHT $SK_DEFAULT_OPTS --tiebreak=index --bind=ctrl-r:toggle-sort $SK_CTRL_R_OPTS +m"
             set -lx file (${fd}/bin/fd -H -E "\.git" . | "${skim}"/bin/sk)
             if [ "$file" != "" ]
               ${edi}/bin/edi "$file"
@@ -116,7 +116,7 @@ in
 
         clear
         set RUN (echo -e "sway private\texec ${privateSway}\nsway\texec sway\nfish private\texec ${privateFish}\nfish\texec ${pkgs.dbus}/bin/dbus-run-session fish" | \
-        ${pkgs.skim}/bin/sk -p "start >> " --inline-info --margin 40%,40% --color BW --height=40 --no-hscroll --no-mouse --reverse --delimiter='\t' --with-nth 1 | ${pkgs.gawk}/bin/awk -F'\t' '{print $2}')
+        ${pkgs.skim}/bin/sk -p "start >> " --inline-info --margin 40%,40% --color=bw --height=40 --no-hscroll --no-mouse --reverse --delimiter='\t' --with-nth 1 | ${pkgs.gawk}/bin/awk -F'\t' '{print $2}')
         eval "$RUN"
       end
     '';

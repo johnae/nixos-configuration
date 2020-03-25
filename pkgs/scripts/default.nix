@@ -88,6 +88,7 @@ let
     SK_MIN_HEIGHT=''${SK_MIN_HEIGHT:-100}
     SK_MARGIN=''${SK_MARGIN:-5,5,5,5}
     SK_PROMPT=''${SK_PROMPT:- >}
+
     export SKIM_DEFAULT_OPTIONS=''${SK_OPTS:-"--reverse"}
     exec ${skim}/bin/sk --min-height="$SK_MIN_HEIGHT" \
         --margin="$SK_MARGIN" \
@@ -101,7 +102,7 @@ let
       exit 1
     fi
     export SK_PROMPT="goto project >"
-    export SK_OPTS="--tac --reverse"
+    export SK_OPTS="--color=bw --tac --reverse"
     # shellcheck disable=SC2086
     ${fd}/bin/fd -d 8 -pHI -t f '.*\.git/config|.*\.projectile' $projects | \
       ${gnused}/bin/sed -e 's|/\.git/config||g' \
@@ -170,7 +171,7 @@ let
   sk-run = writeScriptBin "sk-run" ''
     #!${bashInteractive}/bin/bash
     export SK_PROMPT="run >> "
-    export SK_OPTS="$SK_OPTS''${SK_OPTS:+ }--no-bold --color BW --height=40 --no-hscroll --no-mouse --print-query --reverse"
+    export SK_OPTS="$SK_OPTS''${SK_OPTS:+ }--no-bold --color=bw --height=40 --no-hscroll --no-mouse --print-query --reverse"
 
     compgen -c | \
     sort -u | \
@@ -204,7 +205,7 @@ let
 
   sk-passmenu = writeStrictShellScriptBin "sk-passmenu" ''
     export SK_PROMPT="copy password >> "
-    export SK_OPTS="--no-bold --color BW  --height=40 --reverse --no-hscroll --no-mouse"
+    export SK_OPTS="--no-bold --color=bw  --height=40 --reverse --no-hscroll --no-mouse"
 
     passfile=''${1:-}
     nosubmit=''${nosubmit:-}
