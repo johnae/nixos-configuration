@@ -20,7 +20,7 @@ pipeline [
       command = ''
         echo +++ Nix build and import image
         image="$(nix-shell --run strict-bash <<'SH'
-                  build -A containers.buildkite \
+                  build -A containers.btrfs-backups \
                         --argstr dockerRegistry "${DOCKER_REGISTRY}" \
                         --argstr dockerTag latest
         SH

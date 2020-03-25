@@ -199,7 +199,7 @@ in
 pkgs.dockerTools.buildLayeredImage {
   name = "${dockerRegistry}/btrfs-backups";
   tag = dockerTag;
-  contents = with pkgs; [ rbreceive utillinux bashInteractive openssh btrfsProgs coreutils ./rootfs ];
+  contents = with pkgs; [ rbreceive utillinux bashInteractive openssh btrfsProgs coreutils rootfs ];
 
   config = {
     Entrypoint = [ "${entrypoint}/bin/entrypoint.sh" ];
