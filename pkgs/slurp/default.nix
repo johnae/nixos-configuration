@@ -6,6 +6,7 @@
 , wayland
 , wayland-protocols
 , cairo
+, libxkbcommon
 , libjpeg
 , git
 , systemd
@@ -21,7 +22,14 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub metadata;
 
   nativeBuildInputs = [ meson ninja pkgconfig git scdoc ];
-  buildInputs = [ wayland wayland-protocols cairo libjpeg systemd ];
+  buildInputs = [
+    wayland
+    wayland-protocols
+    cairo
+    libjpeg
+    libxkbcommon
+    systemd
+  ];
 
   meta = with stdenv.lib; {
     description = "select a region in a wayland compositor";
