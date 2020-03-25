@@ -12,7 +12,7 @@ with lib;
 with buildkite;
 let
   PROJECT_NAME = "buildkite-nix";
-  buildNixPath = toString ./build.nix;
+  buildNixPath = "containers/buildkite/.buildkite/build.nix";
 in
 pipeline [
   (

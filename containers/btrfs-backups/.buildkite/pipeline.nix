@@ -11,7 +11,7 @@ with lib;
 with buildkite;
 let
   PROJECT_NAME = "btrfs-backups";
-  buildNixPath = toString ./build.nix;
+  buildNixPath = "containers/btrfs-backups/.buildkite/build.nix";
 in
 pipeline [
   (
@@ -44,7 +44,7 @@ pipeline [
   (
     deploy {
       inherit buildNixPath;
-      application = PROJECT_NAME;
+      application = "btrfs-backups";
       manifestsPath = "containers/btrfs-backups/kubernetes";
       image = "${DOCKER_REGISTRY}/${PROJECT_NAME}";
       imageTag = "$(buildkite-agent meta-data get 'nixhash')";
