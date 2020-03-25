@@ -46,7 +46,6 @@ pipeline [
       manifestsPath = "containers/btrfs-backups/kubernetes";
       image = "${DOCKER_REGISTRY}/${PROJECT_NAME}";
       imageTag = "$(buildkite-agent meta-data get 'nixhash')";
-      waitForCompletion = false;
       dependsOn = [ "docker" ];
     }
   )
