@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ssh-forwarder
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ssh-forwarder
+  template:
+    metadata:
+      labels:
+        app: ssh-forwarder
+    spec:
+      containers:
+        - name: ssh-forwarder
+          image: johnae/ssh-forwarder
+          imagePullPolicy: Always
+          ports:
+          - name: ssh
+            containerPort: 22
+            protocol: TCP
+          readinessProbe:
+            tcpSocket:
+              port: ssh
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: ssh
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          volumeMounts:
+          - name: ssh-keys
+            mountPath: /etc/ssh/authorized_keys
+            subPath: authorized_keys
+          - name: ssh-keys
+            mountPath: /etc/ssh/ssh_host_rsa_key
+            subPath: ssh_host_rsa_key
+      volumes:
+      - name: ssh-keys
+        secret:
+          defaultMode: 0600
+          secretName: ssh-forwarder-ssh-keys
