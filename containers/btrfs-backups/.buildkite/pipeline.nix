@@ -17,9 +17,12 @@ pipeline [
       key = "docker";
       command = ''
         echo +++ Nix build and import image
-        image="$(build -A containers.buildkite \
-                       --argstr dockerRegistry "${DOCKER_REGISTRY}" \
-                       --argstr dockerTag latest)"
+        image="$(nix-shell --run strict-bash <<'SH'
+                  build -A containers.buildkite \
+                        --argstr dockerRegistry "${DOCKER_REGISTRY}" \
+                        --argstr dockerTag latest
+        SH
+        )"
         docker load < "$image"
 
         nixhash="$(basename "$image" | awk -F'-' '{print $1}')"
