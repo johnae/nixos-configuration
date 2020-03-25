@@ -19,8 +19,9 @@ let
   commandsListToString = commands:
     if isList commands
     then
-      (concatStringsSep "\n"
-        (filter (v: v != null) (flatten commands))
+      (
+        concatStringsSep "\n"
+          (filter (v: v != null) (flatten commands))
       )
     else commands;
 
@@ -30,8 +31,6 @@ let
       ${commandsListToString commands}
       NIXSH
     '';
-
-  usingDefaultBuildEnv = usingBuildEnv ".buildkite/build.nix";
 
   waitDefaults = defaults@{ ... }: args:
     let
@@ -47,27 +46,32 @@ let
   runDefaults = defaults@{ ... }: label: args:
     let
       buildRestoreArtifactsCmds = artifacts:
-        (concatStringsSep "\n" (
-          (map (artifact:
-            ''
-              echo --- Restoring artifact "${artifact}"
-              buildkite-agent artifact download '${artifact}.tgz' .
-              tar zxf '${artifact}.tgz'
-            ''
-          ) artifacts
+        (
+          concatStringsSep "\n" (
+            (
+              map (
+                artifact:
+                ''
+                  echo --- Restoring artifact "${artifact}"
+                  buildkite-agent artifact download '${artifact}.tgz' .
+                  tar zxf '${artifact}.tgz'
+                ''
+              ) artifacts
+            )
           )
-        )
         );
 
       buildSaveArtifactsCmds = artifacts:
-        (concatStringsSep "\n" (
-          mapAttrsToList (name: value: ''
-            echo --- Saving artifact "${name}"
-            tar czf '${name}.tgz' ${concatStringsSep " " (map (v: "'${v}'") value)}
-            buildkite-agent artifact upload '${name}.tgz'
-          ''
-          ) artifacts
-        )
+        (
+          concatStringsSep "\n" (
+            mapAttrsToList (
+              name: value: ''
+                echo --- Saving artifact "${name}"
+                tar czf '${name}.tgz' ${concatStringsSep " " (map (v: "'${v}'") value)}
+                buildkite-agent artifact upload '${name}.tgz'
+              ''
+            ) artifacts
+          )
         );
       args' = mapAttrs' (name: value: nameValuePair (toSnakeCase name) value) args;
       defaults' = mapAttrs' (name: value: nameValuePair (toSnakeCase name) value) defaults;
@@ -79,6 +83,9 @@ let
       afterCommand = [ (if hasAttr "after_command" args' then args'.after_command else null) ]
       ++ [ (if saveArtifacts != null then (buildSaveArtifactsCmds saveArtifacts) else null) ];
       numRetries = if hasAttr "num_retries" args' then args'.num_retries else null;
+
+      buildNixPath = if hasAttr "build_nix_path" args' then args'.build_nix_path else ".buildkite/build.nix";
+
       newargs = removeAttrs (recursiveUpdate defaults' args') [
         "exact_command"
         "before_command"
@@ -86,6 +93,7 @@ let
         "num_retries"
         "save_artifacts"
         "restore_artifacts"
+        "build_nix_path"
       ];
     in
       newargs
@@ -93,16 +101,16 @@ let
       // (
         if hasAttr "command" args
         then {
-          command = usingDefaultBuildEnv
+          command = usingBuildEnv buildNixPath
             [ beforeCommand args.command afterCommand ];
-        } else {}
+        } else { }
       )
       // (
         if exactCommand != null
         then {
           command = commandsListToString
             [ beforeCommand exactCommand afterCommand ];
-        } else {}
+        } else { }
       )
       // (
         if numRetries != null
@@ -110,13 +118,14 @@ let
           if numRetries > 0
           then
             { retry = { automatic = { exit_status = "*"; limit = numRetries; }; }; }
-          else {}
-        else {}
+          else { }
+        else { }
       );
 
   run = runDefaults {
     agents = { queue = "linux"; };
     numRetries = 1;
+    buildNixPath = ".buildkite/build.nix";
     env = { inherit DOCKER_REGISTRY PROJECT_NAME SHORTSHA; };
     softFail = false;
     timeout = 600;
@@ -130,9 +139,9 @@ let
       (recursiveUpdate defaults' args')
       // { inherit block; };
 
-  block = blockDefaults {};
+  block = blockDefaults { };
 
-  when = cond: steps: if cond then steps else [];
+  when = cond: steps: if cond then steps else [ ];
 
   blockWhen = predicate: steps:
     let
@@ -140,48 +149,51 @@ let
       isBlock = step: hasAttr "block" step;
       isDependent = step: hasAttr "depends_on" step;
     in
-      (foldr (step: filtered:
-        if predicate
-        then [ step ] ++ filtered
-        else
-          if isBlock step
-          then filtered
-          else
-            if isDependent step
-            then
-              [ (step // { depends_on = (filter (k: k != blockKey) step.depends_on); }) ] ++ filtered
-            else [ step ] ++ filtered
-      ) [] steps
+      (
+        foldr (
+          step: filtered:
+            if predicate
+            then [ step ] ++ filtered
+            else
+              if isBlock step
+              then filtered
+              else
+                if isDependent step
+                then
+                  [ (step // { depends_on = (filter (k: k != blockKey) step.depends_on); }) ] ++ filtered
+                else [ step ] ++ filtered
+        ) [ ] steps
       );
 
   dynamicTrigger = label: { trigger
-                          , build ? {}
+                          , build ? { }
                           , key ? null
                           , dependsOn ? null
                           , ...
                           }:
-    (run "Modify pipeline, add: '${label}'" (
-      {
-        exactCommand = ''
-          cat<<JSON | buildkite-agent pipeline upload --no-interpolation
-          {
-            "steps": [
-               {
-                 "trigger": "${trigger}",
-                 "label": "${label}",
-                 "build": ${toJSON build}
-               }
-            ]
-          }
-          JSON
-        '';
-      }
-      // (if key != null then { inherit key; } else {})
-      // (if dependsOn != null then { inherit dependsOn; } else {})
-    )
+    (
+      run "Modify pipeline, add: '${label}'" (
+        {
+          exactCommand = ''
+            cat<<JSON | buildkite-agent pipeline upload --no-interpolation
+            {
+              "steps": [
+                 {
+                   "trigger": "${trigger}",
+                   "label": "${label}",
+                   "build": ${toJSON build}
+                 }
+              ]
+            }
+            JSON
+          '';
+        }
+        // (if key != null then { inherit key; } else { })
+        // (if dependsOn != null then { inherit dependsOn; } else { })
+      )
     );
 
-  dockerBuild = args@{ npmAuth ? false, additionalBuildArgs ? [], ... }:
+  dockerBuild = args@{ npmAuth ? false, additionalBuildArgs ? [ ], ... }:
     let
       runArgs = removeAttrs args [ "npmAuth" "additionalBuildArgs" ];
       check =
@@ -202,38 +214,40 @@ let
           additionalBuildArgs ++ [ "--build-arg" "NPM_TOKEN=\"$NPM_TOKEN\"" ] ## double quote variable or have shellcheck yell
         else additionalBuildArgs;
     in
-      (run ":docker: Docker build" (
-        {
-          agents = { inherit hostname; };
-          command = ''
-            ${check}
-            docker build ${concatStringsSep " " dockerArgs} -t "$PROJECT_NAME" .
-            docker tag "$PROJECT_NAME" "$DOCKER_REGISTRY/$PROJECT_NAME:$SHORTSHA"
-            docker tag "$PROJECT_NAME" "$DOCKER_REGISTRY/$PROJECT_NAME:latest"
-          '';
-        }
-        // runArgs
-      )
+      (
+        run ":docker: Docker build" (
+          {
+            agents = { inherit hostname; };
+            command = ''
+              ${check}
+              docker build ${concatStringsSep " " dockerArgs} -t "$PROJECT_NAME" .
+              docker tag "$PROJECT_NAME" "$DOCKER_REGISTRY/$PROJECT_NAME:$SHORTSHA"
+              docker tag "$PROJECT_NAME" "$DOCKER_REGISTRY/$PROJECT_NAME:latest"
+            '';
+          }
+          // runArgs
+        )
       );
 
   dockerPush = args@{ tagLatest ? false, ... }:
     let
       args' = removeAttrs (mapAttrs' (name: value: nameValuePair (toSnakeCase name) value) args) [ "tag_latest" ];
     in
-      (run ":docker: Docker push" (
-        {
-          agents = { inherit hostname; };
-          command = ''
-            docker push "$DOCKER_REGISTRY/$PROJECT_NAME:$SHORTSHA"
-            ${
-          if tagLatest
-          then
-            "docker push \"$DOCKER_REGISTRY/$PROJECT_NAME:latest\""
-          else ""}
-          '';
-        }
-        // args'
-      )
+      (
+        run ":docker: Docker push" (
+          {
+            agents = { inherit hostname; };
+            command = ''
+              docker push "$DOCKER_REGISTRY/$PROJECT_NAME:$SHORTSHA"
+              ${
+                if tagLatest
+                then
+                    "docker push \"$DOCKER_REGISTRY/$PROJECT_NAME:latest\""
+                else ""}
+            '';
+          }
+          // args'
+        )
       );
 
   deploy =
@@ -245,7 +259,7 @@ let
     , imageTag ? SHORTSHA
     , trigger ? "gitops"
     , waitForCompletion ? true
-    , dependsOn ? []
+    , dependsOn ? [ ]
     , ...
     }:
     let
@@ -262,100 +276,102 @@ let
       ];
     in
       [
-        (dynamicTrigger ":github: Deploy ${application}: commit cluster state" {
-          inherit trigger dependsOn;
-          key = "trigger-deploy-${application}";
-          build = {
-            env = {
-              APPLICATION = application;
-              APP_SHORTSHA = shortsha;
-              IMAGE = image;
-              IMAGE_TAG = imageTag;
+        (
+          dynamicTrigger ":github: Deploy ${application}: commit cluster state" {
+            inherit trigger dependsOn;
+            key = "trigger-deploy-${application}";
+            build = {
+              env = {
+                APPLICATION = application;
+                APP_SHORTSHA = shortsha;
+                IMAGE = image;
+                IMAGE_TAG = imageTag;
+              };
+              meta_data = {
+                manifest = ''$(${generateManifestsCmd} | base64 -w0)'';
+              };
             };
-            meta_data = {
-              manifest = ''$(${generateManifestsCmd} | base64 -w0)'';
-            };
-          };
-        }
+          }
         )
-        (run ":k8s: Deploying ${application}: waiting for cluster state convergence"
-          (
-            {
-              dependsOn = dependsOn ++ [ "trigger-deploy-${application}" ];
-              exactCommand = ''
-                nix-shell -I nixpkgs="$INSANEPKGS" \
-                -p insane-lib.strict-bash \
-                -p curl \
-                --run strict-bash <<'NIXSH'
-                  annotate() {
-                    style=''${1:-}
-                    msg=''${2:-}
-                    msg="$msg, see: https://argocd.insane.se/applications/${application}"
-                    buildkite-agent annotate "$msg" \
-                      --style "$style" --context 'ctx-deploy-${application}'
+        (
+          run ":k8s: Deploying ${application}: waiting for cluster state convergence"
+            (
+              {
+                dependsOn = dependsOn ++ [ "trigger-deploy-${application}" ];
+                exactCommand = ''
+                  nix-shell -I nixpkgs="$INSANEPKGS" \
+                  -p insane-lib.strict-bash \
+                  -p curl \
+                  --run strict-bash <<'NIXSH'
+                    annotate() {
+                      style=''${1:-}
+                      msg=''${2:-}
+                      msg="$msg, see: https://argocd.insane.se/applications/${application}"
+                      buildkite-agent annotate "$msg" \
+                        --style "$style" --context 'ctx-deploy-${application}'
+                    }
+                    on_exit() {
+                      err=$?
+                      if [ "$err" -gt 0 ]; then
+                        annotate error \
+                          "Failed to deploy ${application}"
+                      fi
+                    }
+                    trap on_exit EXIT
+
+                    annotate info \
+                      "Deploying ${application}"
+
+                    curl -sSL -o ./argocd https://argocd.insane.se/download/argocd-linux-amd64
+                    chmod +x argocd
+
+                    max_wait_time_secs=240
+                    current_time_secs=1
+
+                    log="$(mktemp app-list-log.XXXXXXX)"
+                    trap 'rm -f $log' EXIT
+
+                    while ! ./argocd --plaintext app list | tee -a "$log" | \
+                            grep -q "${application}"
+                    do
+                      sleep 1
+                      current_time_secs=$((current_time_secs + 1))
+                      if [ $current_time_secs -ge $max_wait_time_secs ]; then
+                         cat "$log"
+                         echo "****************************************************************************************************"
+                         echo "Waited for $max_wait_time_secs seconds but the app ${application} never showed up :-("
+                         echo "you could try a rebuild of this step if this is the first time this app has been deployed as it may"
+                         echo "sometimes take longer than $max_wait_time_secs seconds for ArgoCD to pick it up"
+                         echo "****************************************************************************************************"
+                         exit 1
+                      fi
+                    done
+
+                    annotate info \
+                      "Syncing cluster state of ${application}"
+
+                    echo "--- Syncing cluster state of ${application}"
+                    ./argocd --plaintext app sync "${application}" --async || true
+
+                    ${
+                    if waitForCompletion
+                    then
+                        ''
+                          echo "--- Awaiting cluster convergence"
+                          ./argocd --plaintext app wait "${application}" --timeout 600
+                        ''
+                    else
+                        ''
+                          echo "--- Skipping waiting for cluster convergence"
+                        ''
                   }
-                  on_exit() {
-                    err=$?
-                    if [ "$err" -gt 0 ]; then
-                      annotate error \
-                        "Failed to deploy ${application}"
-                    fi
-                  }
-                  trap on_exit EXIT
-
-                  annotate info \
-                    "Deploying ${application}"
-
-                  curl -sSL -o ./argocd https://argocd.insane.se/download/argocd-linux-amd64
-                  chmod +x argocd
-
-                  max_wait_time_secs=240
-                  current_time_secs=1
-
-                  log="$(mktemp app-list-log.XXXXXXX)"
-                  trap 'rm -f $log' EXIT
-
-                  while ! ./argocd --plaintext app list | tee -a "$log" | \
-                          grep -q "${application}"
-                  do
-                    sleep 1
-                    current_time_secs=$((current_time_secs + 1))
-                    if [ $current_time_secs -ge $max_wait_time_secs ]; then
-                       cat "$log"
-                       echo "****************************************************************************************************"
-                       echo "Waited for $max_wait_time_secs seconds but the app ${application} never showed up :-("
-                       echo "you could try a rebuild of this step if this is the first time this app has been deployed as it may"
-                       echo "sometimes take longer than $max_wait_time_secs seconds for ArgoCD to pick it up"
-                       echo "****************************************************************************************************"
-                       exit 1
-                    fi
-                  done
-
-                  annotate info \
-                    "Syncing cluster state of ${application}"
-
-                  echo "--- Syncing cluster state of ${application}"
-                  ./argocd --plaintext app sync "${application}" --async || true
-
-                  ${
-              if waitForCompletion
-              then
-                ''
-                  echo "--- Awaiting cluster convergence"
-                  ./argocd --plaintext app wait "${application}" --timeout 600
-                ''
-              else
-                ''
-                  echo "--- Skipping waiting for cluster convergence"
-                ''
+                    annotate success \
+                      "${application} deployed"
+                  NIXSH
+                '';
               }
-                  annotate success \
-                    "${application} deployed"
-                NIXSH
-              '';
-            }
-            // runArgs
-          )
+              // runArgs
+            )
         )
       ];
 
@@ -370,27 +386,30 @@ let
           else label;
       steps =
         let
-          s = (map (step:
-            (
-              if hasAttr "command" step
-              then
-                step // { label = augment-label step.label step.agents.queue; }
-              else step
-            )
-          ) (flatten steplist)
+          s = (
+            map (
+              step:
+              (
+                if hasAttr "command" step
+                then
+                  step // { label = augment-label step.label step.agents.queue; }
+                else step
+              )
+            ) (flatten steplist)
           );
         in
           if length s > 0 then s
           else [
-            (run "No steps to run" {
-              command = ''
-                echo The pipeline was actually evaluated to an empty list
-                echo probably because of how the pipeline.nix determines what steps to run
-                echo based on git branch or other such contexts
-                echo
-                echo This is here as a placeholder
-              '';
-            }
+            (
+              run "No steps to run" {
+                command = ''
+                  echo The pipeline was actually evaluated to an empty list
+                  echo probably because of how the pipeline.nix determines what steps to run
+                  echo based on git branch or other such contexts
+                  echo
+                  echo This is here as a placeholder
+                '';
+              }
             )
           ];
     in
@@ -398,6 +417,6 @@ let
 in
 {
   inherit run runDefaults deploy dockerBuild dockerPush block usingBuildEnv deployFunction
-    usingDefaultBuildEnv hostname withCache junitAnnotate pipeline dynamicTrigger blockWhen
+    hostname withCache junitAnnotate pipeline dynamicTrigger blockWhen
     wait waitDefaults when DOCKER_REGISTRY PROJECT_NAME SHORTSHA LONGSHA BUILDKITE_BUILD_NUMBER;
 }

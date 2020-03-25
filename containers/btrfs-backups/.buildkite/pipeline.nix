@@ -10,11 +10,13 @@ with lib;
 with buildkite;
 let
   PROJECT_NAME = "btrfs-backups";
+  buildNixPath = toString ./build.nix;
 in
 pipeline [
   (
     (run ":pipeline: Build and Push image" {
       key = "docker";
+      inherit buildNixPath;
       command = ''
         echo +++ Nix build and import image
         image="$(nix-shell --run strict-bash <<'SH'
@@ -40,6 +42,7 @@ pipeline [
   )
   (
     deploy {
+      inherit buildNixPath;
       manifestsPath = "containers/btrfs-backups/kubernetes";
       image = "${DOCKER_REGISTRY}/${PROJECT_NAME}";
       imageTag = "$(buildkite-agent meta-data get 'nixhash')";

@@ -11,12 +11,14 @@ with lib;
 with buildkite;
 let
   PROJECT_NAME = "buildkite-nix";
+  buildNixPath = toString ./build.nix;
 in
 pipeline [
   (
     run ":pipeline: Build and Push image" {
       key = "docker";
       env = { inherit PROJECT_NAME; };
+      inherit buildNixPath;
       command = ''
         echo +++ Nix build and import image
         image="$(nix-shell --run strict-bash <<'SH'
@@ -42,6 +44,7 @@ pipeline [
   )
   (
     deploy {
+      inherit buildNixPath;
       manifestsPath = "containers/buildkite/kubernetes";
       image = "${DOCKER_REGISTRY}/${PROJECT_NAME}";
       imageTag = "$(buildkite-agent meta-data get 'nixhash')";
