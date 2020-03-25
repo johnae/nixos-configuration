@@ -38,10 +38,6 @@ in
 
   virtualisation.docker.enable = true;
 
-  #programs.gnupg.agent.enable = true;
-  #programs.gnupg.agent.enableSSHSupport = true;
-  #programs.gnupg.dirmngr.enable = true;
-
   programs.ssh.startAgent = false;
 
   programs.dconf.enable = true;
