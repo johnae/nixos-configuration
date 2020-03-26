@@ -23,15 +23,14 @@ let
     map (n: "containers.${n}") (attrNames (filterAttrs (_: v: isDerivation v) (import ../default.nix).containers))
   );
 
-  pkgBatches = chunksOf 4 pkgNames;
-  toKeyName = replaceStrings [ "packages." "containers." ] [ "" "" ];
-  toKeyNames = pkgNames: concatStringsSep "-" (map toKeyName pkgNames);
+  pkgBatches = chunksOf (length pkgNames / 4 + 1) pkgNames;
+  toKeyName = pkgNames: hashString "sha256" (concatStringsSep "-" pkgNames);
 
   cachePkgs = map (
     pkgs:
     (
       run "Cachix cache ${concatStringsSep " " pkgs} packages" {
-        key = "${(toKeyNames pkgs)}-cachix";
+        key = "${(toKeyName pkgs)}-cachix";
         command = ''
           for pkg in ${concatStringsSep " " pkgs}; do
             nix-shell --run "build -A '$pkg'" | cachix push insane
@@ -41,7 +40,7 @@ let
     )
   ) pkgBatches;
 
-  cacheStepsKeys = map (pkgs: "${toKeyNames pkgs}-cachix") pkgBatches;
+  cacheStepsKeys = map (pkgs: "${toKeyName pkgs}-cachix") pkgBatches;
 in
 pipeline [
 
@@ -67,7 +66,7 @@ pipeline [
     }
   )
   (
-    run "Build" {
+    run "Build machines" {
       dependsOn = cacheStepsKeys;
       key = "build";
       env = {
@@ -75,7 +74,7 @@ pipeline [
       };
       command = ''
         cachix use nixpkgs-wayland
-        nix-shell --run build
+        nix-shell --run build -A machines
       '';
     }
   )
