@@ -10,6 +10,10 @@ with builtins;
 with lib;
 with buildkite;
 let
+  runDeployArg =
+    if getEnv "BUILDKITE_BRANCH" == "master"
+    then "--arg runDeploy \"true\"" else "";
+
   chunksOf = n: l:
     if length l > 0
     then
@@ -61,11 +65,11 @@ pipeline [
           if [ "$(basename "$container")" = "buildkite" ]; then continue; fi
           name="$(basename "$container")"
           buildkiteDepends="$buildkiteDepends \"$name-deploy\""
-          nix eval -f "$container"/.buildkite/pipeline.nix --argstr name "$name" --json steps \
+          nix eval -f "$container"/.buildkite/pipeline.nix ${runDeployArg} --argstr name "$name" --json steps \
                      | buildkite-agent pipeline upload --no-interpolation
         done
         buildkiteDepends="$buildkiteDepends \"build\" ]"
-        nix eval -f containers/buildkite/.buildkite/pipeline.nix --argstr name "buildkite" --arg dependsOn "$buildkiteDepends" --json steps \
+        nix eval -f containers/buildkite/.buildkite/pipeline.nix ${runDeployArg} --argstr name "buildkite" --arg dependsOn "$buildkiteDepends" --json steps \
                      | buildkite-agent pipeline upload --no-interpolation
       '';
     }
