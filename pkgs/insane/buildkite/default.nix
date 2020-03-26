@@ -417,7 +417,7 @@ let
       { inherit steps; };
 in
 {
-  inherit run runDefaults deploy dockerBuild dockerPush block usingBuildEnv deployFunction
-    hostname withCache junitAnnotate pipeline dynamicTrigger blockWhen
-    wait waitDefaults when DOCKER_REGISTRY PROJECT_NAME SHORTSHA LONGSHA BUILDKITE_BUILD_NUMBER;
+  inherit run runDefaults deploy dockerBuild dockerPush block usingBuildEnv
+    hostname pipeline dynamicTrigger blockWhen wait waitDefaults when
+    DOCKER_REGISTRY PROJECT_NAME SHORTSHA LONGSHA BUILDKITE_BUILD_NUMBER;
 }
