@@ -16,14 +16,19 @@ let
       [ (take n l) ] ++ (chunksOf n (drop n l))
     else [ ];
 
+  onlyDerivations = filterAttrs (_: v: isDerivation v);
+
+  derivationNames = pkgs: attrNames (onlyDerivations pkgs);
+
   pkgNames = (
-    map (n: "packages.${n}") (attrNames (filterAttrs (_: v: isDerivation v) (import ../default.nix).packages))
+    map (n: "packages.${n}") (derivationNames (import ../default.nix).packages)
   )
   ++ (
-    map (n: "containers.${n}") (attrNames (filterAttrs (_: v: isDerivation v) (import ../default.nix).containers))
+    map (n: "containers.${n}") (derivationNames (import ../default.nix).containers)
   );
 
   pkgBatches = chunksOf (length pkgNames / 4 + 1) pkgNames;
+
   toKeyName = pkgNames: hashString "sha256" (concatStringsSep "-" pkgNames);
 
   cachePkgs = map (
