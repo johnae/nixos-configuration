@@ -9,22 +9,46 @@ with (import ../nix/nixpkgs.nix) {
 with builtins;
 with lib;
 with buildkite;
+let
+  chunksOf = n: l:
+    if length l > 0
+    then
+      [ (take n l) ] ++ (chunksOf n (drop n l))
+    else [ ];
 
-pipeline [
-  (
-    run "Cachix cache" {
-      key = "cachix";
-      command = ''
-        nix-shell --run "build -A packages" | cachix push insane
-        nix-shell --run "build -A containers" | cachix push insane
-      '';
-    }
+  pkgNames = (
+    map (n: "packages.${n}") (attrNames (filterAttrs (_: v: isDerivation v) (import ../default.nix).packages))
   )
+  ++ (
+    map (n: "containers.${n}") (attrNames (filterAttrs (_: v: isDerivation v) (import ../default.nix).containers))
+  );
+
+  pkgBatches = chunksOf 4 pkgNames;
+  toKeyName = replaceStrings [ "packages." "containers." ] [ "" "" ];
+  toKeyNames = pkgNames: concatStringsSep "-" (map toKeyName pkgNames);
+
+  cachePkgs = map (
+    pkgs:
+    (
+      run "Cachix cache ${concatStringsSep " " pkgs} packages" {
+        key = "${(toKeyNames pkgs)}-cachix";
+        command = ''
+          for pkg in ${concatStringsSep " " pkgs}; do
+            nix-shell --run "build -A '$pkg'" | cachix push insane
+          done
+        '';
+      }
+    )
+  ) pkgBatches;
+
+  cacheStepsKeys = map (pkgs: "${toKeyNames pkgs}-cachix") pkgBatches;
+in
+pipeline [
+
+  cachePkgs
   (
     run "Build subprojects" {
-      dependsOn = [
-        "cachix"
-      ];
+      dependsOn = cacheStepsKeys;
       key = "subprojects";
       command = ''
         buildkiteDepends="[ "
@@ -44,9 +68,7 @@ pipeline [
   )
   (
     run "Build" {
-      dependsOn = [
-        "cachix"
-      ];
+      dependsOn = cacheStepsKeys;
       key = "build";
       env = {
         NIX_TEST = "yep"; ## uses dummy metadata
