@@ -74,7 +74,7 @@ pipeline [
       };
       command = ''
         cachix use nixpkgs-wayland
-        nix-shell --run build -A machines
+        nix-shell --run "build -A machines"
       '';
     }
   )
