@@ -10,6 +10,22 @@ debug() {
     sleep 5
 }
 
+retryOnce() {
+    echo trying "\"$*\""
+    if ! "$@"; then
+        echo "\"$*\" failed, will retry in 5 seconds"
+        sleep 5
+        echo retrying "\"$*\""
+        if ! "$@"; then
+            echo "\"$*\"" failed - giving up
+            sleep 10
+            exit 1
+        fi
+    else
+        echo "\"$*\"" succeeded
+    fi
+}
+
 DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
 
 ## This script bootstraps a nixos install. The assumptions are:
@@ -136,11 +152,11 @@ fi
 # create a disk for the key used to decrypt the other volumes
 # either using password or locked to the uuid of the product hardware (less secure ofc)
 echo Formatting cryptkey disk "$DISK_CRYPTKEY", using keyfile "$CRYPTKEYFILE"
-cryptsetup luksFormat --label="$ENC_DISK_CRYPTKEY_LABEL" -q --key-file="$CRYPTKEYFILE" "$DISK_CRYPTKEY"
+retryOnce cryptsetup luksFormat --label="$ENC_DISK_CRYPTKEY_LABEL" -q --key-file="$CRYPTKEYFILE" "$DISK_CRYPTKEY"
 DISK_CRYPTKEY=/dev/disk/by-label/"$ENC_DISK_CRYPTKEY_LABEL"
 
 echo Opening cryptkey disk "$DISK_CRYPTKEY", using keyfile "$CRYPTKEYFILE"
-cryptsetup luksOpen --key-file="$CRYPTKEYFILE" "$DISK_CRYPTKEY" "$ENC_DISK_CRYPTKEY_LABEL"
+retryOnce cryptsetup luksOpen --key-file="$CRYPTKEYFILE" "$DISK_CRYPTKEY" "$ENC_DISK_CRYPTKEY_LABEL"
 
 # dump random data into what will be our key
 echo Writing random data to /dev/mapper/"$ENC_DISK_CRYPTKEY_LABEL"
@@ -150,28 +166,28 @@ debug "$DISK_CRYPTKEY wiped, formatted and written to"
 
 # create encrypted swap partition
 echo Creating encrypted swap
-cryptsetup luksFormat --label="$ENC_DISK_SWAP_LABEL" -q --key-file=/dev/mapper/"$ENC_DISK_CRYPTKEY_LABEL" "$DISK_SWAP"
+retryOnce cryptsetup luksFormat --label="$ENC_DISK_SWAP_LABEL" -q --key-file=/dev/mapper/"$ENC_DISK_CRYPTKEY_LABEL" "$DISK_SWAP"
 
 # create the encrypted root partition
 echo Creating encrypted root
-cryptsetup luksFormat --label="$ENC_DISK_ROOT_LABEL" -q --key-file=/dev/mapper/"$ENC_DISK_CRYPTKEY_LABEL" "$DISK_ROOT"
+retryOnce cryptsetup luksFormat --label="$ENC_DISK_ROOT_LABEL" -q --key-file=/dev/mapper/"$ENC_DISK_CRYPTKEY_LABEL" "$DISK_ROOT"
 
 # open those crypt volumes now
 echo Opening encrypted swap using keyfile
-cryptsetup luksOpen --key-file=/dev/mapper/"$ENC_DISK_CRYPTKEY_LABEL" "$DISK_SWAP" "$ENC_DISK_SWAP_LABEL"
-mkswap -L "$DISK_SWAP_LABEL" /dev/mapper/"$ENC_DISK_SWAP_LABEL"
+retryOnce cryptsetup luksOpen --key-file=/dev/mapper/"$ENC_DISK_CRYPTKEY_LABEL" "$DISK_SWAP" "$ENC_DISK_SWAP_LABEL"
+retryOnce mkswap -L "$DISK_SWAP_LABEL" /dev/mapper/"$ENC_DISK_SWAP_LABEL"
 
 echo Opening encrypted root using keyfile
-cryptsetup luksOpen --key-file=/dev/mapper/"$ENC_DISK_CRYPTKEY_LABEL" "$DISK_ROOT" "$ENC_DISK_ROOT_LABEL"
+retryOnce cryptsetup luksOpen --key-file=/dev/mapper/"$ENC_DISK_CRYPTKEY_LABEL" "$DISK_ROOT" "$ENC_DISK_ROOT_LABEL"
 
 debug "$DISK_SWAP and $DISK_ROOT wiped and formatted"
 
 echo Creating btrfs filesystem on /dev/mapper/"$DISK_ROOT_LABEL"
-mkfs.btrfs -L "$DISK_ROOT_LABEL" /dev/mapper/"$ENC_DISK_ROOT_LABEL"
+retryOnce mkfs.btrfs -L "$DISK_ROOT_LABEL" /dev/mapper/"$ENC_DISK_ROOT_LABEL"
 
 # and create the efi boot partition
 echo Creating vfat disk at "$DISK_EFI"
-mkfs.vfat -n "$DISK_EFI_LABEL" "$DISK_EFI"
+retryOnce mkfs.vfat -n "$DISK_EFI_LABEL" "$DISK_EFI"
 
 partprobe /dev/mapper/"$ENC_DISK_SWAP_LABEL" ## in case partprobe failed (it might sometimes, but will likely succeed for the given device here)
 
@@ -183,7 +199,7 @@ partprobe /dev/mapper/"$ENC_DISK_ROOT_LABEL" ## ditto above for swap
 
 # mount the decrypted cryptroot to /mnt (btrfs)
 echo Mounting root fs from "/dev/disk/by-label/$DISK_ROOT_LABEL" to /mnt
-mount -o rw,noatime,compress=zstd,ssd,space_cache /dev/disk/by-label/"$DISK_ROOT_LABEL" /mnt
+retryOnce mount -o rw,noatime,compress=zstd,ssd,space_cache /dev/disk/by-label/"$DISK_ROOT_LABEL" /mnt
 
 # now create btrfs subvolumes we're interested in having
 echo Creating btrfs subvolumes at /mnt
@@ -204,18 +220,20 @@ if [ -n "$ADDITIONAL_VOLUMES" ]; then
   if [ -n "$DISK_EXTRA" ] && [ -e "$DISK_EXTRA" ]; then
 
       echo Creating encrypted fs on additional disk "$DISK_EXTRA"
-      cryptsetup luksFormat --label="$ENC_DISK_EXTRA_LABEL" -q --key-file=/dev/mapper/"$ENC_DISK_CRYPTKEY_LABEL" "$DISK_EXTRA"
+      retryOnce cryptsetup luksFormat --label="$ENC_DISK_EXTRA_LABEL" -q --key-file=/dev/mapper/"$ENC_DISK_CRYPTKEY_LABEL" "$DISK_EXTRA"
 
       echo Opening "$DISK_EXTRA" encrypted fs at /dev/mapper/cryptxtra
-      cryptsetup luksOpen --key-file=/dev/mapper/"$ENC_DISK_CRYPTKEY_LABEL" "$DISK_EXTRA" "$ENC_DISK_EXTRA_LABEL"
+      retryOnce cryptsetup luksOpen --key-file=/dev/mapper/"$ENC_DISK_CRYPTKEY_LABEL" "$DISK_EXTRA" "$ENC_DISK_EXTRA_LABEL"
+
+      partprobe /dev/mapper/"$ENC_DISK_EXTRA_LABEL"
 
       echo Creating btrfs filesystem on /dev/mapper/"$ENC_DISK_EXTRA_LABEL"
-      mkfs.btrfs -L "$DISK_EXTRA_LABEL" /dev/mapper/"$ENC_DISK_EXTRA_LABEL"
+      retryOnce mkfs.btrfs -L "$DISK_EXTRA_LABEL" /dev/mapper/"$ENC_DISK_EXTRA_LABEL"
 
       partprobe /dev/mapper/"$ENC_DISK_EXTRA_LABEL"
 
       echo Mounting extra fs from "/dev/disk/by-label/$DISK_EXTRA_LABEL" to @/mnt/disks
-      mount -o rw,noatime,compress=zstd,ssd,space_cache /dev/disk/by-label/"$DISK_EXTRA_LABEL" @/mnt/disks
+      retryOnce mount -o rw,noatime,compress=zstd,ssd,space_cache /dev/disk/by-label/"$DISK_EXTRA_LABEL" @/mnt/disks
       cd @/mnt/disks
       for i in $(seq 1 20); do btrfs sub create "@local-disk-$i"; done
       for i in $(seq 1 20); do
