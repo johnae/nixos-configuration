@@ -253,8 +253,6 @@ let
   deploy =
     args@{ application ? PROJECT_NAME
     , shortsha ? SHORTSHA
-    , manifestsPath ? "kubernetes"
-    , generateManifestsCmd ? "nix-shell -I nixpkgs=$INSANEPKGS -p kustomize --run 'kustomize build ${manifestsPath}'"
     , image ? "${DOCKER_REGISTRY}/${PROJECT_NAME}"
     , imageTag ? SHORTSHA
     , trigger ? "gitops"
@@ -266,8 +264,6 @@ let
       runArgs = removeAttrs args [
         "application"
         "shortsha"
-        "manifestsPath"
-        "generateManifestsCmd"
         "image"
         "imageTag"
         "trigger"
@@ -287,9 +283,6 @@ let
                 APP_SHORTSHA = shortsha;
                 IMAGE = image;
                 IMAGE_TAG = imageTag;
-              };
-              meta_data = {
-                manifest = ''$(${generateManifestsCmd} | base64 -w0)'';
               };
             };
           }

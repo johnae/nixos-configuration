@@ -47,7 +47,6 @@ pipeline [
         inherit buildNixPath;
         key = "${name}-deploy";
         application = "ssh-forwarder";
-        manifestsPath = "containers/ssh-forwarder/kubernetes";
         image = "${DOCKER_REGISTRY}/${PROJECT_NAME}";
         imageTag = "$(buildkite-agent meta-data get '${name}-nixhash')";
         dependsOn = dependsOn ++ [ "${name}-docker" ];

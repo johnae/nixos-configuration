@@ -47,7 +47,6 @@ pipeline [
         inherit buildNixPath;
         key = "${name}-deploy";
         application = "btrfs-backups";
-        manifestsPath = "containers/btrfs-backups/kubernetes";
         image = "${DOCKER_REGISTRY}/${PROJECT_NAME}";
         imageTag = "$(buildkite-agent meta-data get '${name}-nixhash')";
         dependsOn = dependsOn ++ [ "${name}-docker" ];

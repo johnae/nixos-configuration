@@ -49,7 +49,6 @@ pipeline [
         inherit buildNixPath;
         key = "${name}-deploy";
         application = "buildkite-agent";
-        manifestsPath = "containers/buildkite/kubernetes";
         image = "${DOCKER_REGISTRY}/${PROJECT_NAME}";
         imageTag = "$(buildkite-agent meta-data get '${name}-nixhash')";
         waitForCompletion = false;
