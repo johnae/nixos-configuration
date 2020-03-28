@@ -38,7 +38,6 @@ in
       mu
       bat
       mail
-      wofi
       alacritty
       project-select
       launch
