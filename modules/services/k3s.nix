@@ -7,6 +7,12 @@ let
   isMaster = !isAgent;
   k3sDir = "/var/lib/k3s";
   k3sDataDir = "${k3sDir}/data";
+  k3sNodeNameGen = ''
+    if [ ! -e /etc/k3s-node-name ]; then
+      echo "${cfg.nodeName}-$(${pkgs.openssl}/bin/openssl rand -hex 4)" > /etc/k3s-node-name
+    fi
+    export K3S_NODE_NAME="$(cat /etc/k3s-node-name)"
+  '';
 in
 {
   options.services.k3s = {
@@ -17,13 +23,13 @@ in
       type = types.str;
       example = "somenode";
       description = ''
-        The node name for the current node.
+        The node name for the current node. A random string is appended to this.
       '';
     };
 
     labels = mkOption {
       type = types.listOf types.str;
-      default = [];
+      default = [ ];
       example = [ "label-one" "label-two" ];
       description = ''
         The node labels to apply to the current node.
@@ -57,7 +63,7 @@ in
 
     extraManifests = mkOption {
       type = types.listOf types.path;
-      default = [];
+      default = [ ];
       description = ''
         A list of paths to kubernetes manifests to automatically apply.
       '';
@@ -82,35 +88,38 @@ in
       enable = true;
       environment =
         {
-          K3S_NODE_NAME = cfg.nodeName;
           K3S_CLUSTER_SECRET = cfg.clusterSecret;
         }
-        // (if isAgent then { K3S_URL = cfg.masterUrl; } else {});
+        // (if isAgent then { K3S_URL = cfg.masterUrl; } else { });
 
       script = (
         if isAgent
         then ''
+          ${k3sNodeNameGen}
           exec ${k3s}/bin/k3s agent -d ${k3sDataDir} ${
-        if cfg.docker then "--docker" else ""
-        }\
+            if cfg.docker then "--docker" else ""
+          }\
                               --kubelet-arg "volume-plugin-dir=${k3sDir}/libexec/kubernetes/kubelet-plugins/volume/exec" \
                               --kubelet-arg "cni-bin-dir=${k3sDir}/opt/cni/bin" \
+                              --node-label hostname=${cfg.nodeName} \
                               ${
-        lib.concatStringsSep " "
-          (map (v: "--node-label ${v}") cfg.labels)
-        }
+            lib.concatStringsSep " "
+                (map (v: "--node-label ${v}") cfg.labels)
+          }
         '' else ''
+          ${k3sNodeNameGen}
           exec ${k3s}/bin/k3s server --no-deploy=traefik --no-deploy=servicelb --no-deploy=local-storage -d ${k3sDataDir} ${
-        if cfg.docker then "--docker" else ""
-        } \
+            if cfg.docker then "--docker" else ""
+          } \
                               -o /kubeconfig.yml --flannel-backend=${cfg.flannelBackend} \
                               --kubelet-arg "volume-plugin-dir=${k3sDir}/libexec/kubernetes/kubelet-plugins/volume/exec" \
                               --kubelet-arg "cni-bin-dir=${k3sDir}/opt/cni/bin" \
                               --kube-controller-arg "flex-volume-plugin-dir=${k3sDir}/libexec/kubernetes/kubelet-plugins/volume/exec" \
+                              --node-label hostname=${cfg.nodeName} \
                               ${
-        lib.concatStringsSep " "
-          (map (v: "--node-label ${v}") cfg.labels)
-        }
+            lib.concatStringsSep " "
+                (map (v: "--node-label ${v}") cfg.labels)
+          }
         ''
       );
 
@@ -120,12 +129,12 @@ in
           echo Applying extra kubernetes manifests
           set -x
           ${lib.concatStringsSep "\n" (
-          map (
-            m:
-            "${kubectl}/bin/kubectl --kubeconfig /kubeconfig.yml apply -f ${m}"
-          )
-            cfg.extraManifests
-        )}
+            map (
+                m:
+                    "${kubectl}/bin/kubectl --kubeconfig /kubeconfig.yml apply -f ${m}"
+              )
+                cfg.extraManifests
+          )}
         '' else
           ""
       );
