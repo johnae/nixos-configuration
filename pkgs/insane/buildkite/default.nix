@@ -322,8 +322,9 @@ let
                     max_wait_time_secs=240
                     current_time_secs=1
 
-                    log="$(mktemp app-list-log.XXXXXXX)"
-                    trap 'rm -f $log' EXIT
+                    output_prefix="${application}.${BUILDKITE_BUILD_NUMBER}"
+                    log="$(mktemp "$output_prefix"-app-list-log.XXXXXXX)"
+                    trap 'rm -f /tmp/$output_prefix*' EXIT
 
                     while ! ./argocd --plaintext app list | tee -a "$log" | \
                             grep -q "${application}"
@@ -341,14 +342,22 @@ let
                       fi
                     done
 
-                    if ./argocd --plaintext app diff --hard-refresh "${application}"; then
-                      annotate info \
+                    appdiff="$(mktemp "$output_prefix"-diff.XXXXXXX)"
+
+                    if ./argocd --plaintext app diff --hard-refresh "${application}" > "$appdiff"; then
+                      annotate default \
                         "${application} was already up-to-date, no sync necessary"
                       exit 0
                     fi
 
                     annotate info \
-                      "Syncing cluster state of ${application}"
+                      "Syncing cluster state of ${application}:
+
+                       \`\`\`
+                       $(cat "$appdiff")
+                       \`\`\`
+
+                       "
 
                     echo "--- Syncing cluster state of ${application}"
                     ./argocd --plaintext app sync "${application}" --async || true
@@ -366,7 +375,13 @@ let
                         ''
                   }
                     annotate success \
-                      "${application} deployed"
+                      "${application} deployed:
+
+                       \`\`\`
+                       $(cat "$appdiff")
+                       \`\`\`
+
+                       "
                   NIXSH
                 '';
               }
