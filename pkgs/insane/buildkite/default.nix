@@ -341,6 +341,12 @@ let
                       fi
                     done
 
+                    if ./argocd --plaintext app diff --hard-refresh "${application}"; then
+                      annotate info \
+                        "${application} was already up-to-date, no sync necessary"
+                      exit 0
+                    fi
+
                     annotate info \
                       "Syncing cluster state of ${application}"
 
