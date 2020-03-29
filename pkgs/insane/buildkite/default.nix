@@ -351,13 +351,13 @@ let
                     fi
 
                     annotate info \
-                      "Syncing cluster state of ${application}:
+                    "Syncing cluster state of ${application}:
 
-                       \`\`\`
-                       $(cat "$appdiff")
-                       \`\`\`
+                    \`\`\`
+                    $(cat "$appdiff")
+                    \`\`\`
 
-                       "
+                    "
 
                     echo "--- Syncing cluster state of ${application}"
                     ./argocd --plaintext app sync "${application}" --async || true
@@ -375,13 +375,13 @@ let
                         ''
                   }
                     annotate success \
-                      "${application} deployed:
+                    "${application} deployed:
 
-                       \`\`\`
-                       $(cat "$appdiff")
-                       \`\`\`
+                    \`\`\`
+                    $(cat "$appdiff")
+                    \`\`\`
 
-                       "
+                    "
                   NIXSH
                 '';
               }
