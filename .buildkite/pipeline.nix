@@ -41,9 +41,7 @@ let
       run "Cachix cache ${concatStringsSep " " pkgs} packages" {
         key = "${(toKeyName pkgs)}-cachix";
         command = ''
-          for pkg in ${concatStringsSep " " pkgs}; do
-            nix-shell --run "build -A '$pkg'" | cachix push insane
-          done
+          nix-shell --run "build -A ${concatStringsSep " -A " pkgs}" | cachix push insane
         '';
       }
     )
