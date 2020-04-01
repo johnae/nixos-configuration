@@ -9,7 +9,7 @@ stdenv.mkDerivation rec {
   inherit src;
   outputHashMode = "recursive";
   outputHashAlgo = "sha256";
-  outputHash = "1smy0nclpca2k9py3qihggbbhadwjmxy27vpbr6i5pvkkaydn2wd";
+  outputHash = "0mh8wa071klxirggjdyfgsl78cf8mdvlb6as349j694g2gixhjmp";
   buildInputs = [ git cacert nodejs yarn ];
   buildPhase = ''
     export HOME=$NIX_BUILD_TOP/fake_home
