@@ -18,6 +18,7 @@ stdenv.mkDerivation rec {
     rm -rf dist && ./node_modules/.bin/webpack --config ./src/app/webpack.config.js
   '';
   installPhase = ''
-    cp -r dist $out
+    mkdir -p $out
+    cp -r dist $out/shared
   '';
 }
