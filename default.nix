@@ -77,6 +77,7 @@ rec {
     buildkite = import ./containers/buildkite/image.nix { };
     btrfs-backups = import ./containers/btrfs-backups/image.nix { };
     ssh-forwarder = import ./containers/ssh-forwarder/image.nix { };
+    argocd = import ./containers/argocd/image.nix { };
   };
   packages =
     let
