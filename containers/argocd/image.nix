@@ -36,6 +36,7 @@ pkgs.dockerTools.buildLayeredImage {
     sops
     coreutils
     git
+    git-lfs
     kubectl
     kustomize
     argocd
