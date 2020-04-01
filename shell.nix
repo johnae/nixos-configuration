@@ -288,8 +288,12 @@ let
       attr="$1"
       path="$(EDITOR="ls" nix edit -f . packages."$attr")"
       sed -i 's|cargoSha256.*|cargoSha256 = "0000000000000000000000000000000000000000000000000000";|' "$path"
-      ${build}/bin/build -A packages."$attr" 2>&1 | tee /tmp/nix-rustbuild-log-"$attr" || true
-      cargoSha256="$(grep 'got:.*sha256:.*' /tmp/nix-rustbuild-log-"$attr" | cut -d':' -f3-)"
+
+      log="$(mktemp nix-rustbuild-log-"$attr".XXXXXXX)"
+      trap 'rm -f $log' EXIT
+
+      ${build}/bin/build -A packages."$attr" 2>&1 | tee "$log" || true
+      cargoSha256="$(grep 'got:.*sha256:.*' "$log" | cut -d':' -f3-)"
       echo Setting cargoSha256 for "$attr" to "$cargoSha256"
       sed -i "s|cargoSha256.*|cargoSha256 = \"$cargoSha256\";|" "$path"
     '';
@@ -305,8 +309,12 @@ let
       attr="$1"
       path="$(EDITOR="ls" nix edit -f . packages."$attr")"
       sed -i 's|outputHash =.*|outputHash = "0000000000000000000000000000000000000000000000000000";|' "$path"
-      ${build}/bin/build -A packages."$attr" 2>&1 | tee /tmp/nix-fixed-output-log-"$attr" || true
-      outputHash="$(grep 'got:.*sha256:.*' /tmp/nix-fixed-output-log-"$attr" | cut -d':' -f3-)"
+
+      log="$(mktemp nix-fixed-output-drv-log-"$attr".XXXXXXX)"
+      trap 'rm -f $log' EXIT
+
+      ${build}/bin/build -A packages."$attr" 2>&1 | tee "$log" || true
+      outputHash="$(grep 'got:.*sha256:.*' "$log" | cut -d':' -f3-)"
       echo Setting outputHash for "$attr" to "$outputHash"
       sed -i "s|outputHash =.*|outputHash = \"$outputHash\";|" "$path"
     '';
@@ -330,20 +338,20 @@ let
 
       pkgs_updated=0
       for pkg in pkgs/*; do
-          if [ -d "$pkg" ] && [ -e "$pkg"/metadata.tmp.json ]; then
-             if ! ${diffutils}/bin/diff "$pkg"/metadata.json "$pkg"/metadata.tmp.json > /dev/null; then
-               pkgs_updated=$((pkgs_updated + 1))
-               clr "$BOLD" "Package $(basename "$pkg") was updated\n"
-               mv "$pkg"/metadata.tmp.json "$pkg"/metadata.json
-               if grep "cargoSha256" "$pkg"/default.nix; then
-                 ${updateRustPackageCargo}/bin/update-rust-package-cargo "$(basename "$pkg")"
-               fi
-               if grep "outputHash =" "$pkg"/default.nix; then
-                 ${updateFixedOutputDerivation}/bin/update-fixed-output-derivation "$(basename "$pkg")"
-               fi
-             fi
-             rm -f "$pkg"/metadata.tmp.json
-          fi
+        if [ -d "$pkg" ] && [ -e "$pkg"/metadata.tmp.json ]; then
+           if ! ${diffutils}/bin/diff "$pkg"/metadata.json "$pkg"/metadata.tmp.json > /dev/null; then
+             pkgs_updated=$((pkgs_updated + 1))
+             clr "$BOLD" "Package $(basename "$pkg") was updated\n"
+             mv "$pkg"/metadata.tmp.json "$pkg"/metadata.json
+           fi
+           rm -f "$pkg"/metadata.tmp.json
+        fi
+        if grep "cargoSha256" "$pkg"/default.nix; then
+          ${updateRustPackageCargo}/bin/update-rust-package-cargo "$(basename "$pkg")"
+        fi
+        if grep "outputHash =" "$pkg"/default.nix; then
+          ${updateFixedOutputDerivation}/bin/update-fixed-output-derivation "$(basename "$pkg")"
+        fi
       done
 
       if [ "$pkgs_updated" -gt 0 ]; then
