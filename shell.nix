@@ -37,7 +37,7 @@ let
     fi
 
     echo Building "$@" 1>&2
-    ${pkgs.nix}/bin/nix-build "$args" --arg overlays [] --option extra-builtins-file ${extraBuiltins} "$@"
+    ${pkgs.nix}/bin/nix-build $args --arg overlays [] --option extra-builtins-file ${extraBuiltins} "$@"
   '';
 
   ## this updates the local system, assuming the machine attribute to be the hostname
@@ -279,7 +279,6 @@ let
 
   updateRustPackageCargo = with pkgs;
     writeStrictShellScriptBin "update-rust-package-cargo" ''
-      set -euo pipefail
       if [ -z "$1" ]; then
           echo "USAGE: $0 <attribute>"
           echo "EXAMPLE: $0 ripgrep"
@@ -293,6 +292,23 @@ let
       cargoSha256="$(grep 'got:.*sha256:.*' /tmp/nix-rustbuild-log-"$attr" | cut -d':' -f3-)"
       echo Setting cargoSha256 for "$attr" to "$cargoSha256"
       sed -i "s|cargoSha256.*|cargoSha256 = \"$cargoSha256\";|" "$path"
+    '';
+
+  updateFixedOutputDerivation = with pkgs;
+    writeStrictShellScriptBin "update-fixed-output-derivation" ''
+      if [ -z "$1" ]; then
+          echo "USAGE: $0 <attribute>"
+          echo "EXAMPLE: $0 argocd-ui"
+          exit 1
+      fi
+
+      attr="$1"
+      path="$(EDITOR="ls" nix edit -f . packages."$attr")"
+      sed -i 's|outputHash =.*|outputHash = "0000000000000000000000000000000000000000000000000000";|' "$path"
+      ${build}/bin/build -A packages."$attr" 2>&1 | tee /tmp/nix-fixed-output-log-"$attr" || true
+      outputHash="$(grep 'got:.*sha256:.*' /tmp/nix-fixed-output-log-"$attr" | cut -d':' -f3-)"
+      echo Setting outputHash for "$attr" to "$outputHash"
+      sed -i "s|outputHash =.*|outputHash = \"$outputHash\";|" "$path"
     '';
 
   updateUserNixpkgs = with pkgs;
@@ -321,6 +337,9 @@ let
                mv "$pkg"/metadata.tmp.json "$pkg"/metadata.json
                if grep "cargoSha256" "$pkg"/default.nix; then
                  ${updateRustPackageCargo}/bin/update-rust-package-cargo "$(basename "$pkg")"
+               fi
+               if grep "outputHash =" "$pkg"/default.nix; then
+                 ${updateFixedOutputDerivation}/bin/update-fixed-output-derivation "$(basename "$pkg")"
                fi
              fi
              rm -f "$pkg"/metadata.tmp.json
@@ -399,6 +418,7 @@ pkgs.mkShell {
     updateUserNixpkgs
     updateRustAnalyzer
     updateRustPackageCargo
+    updateFixedOutputDerivation
     updateOverlays
     build
     updateSystem

@@ -65,6 +65,8 @@ rec {
   aml = super.callPackage ../pkgs/aml { };
   neatvnc = super.callPackage ../pkgs/neatvnc { };
 
+  argocd-ui = super.callPackage ../pkgs/argocd-ui { };
+
   pipewire = super.callPackage ../pkgs/pipewire { };
 
   ion-latest = super.callPackage ../pkgs/ion-latest { };
