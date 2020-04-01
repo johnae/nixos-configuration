@@ -58,6 +58,11 @@ rec {
   wl-clipboard-x11 = super.callPackage ../pkgs/wl-clipboard-x11 { };
   xdg-desktop-portal-wlr = super.callPackage ../pkgs/xdg-desktop-portal-wlr { };
 
+  argocd = super.argocd.overrideAttrs
+    (oldAttrs: {
+      CGO_ENABLED = 0;
+    });
+
   fish-kubectl-completions = super.callPackage ../pkgs/fish-kubectl-completions { };
   google-cloud-sdk-fish-completion = super.callPackage ../pkgs/google-cloud-sdk-fish-completion { };
 
