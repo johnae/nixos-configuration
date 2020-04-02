@@ -2235,7 +2235,7 @@ new file mode 100644
 index 00000000..2e741ab3
 --- /dev/null
 +++ b/go.mod
-@@ -0,0 +1,114 @@
+@@ -0,0 +1,115 @@
 +module github.com/argoproj/argo-cd
 +
 +go 1.12
@@ -2349,6 +2349,7 @@ index 00000000..2e741ab3
 +	k8s.io/sample-cli-plugin => k8s.io/sample-cli-plugin v0.0.0-20200131120425-dca0863cb511
 +	k8s.io/sample-controller => k8s.io/sample-controller v0.0.0-20200131115407-2b45fb79af22
 +	k8s.io/utils => k8s.io/utils v0.0.0-20190801114015-581e00157fb1
++	google.golang.org/grpc => google.golang.org/grpc v0.0.0-20180911174851-8dea3dc473e9
 +)
 diff --git a/go.sum b/go.sum
 new file mode 100644

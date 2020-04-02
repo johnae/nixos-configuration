@@ -21,7 +21,6 @@ let
       touch $out/app/config/ssh/ssh_known_hosts
       cp ${passwd} $out/etc/passwd
       cp ${group} $out/etc/group
-      chmod -R 1777 $out/tmp $out/home/argocd
     '';
   };
 in
@@ -43,6 +42,11 @@ pkgs.dockerTools.buildLayeredImage {
     argocd-ui
     rootfs
   ];
+
+  extraCommands = ''
+    chmod 1777  home/argocd
+    chmod 1777 tmp
+  '';
 
   config = {
     Entrypoint = [ "${pkgs.bashInteractive}/bin/bash" ];

@@ -5,11 +5,11 @@ in
 buildGoModule rec {
   pname = "argocd";
   commit = metadata.rev;
-  version = "git${commit}";
+  version = "1.4.2";
 
   src = fetchFromGitHub metadata;
 
-  modSha256 = "0b8jikj1v66nn35xy7yhajvcfw09fal3sh6zk5k6lfx60n419q4a";
+  modSha256 = "0gpg25dw8hmpjwq24w8163vs8zi83hx9dx85yfcx6q5izvixk3i2";
 
   nativeBuildInputs = [ packr ];
 
