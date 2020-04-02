@@ -16,20 +16,19 @@ let
 
   chunksOf = n: l:
     if length l > 0
-    then
-      [ (take n l) ] ++ (chunksOf n (drop n l))
+    then [ (take n l) ] ++ (chunksOf n (drop n l))
     else [ ];
 
   onlyDerivations = filterAttrs (_: v: isDerivation v);
 
   derivationNames = pkgs: attrNames (onlyDerivations pkgs);
 
-  pkgNames = (
+  pkgNames = sort (a: b: last (splitString "." a) < last (splitString "." b)) ((
     map (n: "packages.${n}") (derivationNames (import ../default.nix).packages)
   )
   ++ (
     map (n: "containers.${n}") (derivationNames (import ../default.nix).containers)
-  );
+  ));
 
   pkgBatches = chunksOf (length pkgNames / 4 + 1) pkgNames;
 
