@@ -209,71 +209,78 @@ let
   updateUserNixpkg = with pkgs;
     writeStrictShellScriptBin "update-user-nixpkg" ''
       metadata=''${1:-} ## the metadata.json file
-        if [ -z "$metadata" ]; then
-          echo "Please give me the metadata.json"
-          exit 1
+
+      if [ -z "$metadata" ]; then
+        echo "Please give me the metadata.json"
+        exit 1
+      fi
+
+      dir="$(dirname "$metadata")"
+
+      RED='\033[0;31m'
+      GREEN='\033[0;32m'
+      NEUTRAL='\033[0m'
+      BOLD='\033[1m'
+
+      neutral() { printf "%b" "$NEUTRAL"; }
+      start() { printf "%b" "$1"; }
+      clr() { start "$1""$2"; neutral; }
+      max_retries=2
+      retries=$max_retries
+
+      rm -f "$dir"/metadata.tmp.json
+
+      if ${jq}/bin/jq -e ".owner == null or .repo == null" < "$metadata" >/dev/null; then
+        clr "$NEUTRAL" "skipping $(basename "$dir") - metadata not supported\n"
+        exit 0
+      fi
+
+      if [ "$(basename "$dir")" = "argocd" ]; then
+        clr "$NEUTRAL" "skipping $(basename "$dir") - needs special treatment\n"
+        exit 0
+      fi
+
+      # shellcheck disable=SC2046
+      set $(${jq}/bin/jq -r '.owner + " " + .repo' < "$metadata")
+      ## above sets $1 and $2
+
+      while true; do
+        clr "$NEUTRAL" "Prefetching $1/$2 master branch...\n"
+        set +e
+        if ! ${nix-prefetch-github}/bin/nix-prefetch-github --rev master "$1" "$2" > "$dir"/metadata.tmp.json; then
+          clr "$RED" "ERROR: prefetch of $1/$2 failed\n"
+          retries=$((retries - 1))
+          clr "$GREEN" "   $1/$2 - retry $((max_retries - retries)) of $max_retries\n"
+          if [[ "$retries" -ne "0" ]]; then
+            continue
+          else
+            clr "$RED" "FAIL: $1/$2 failed prefetch even after retrying\n"
+            exit 1
+          fi
         fi
-        dir="$(dirname "$metadata")"
+        set -e
+        clr "$BOLD" "Completed prefetching $1/$2...\n"
 
-        RED='\033[0;31m'
-        GREEN='\033[0;32m'
-        NEUTRAL='\033[0m'
-        BOLD='\033[1m'
-
-        neutral() { printf "%b" "$NEUTRAL"; }
-        start() { printf "%b" "$1"; }
-        clr() { start "$1""$2"; neutral; }
-        max_retries=2
-        retries=$max_retries
-
-        rm -f "$dir"/metadata.tmp.json
-
-        if ${jq}/bin/jq -e ".owner == null or .repo == null" < "$metadata" >/dev/null; then
-          clr "$NEUTRAL" "skipping $(basename "$dir") - metadata not supported\n"
-          exit 0
-        fi
-
-        # shellcheck disable=SC2046
-        set $(${jq}/bin/jq -r '.owner + " " + .repo' < "$metadata")
-        ## above sets $1 and $2
-
-        while true; do
-          clr "$NEUTRAL" "Prefetching $1/$2 master branch...\n"
-          set +e
-          if ! ${nix-prefetch-github}/bin/nix-prefetch-github --rev master "$1" "$2" > "$dir"/metadata.tmp.json; then
-            clr "$RED" "ERROR: prefetch of $1/$2 failed\n"
-            retries=$((retries - 1))
-            clr "$GREEN" "   $1/$2 - retry $((max_retries - retries)) of $max_retries\n"
+        if [ ! -s "$dir"/metadata.tmp.json ]; then
+            clr "$RED" "ERROR: $dir/metadata.tmp.json is empty\n"
             if [[ "$retries" -ne "0" ]]; then
+              retries=$((retries - 1))
+              clr "$GREEN" "   $1/$2 - retry $((max_retries - retries)) of $max_retries\n"
               continue
             else
-              clr "$RED" "FAIL: $1/$2 failed prefetch even after retrying\n"
+              clr "$RED" "FAIL: $dir/metadata.tmp.json is empty even after retrying\n"
               exit 1
             fi
-          fi
-          set -e
-          clr "$BOLD" "Completed prefetching $1/$2...\n"
-
-          if [ ! -s "$dir"/metadata.tmp.json ]; then
-              clr "$RED" "ERROR: $dir/metadata.tmp.json is empty\n"
-              if [[ "$retries" -ne "0" ]]; then
-                retries=$((retries - 1))
-                clr "$GREEN" "   $1/$2 - retry $((max_retries - retries)) of $max_retries\n"
-                continue
-              else
-                clr "$RED" "FAIL: $dir/metadata.tmp.json is empty even after retrying\n"
-                exit 1
-              fi
-              exit 1
-          fi
-          break
-        done
-
-        if ! ${jq}/bin/jq < "$dir"/metadata.tmp.json > /dev/null; then
-            clr "$RED" "ERROR: $dir/metadata.tmp.json is not valid json\n"
-            cat "$dir"/metadata.tmp.json
             exit 1
         fi
+        break
+      done
+
+      if ! ${jq}/bin/jq < "$dir"/metadata.tmp.json > /dev/null; then
+          clr "$RED" "ERROR: $dir/metadata.tmp.json is not valid json\n"
+          cat "$dir"/metadata.tmp.json
+          exit 1
+      fi
 
     '';
 
