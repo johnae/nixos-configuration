@@ -49,6 +49,8 @@ pkgs.dockerTools.buildLayeredImage {
   extraCommands = ''
     chmod 1777  home/argocd
     chmod 1777 tmp
+    mkdir -p usr/bin
+    ln -s ${pkgs.coreutils}/bin/env usr/bin/env
   '';
 
   config = {
