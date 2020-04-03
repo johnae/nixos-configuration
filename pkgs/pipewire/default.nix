@@ -25,15 +25,14 @@
 , libpulseaudio
 , makeFontsConf
 }:
-
 let
   fontsConf = makeFontsConf {
-    fontDirectories = [];
+    fontDirectories = [ ];
   };
 in
 stdenv.mkDerivation rec {
   pname = "pipewire";
-  version = "0.3.0";
+  version = "0.3.2";
 
   outputs = [ "out" "lib" "dev" "doc" ];
 
@@ -42,16 +41,8 @@ stdenv.mkDerivation rec {
     owner = "pipewire";
     repo = "pipewire";
     rev = version;
-    sha256 = "0wrgvn0sc7h2k5zwgwzffyzv70jknnlj9qg8cqfzjib516zz37lj";
+    sha256 = "1aqhaaranv1jlc5py87mzfansxhzzpawqrfs8i08qc5ggnz6mfak";
   };
-
-  patches = [
-    # https://gitlab.freedesktop.org/pipewire/pipewire/-/merge_requests/235
-    (fetchpatch {
-      url = "https://gitlab.freedesktop.org/pipewire/pipewire/-/commit/42993d1402042dfbd023b3afe099c39709618daf.patch";
-      sha256 = "1yvlajfz9nbksrjv80cg4af7w04n9z4ajncl2jg0d0mfxzpmv8vc";
-    })
-  ];
 
   nativeBuildInputs = [
     doxygen
