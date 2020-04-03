@@ -35,6 +35,8 @@ pkgs.dockerTools.buildLayeredImage {
     sops
     coreutils
     gnugrep
+    gnused
+    gawk
     cacert
     curl
     git
