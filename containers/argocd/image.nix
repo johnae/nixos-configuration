@@ -34,6 +34,9 @@ pkgs.dockerTools.buildLayeredImage {
     gnupg
     sops
     coreutils
+    gnugrep
+    cacert
+    curl
     git
     git-lfs
     kubectl
@@ -52,5 +55,10 @@ pkgs.dockerTools.buildLayeredImage {
     Entrypoint = [ "${pkgs.bashInteractive}/bin/bash" ];
     WorkingDir = "/home/argocd";
     User = "argocd";
+    Env = [
+      "USER=argocd"
+      "GIT_SSL_CAINFO=/etc/ssl/certs/ca-bundle.crt"
+      "PAGER=cat"
+    ];
   };
 }
