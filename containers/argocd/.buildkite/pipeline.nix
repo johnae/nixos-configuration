@@ -41,15 +41,15 @@ pipeline [
       '';
     })
   )
-  #(when runDeploy
-  #  (
-  #    deploy {
-  #      inherit buildNixPath;
-  #      key = "${name}-deploy";
-  #      application = "argocd";
-  #      image = "${DOCKER_REGISTRY}/${PROJECT_NAME}";
-  #      imageTag = "$(buildkite-agent meta-data get '${name}-nixhash')";
-  #      dependsOn = dependsOn ++ [ "${name}-docker" ];
-  #    }
-  #  ))
+  (when runDeploy
+    (
+      deploy {
+        inherit buildNixPath;
+        key = "${name}-deploy";
+        application = "argocd";
+        image = "${DOCKER_REGISTRY}/${PROJECT_NAME}";
+        imageTag = "$(buildkite-agent meta-data get '${name}-nixhash')";
+        dependsOn = dependsOn ++ [ "${name}-docker" ];
+      }
+    ))
 ]
