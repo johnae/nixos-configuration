@@ -11,40 +11,25 @@ with lib;
 with buildkite;
 let
   PROJECT_NAME = "btrfs-backups";
-  buildNixPath = "containers/btrfs-backups/.buildkite/build.nix";
 in
 pipeline [
-  (
-    (run ":pipeline: Build and Push image" {
-      key = "${name}-docker";
-      inherit buildNixPath dependsOn;
-      command = ''
-        echo +++ Nix build and import image
-        image="$(nix-shell --run strict-bash <<'SH'
-                  build -A containers.btrfs-backups \
-                        --argstr dockerRegistry "${DOCKER_REGISTRY}" \
-                        --argstr dockerTag latest
-        SH
-        )"
-        docker load < "$image"
-
-        nixhash="$(basename "$image" | awk -F'-' '{print $1}')"
-
-        buildkite-agent meta-data set "${name}-nixhash" "$nixhash"
-
-        docker tag \
-          "${DOCKER_REGISTRY}/${PROJECT_NAME}:latest" \
-          "${DOCKER_REGISTRY}/${PROJECT_NAME}:$nixhash"
-
-        echo +++ Docker push
-        docker push "${DOCKER_REGISTRY}/${PROJECT_NAME}:$nixhash"
-      '';
-    })
-  )
+  (run ":pipeline: Build and Push image" {
+    key = "${name}-docker";
+    inherit dependsOn;
+    buildNixPath = "shell.nix";
+    command = ''
+      echo +++ Nix build and push image
+      # shellcheck disable=SC2091
+      image="$($(build -A pkgs.pushDockerArchive \
+                     --arg image \
+                     "(import ./default.nix).containers.${PROJECT_NAME}"))"
+      nixhash="$(basename "$image" | awk -F'-' '{print $1}')"
+      buildkite-agent meta-data set "${name}-nixhash" "$nixhash"
+    '';
+  })
   (when runDeploy
     (
       deploy {
-        inherit buildNixPath;
         key = "${name}-deploy";
         application = "btrfs-backups";
         image = "${DOCKER_REGISTRY}/${PROJECT_NAME}";

@@ -440,6 +440,7 @@ pkgs.mkShell {
     updateRemoteSystem
     updateNixpkgsDockerImage
     updateBuildkiteVersion
+    insane-lib.strict-bash
   ];
   inherit SOPS_PGP_FP;
 }

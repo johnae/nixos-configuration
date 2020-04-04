@@ -26,11 +26,16 @@ let
     else commands;
 
   usingBuildEnv = nixfile: commands:
-    ''
-      nix-shell ${nixfile} --run strict-bash <<'NIXSH'
-      ${commandsListToString commands}
-      NIXSH
-    '';
+    let
+      cmds = commandsListToString commands;
+    in
+      if nixfile != null then
+        ''
+          nix-shell ${nixfile} --run strict-bash <<'NIXSH'
+          ${commandsListToString commands}
+          NIXSH
+        ''
+      else cmds;
 
   waitDefaults = defaults@{ ... }: args:
     let
