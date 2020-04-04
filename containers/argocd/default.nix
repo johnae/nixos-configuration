@@ -1,6 +1,5 @@
-{ dockerRegistry ? "johnae", dockerTag ? "latest" }:
+{ pkgs, dockerRegistry ? "johnae", dockerTag ? "latest" }:
 let
-  pkgs = import ../../nix { };
   lib = pkgs.lib;
 
   passwd = pkgs.writeText "passwd" ''

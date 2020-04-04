@@ -1,19 +1,5 @@
-{ dockerRegistry ? "johnae", dockerTag ? "latest" }:
+{ pkgs, dockerRegistry ? "johnae", dockerTag ? "latest" }:
 let
-  pkgs = import ../../nix { };
-  paths = with pkgs; [
-    buildkite-latest
-    bashInteractive
-    openssh
-    coreutils
-    gitMinimal
-    gnutar
-    gzip
-    xz
-    tini
-    cacert
-  ];
-
   nixconf = pkgs.writeText "nix.conf" ''
     sandbox = false
     plugin-files = ${pkgs.nix-plugins}/lib/nix/plugins/libnix-extra-builtins.so
@@ -34,7 +20,20 @@ in
     name = "${dockerRegistry}/buildkite-agent";
     tag = dockerTag;
     fromImage = nixImage;
-    contents = paths ++ [ cacert iana-etc rootfs ];
+    contents = [
+      cacert
+      iana-etc
+      rootfs
+      buildkite-latest
+      bashInteractive
+      openssh
+      coreutils
+      gitMinimal
+      gnutar
+      gzip
+      xz
+      tini
+    ];
     config = {
       Entrypoint = [
         "${tini}/bin/tini"

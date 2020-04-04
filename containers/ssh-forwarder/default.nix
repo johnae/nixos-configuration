@@ -1,8 +1,5 @@
-{ dockerRegistry ? "johnae", dockerTag ? "latest" }:
+{ pkgs, dockerRegistry ? "johnae", dockerTag ? "latest" }:
 let
-  pkgs = import ../../nix { };
-  lib = pkgs.lib;
-
   entrypoint = with pkgs; writeStrictShellScriptBin "entrypoint.sh" ''
     export PATH=${coreutils}/bin:${gnused}/bin:${PATH:+:}$PATH
     mkdir -p /etc

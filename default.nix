@@ -75,10 +75,10 @@ rec {
     hyperion = buildConfig ./machines/hyperion/configuration.nix;
   };
   containers = pkgs.recurseIntoAttrs {
-    buildkite-agent = import ./containers/buildkite-agent/image.nix { };
-    btrfs-backups = import ./containers/btrfs-backups/image.nix { };
-    ssh-forwarder = import ./containers/ssh-forwarder/image.nix { };
-    argocd = import ./containers/argocd/image.nix { };
+    buildkite-agent = pkgs.callPackage ./containers/buildkite-agent { };
+    btrfs-backups = pkgs.callPackage ./containers/btrfs-backups { };
+    ssh-forwarder = pkgs.callPackage ./containers/ssh-forwarder { };
+    argocd = pkgs.callPackage ./containers/argocd { };
   };
   packages =
     let
