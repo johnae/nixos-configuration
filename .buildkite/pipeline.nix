@@ -12,7 +12,6 @@ with buildkite;
 let
   deployImage =
     { projectName
-    , application ? projectName
     , runDeploy ? (getEnv "BUILDKITE_BRANCH" == "master")
     , waitForCompletion ? true
     , dependsOn ? [ ]
@@ -36,7 +35,7 @@ let
         (
           deploy {
             key = "${projectName}-deploy";
-            inherit application;
+            application = projectName;
             image = "johnae/${projectName}";
             imageTag = "$(buildkite-agent meta-data get '${projectName}-nixhash')";
             inherit waitForCompletion;
@@ -95,18 +94,13 @@ pipeline [
             }
             //
             (
-              if projectName == "buildkite"
+              if projectName == "buildkite-agent"
               then {
                 waitForCompletion = false;
-                application = "buildkite-agent";
                 dependsOn =
                   (map
                     (n: "${n}-deploy")
-                    (
-                      filter
-                        (n: n != "buildkite")
-                        containerNames
-                    ));
+                    (filter (n: n != projectName) containerNames));
               } else { }
             )
           )

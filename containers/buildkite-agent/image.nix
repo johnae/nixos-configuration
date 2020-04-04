@@ -31,7 +31,7 @@ let
   nixImage = import ../nixpkgs-image.nix { inherit pkgs; };
 in
   with pkgs; dockerTools.buildImage {
-    name = "${dockerRegistry}/buildkite-nix";
+    name = "${dockerRegistry}/buildkite-agent";
     tag = dockerTag;
     fromImage = nixImage;
     contents = paths ++ [ cacert iana-etc rootfs ];
