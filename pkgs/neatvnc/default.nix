@@ -5,10 +5,9 @@
 , ninja
 , pixman
 , aml
-, libuv ## remove this
 , gnutls
 , libdrm
-  # libjpeg_turbo: Optional, for tight encoding (disabled because experimental)
+, libjpeg_turbo
 }:
 let
   metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
@@ -20,7 +19,7 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub metadata;
 
   nativeBuildInputs = [ meson pkg-config ninja ];
-  buildInputs = [ pixman aml libuv gnutls libdrm ];
+  buildInputs = [ pixman aml gnutls libdrm libjpeg_turbo ];
 
   meta = with stdenv.lib; {
     description = "A VNC server library";

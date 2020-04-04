@@ -14,7 +14,6 @@
 , neatvnc
 , libX11
 , libdrm
-, libjpeg
 }:
 let
   metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
@@ -42,7 +41,6 @@ stdenv.mkDerivation rec {
     neatvnc
     libX11
     libdrm
-    libjpeg
   ];
 
   enableParallelBuilding = true;
