@@ -1,11 +1,29 @@
-{ pkgs, dockerRegistry ? "johnae", dockerTag ? "latest" }:
+{ stdenv
+, writeText
+, dockerTools
+, nix-plugins
+, cacert
+, iana-etc
+, buildkite-latest
+, bashInteractive
+, openssh
+, coreutils
+, gitMinimal
+, gnutar
+, gzip
+, xz
+, tini
+, pkgs
+, dockerRegistry ? "johnae"
+, dockerTag ? "latest"
+}:
 let
-  nixconf = pkgs.writeText "nix.conf" ''
+  nixconf = writeText "nix.conf" ''
     sandbox = false
-    plugin-files = ${pkgs.nix-plugins}/lib/nix/plugins/libnix-extra-builtins.so
+    plugin-files = ${nix-plugins}/lib/nix/plugins/libnix-extra-builtins.so
   '';
 
-  rootfs = pkgs.stdenv.mkDerivation {
+  rootfs = stdenv.mkDerivation {
     version = "1";
     name = "rootfs-buildkite";
     buildCommand = ''
@@ -16,44 +34,44 @@ let
 
   nixImage = import ../nixpkgs-image.nix { inherit pkgs; };
 in
-  with pkgs; dockerTools.buildImage {
-    name = "${dockerRegistry}/buildkite-agent";
-    tag = dockerTag;
-    fromImage = nixImage;
-    contents = [
-      cacert
-      iana-etc
-      rootfs
-      buildkite-latest
-      bashInteractive
-      openssh
-      coreutils
-      gitMinimal
-      gnutar
-      gzip
-      xz
-      tini
+dockerTools.buildImage {
+  name = "${dockerRegistry}/buildkite-agent";
+  tag = dockerTag;
+  fromImage = nixImage;
+  contents = [
+    cacert
+    iana-etc
+    buildkite-latest
+    bashInteractive
+    openssh
+    coreutils
+    gitMinimal
+    gnutar
+    gzip
+    xz
+    tini
+    rootfs
+  ];
+  config = {
+    Entrypoint = [
+      "${tini}/bin/tini"
+      "-g"
+      "--"
+      "${buildkite-latest}/bin/buildkite-agent"
     ];
-    config = {
-      Entrypoint = [
-        "${tini}/bin/tini"
-        "-g"
-        "--"
-        "${buildkite-latest}/bin/buildkite-agent"
-      ];
-      Cmd = [ "start" ];
-      Env = [
-        "ENV=/etc/profile.d/nix.sh"
-        "NIX_PATH=nixpkgs=channel:nixpkgs-unstable"
-        "PAGER=cat"
-        "PATH=/nix/var/nix/profiles/default/bin:/usr/bin:/bin"
-        "GIT_SSL_CAINFO=/etc/ssl/certs/ca-bundle.crt"
-        "NIX_SSL_CERT_FILE=/etc/ssl/certs/ca-bundle.crt"
-        "BUILDKITE_PLUGINS_PATH=/var/lib/buildkite/plugins"
-        "BUILDKITE_BUILD_PATH=/var/lib/buildkite/builds"
-      ];
-      Volumes = {
-        "/nix" = { };
-      };
+    Cmd = [ "start" ];
+    Env = [
+      "ENV=/etc/profile.d/nix.sh"
+      "NIX_PATH=nixpkgs=channel:nixpkgs-unstable"
+      "PAGER=cat"
+      "PATH=/nix/var/nix/profiles/default/bin:/usr/bin:/bin"
+      "GIT_SSL_CAINFO=/etc/ssl/certs/ca-bundle.crt"
+      "NIX_SSL_CERT_FILE=/etc/ssl/certs/ca-bundle.crt"
+      "BUILDKITE_PLUGINS_PATH=/var/lib/buildkite/plugins"
+      "BUILDKITE_BUILD_PATH=/var/lib/buildkite/builds"
+    ];
+    Volumes = {
+      "/nix" = { };
     };
-  }
+  };
+}

@@ -1,18 +1,37 @@
-{ pkgs, dockerRegistry ? "johnae", dockerTag ? "latest" }:
+{ stdenv
+, writeText
+, bashInteractive
+, openssh
+, gnupg
+, sops
+, coreutils
+, gnugrep
+, gnused
+, gawk
+, cacert
+, curl
+, git
+, git-lfs
+, kubectl
+, kustomize
+, argocd
+, argocd-ui
+, dockerTools
+, dockerRegistry ? "johnae"
+, dockerTag ? "latest"
+}:
 let
-  lib = pkgs.lib;
-
-  passwd = pkgs.writeText "passwd" ''
+  passwd = writeText "passwd" ''
     root:x:0:0:System administrator:/root:/bin/bash
     argocd:x:999:999:ArgoCD User:/home/argocd:/bin/nologin
   '';
 
-  group = pkgs.writeText "group" ''
+  group = writeText "group" ''
     root:x:0:
     argocd:x:999:
   '';
 
-  rootfs = pkgs.stdenv.mkDerivation {
+  rootfs = stdenv.mkDerivation {
     version = "1";
     name = "rootfs-argocd";
     buildCommand = ''
@@ -23,11 +42,10 @@ let
     '';
   };
 in
-pkgs.dockerTools.buildLayeredImage {
+dockerTools.buildLayeredImage {
   name = "${dockerRegistry}/argocd";
   tag = dockerTag;
-  contents = with pkgs; [
-    utillinux
+  contents = [
     bashInteractive
     openssh
     gnupg
@@ -51,11 +69,11 @@ pkgs.dockerTools.buildLayeredImage {
     chmod 1777  home/argocd
     chmod 1777 tmp
     mkdir -p usr/bin
-    ln -s ${pkgs.coreutils}/bin/env usr/bin/env
+    ln -s ${coreutils}/bin/env usr/bin/env
   '';
 
   config = {
-    Entrypoint = [ "${pkgs.bashInteractive}/bin/bash" ];
+    Entrypoint = [ "${bashInteractive}/bin/bash" ];
     WorkingDir = "/home/argocd";
     User = "argocd";
     Env = [

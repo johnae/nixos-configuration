@@ -1,13 +1,24 @@
-{ pkgs, dockerRegistry ? "johnae", dockerTag ? "latest" }:
+{ stdenv
+, writeStrictShellScriptBin
+, gnused
+, coreutils
+, bashInteractive
+, mkpasswd
+, openssl
+, openssh
+, dockerTools
+, dockerRegistry ? "johnae"
+, dockerTag ? "latest"
+}:
 let
-  entrypoint = with pkgs; writeStrictShellScriptBin "entrypoint.sh" ''
+  entrypoint = writeStrictShellScriptBin "entrypoint.sh" ''
     export PATH=${coreutils}/bin:${gnused}/bin:${PATH:+:}$PATH
     mkdir -p /etc
     env > /etc/environment
 
     username="forwarder"
-    password="$(${pkgs.openssl}/bin/openssl rand -hex 6)"
-    hashed_password="$(${pkgs.mkpasswd}/bin/mkpasswd -m sha-512 "$password")"
+    password="$(${openssl}/bin/openssl rand -hex 6)"
+    hashed_password="$(${mkpasswd}/bin/mkpasswd -m sha-512 "$password")"
     echo Username: "$username"
     echo Password: "$password"
     userhome="/home/forwarder"
@@ -43,10 +54,14 @@ let
     exec ${openssh}/bin/sshd -e -D -p 22
   '';
 in
-pkgs.dockerTools.buildLayeredImage {
+dockerTools.buildLayeredImage {
   name = "${dockerRegistry}/ssh-forwarder";
   tag = dockerTag;
-  contents = with pkgs; [ utillinux bashInteractive openssh btrfsProgs coreutils ];
+  contents = [
+    bashInteractive
+    openssh
+    coreutils
+  ];
 
   config = {
     Entrypoint = [ "${entrypoint}/bin/entrypoint.sh" ];

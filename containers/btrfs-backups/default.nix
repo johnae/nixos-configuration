@@ -1,8 +1,17 @@
-{ pkgs, dockerRegistry ? "johnae", dockerTag ? "latest" }:
+{ stdenv
+, lib
+, writeStrictShellScriptBin
+, writeText
+, btrfsProgs
+, coreutils
+, openssh
+, bashInteractive
+, dockerTools
+, dockerRegistry ? "johnae"
+, dockerTag ? "latest"
+}:
 let
-  lib = pkgs.lib;
-
-  rbreceive = with pkgs; writeStrictShellScriptBin "rbreceive" ''
+  rbreceive = writeStrictShellScriptBin "rbreceive" ''
     # shellcheck disable=SC2086
     set -- $SSH_ORIGINAL_COMMAND
 
@@ -159,7 +168,7 @@ let
     ''ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDCfgTJK7V8XzYW+YJ725xo8m2beLDi2xaO3yI6/wpDIWxVOrsYYZTWIh6960n4juD7pAz5RYbYtQn87f74cXMTE6GWFlvIgTX1UL9sn7nBRowUQQ7bJdwx7PYz0upu1KoB/sW4QRCYLGCnQz19tQwrC49VynMT7x9H66R9kvWavgyWz8XvAPg5nQG5Fs+k7QZAydULJUcZ/ddLWKkMEubz4syBtwvODRP0Duhlr1YQvYsyF9lNxRFiWrl82PuymtZEzsJcaVqfMGxS5TZNfPA0AlDdHTKES/LAh9vqkTeZe0z+a1cpHzpx2aadk2l8/YavI6Wq9ctA23wa76qnmETgjgQc8pkxTzhvSVgeszWl9WHNOZdPqPYuczqWHsG/iNqoqv3+aCH61HGJoFkLOetO+KczlbrtMUDZQYSTzqkTubo+USBpDvlH0i8DENWWuNyyx4P7HWRaqiaJ/f2oylZImRjG4oQXVbl9uf+6IZL71My4feDVvCHxOTfgX4ucPP8= john@backup''
   ];
 
-  entrypoint = with pkgs; writeStrictShellScriptBin "entrypoint.sh" ''
+  entrypoint = writeStrictShellScriptBin "entrypoint.sh" ''
     export PATH=${rbreceive}/bin:${coreutils}/bin:${PATH:+:}$PATH
     env > /etc/environment
 
@@ -181,12 +190,12 @@ let
     exec ${openssh}/bin/sshd -e -D -p 22
   '';
 
-  passwd = pkgs.writeText "passwd" ''
+  passwd = writeText "passwd" ''
     root:x:0:0:System administrator:/root:/bin/bash
     sshd:x:498:65534:SSH privilege separation user:/var/empty:/bin/nologin
   '';
 
-  rootfs = pkgs.stdenv.mkDerivation {
+  rootfs = stdenv.mkDerivation {
     version = "1";
     name = "rootfs-btrfs-backups";
     buildCommand = ''
@@ -195,10 +204,17 @@ let
     '';
   };
 in
-pkgs.dockerTools.buildLayeredImage {
+dockerTools.buildLayeredImage {
   name = "${dockerRegistry}/btrfs-backups";
   tag = dockerTag;
-  contents = with pkgs; [ rbreceive utillinux bashInteractive openssh btrfsProgs coreutils rootfs ];
+  contents = [
+    rbreceive
+    bashInteractive
+    openssh
+    btrfsProgs
+    coreutils
+    rootfs
+  ];
 
   config = {
     Entrypoint = [ "${entrypoint}/bin/entrypoint.sh" ];
