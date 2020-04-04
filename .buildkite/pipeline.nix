@@ -10,9 +10,40 @@ with builtins;
 with lib;
 with buildkite;
 let
-  runDeployArg =
-    if getEnv "BUILDKITE_BRANCH" == "master"
-    then "--arg runDeploy \"true\"" else "";
+  deployImage =
+    { projectName
+    , application ? projectName
+    , runDeploy ? (getEnv "BUILDKITE_BRANCH" == "master")
+    , waitForCompletion ? true
+    , dependsOn ? [ ]
+    }:
+    [
+      (run ":pipeline: Build and Push image" {
+        key = "${projectName}-docker";
+        inherit dependsOn;
+        buildNixPath = "shell.nix";
+        command = ''
+          echo +++ Nix build and push image
+          # shellcheck disable=SC2091
+          image="$($(build -A pkgs.pushDockerArchive \
+                         --arg image \
+                         "(import ./default.nix).containers.${projectName}"))"
+          nixhash="$(basename "$image" | awk -F'-' '{print $1}')"
+          buildkite-agent meta-data set "${projectName}-nixhash" "$nixhash"
+        '';
+      })
+      (when runDeploy
+        (
+          deploy {
+            key = "${projectName}-deploy";
+            inherit application;
+            image = "johnae/${projectName}";
+            imageTag = "$(buildkite-agent meta-data get '${projectName}-nixhash')";
+            inherit waitForCompletion;
+            dependsOn = dependsOn ++ [ "${projectName}-docker" ];
+          }
+        ))
+    ];
 
   chunksOf = n: l:
     if length l > 0
@@ -23,11 +54,13 @@ let
 
   derivationNames = pkgs: attrNames (onlyDerivations pkgs);
 
+  containerNames = derivationNames (import ../default.nix).containers;
+
   pkgNames = sort (a: b: last (splitString "." a) < last (splitString "." b)) ((
     map (n: "packages.${n}") (derivationNames (import ../default.nix).packages)
   )
   ++ (
-    map (n: "containers.${n}") (derivationNames (import ../default.nix).containers)
+    map (n: "containers.${n}") containerNames
   ));
 
   pkgBatches = chunksOf (length pkgNames / 4 + 1) pkgNames;
@@ -52,24 +85,32 @@ pipeline [
 
   cachePkgs
   (
-    run "Build subprojects" {
-      dependsOn = cacheStepsKeys;
-      key = "subprojects";
-      command = ''
-        buildkiteDepends="[ "
-        for container in containers/*; do
-          if [ ! -d "$container" ]; then continue; fi
-          if [ "$(basename "$container")" = "buildkite" ]; then continue; fi
-          name="$(basename "$container")"
-          buildkiteDepends="$buildkiteDepends \"$name-deploy\""
-          nix eval -f "$container"/.buildkite/pipeline.nix ${runDeployArg} --argstr name "$name" --json steps \
-                     | buildkite-agent pipeline upload --no-interpolation
-        done
-        buildkiteDepends="$buildkiteDepends \"build\" ]"
-        nix eval -f containers/buildkite/.buildkite/pipeline.nix ${runDeployArg} --argstr name "buildkite" --arg dependsOn "$buildkiteDepends" --json steps \
-                     | buildkite-agent pipeline upload --no-interpolation
-      '';
-    }
+    map
+      (
+        projectName: deployImage
+          (
+            {
+              inherit projectName;
+              dependsOn = cacheStepsKeys;
+            }
+            //
+            (
+              if projectName == "buildkite"
+              then {
+                waitForCompletion = false;
+                application = "buildkite-agent";
+                dependsOn =
+                  (map
+                    (n: "${n}-deploy")
+                    (
+                      filter
+                        (n: n != "buildkite")
+                        containerNames
+                    ));
+              } else { }
+            )
+          )
+      ) containerNames
   )
   (
     run "Build machines" {
