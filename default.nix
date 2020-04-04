@@ -66,6 +66,7 @@ let
       (nixosFunc { inherit configuration; }).config.system.build.isoImage;
 in
 rec {
+  inherit pkgs;
   machines = pkgs.recurseIntoAttrs {
     europa = buildConfig ./machines/europa/configuration.nix;
     phobos = buildConfig ./machines/phobos/configuration.nix;

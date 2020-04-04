@@ -22,6 +22,18 @@ rec {
     };
   };
 
+  pushDockerArchive = with self.lib; with builtins; { image, tag ? null }:
+    let
+      imageTag = if tag != null then tag else head (splitString "-" (baseNameOf "${image}"));
+    in
+      self.writeStrictShellScript "pushDockerArchive" ''
+        echo pushing ${image.imageName}:${imageTag} 1>&2
+        ${self.skopeo}/bin/skopeo copy "$@" \
+            docker-archive:${image} \
+            docker://${image.imageName}:${imageTag} 1>&2
+        echo ${image}
+      '';
+
   k3s = super.callPackage ../pkgs/k3s { };
   system-san-francisco-font = super.callPackage ../pkgs/system-san-francisco-font { };
   san-francisco-mono-font = super.callPackage ../pkgs/san-francisco-mono-font { };
