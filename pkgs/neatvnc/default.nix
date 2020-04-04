@@ -8,6 +8,7 @@
 , gnutls
 , libdrm
 , libjpeg_turbo
+, zlib
 }:
 let
   metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
@@ -19,7 +20,14 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub metadata;
 
   nativeBuildInputs = [ meson pkg-config ninja ];
-  buildInputs = [ pixman aml gnutls libdrm libjpeg_turbo ];
+  buildInputs = [
+    pixman
+    aml
+    gnutls
+    libdrm
+    libjpeg_turbo
+    zlib
+  ];
 
   meta = with stdenv.lib; {
     description = "A VNC server library";
