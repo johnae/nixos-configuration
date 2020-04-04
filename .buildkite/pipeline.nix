@@ -15,6 +15,7 @@ let
     , runDeploy ? (getEnv "BUILDKITE_BRANCH" == "master")
     , waitForCompletion ? true
     , dependsOn ? [ ]
+    , deployDependsOn ? [ ]
     }:
     [
       (run ":pipeline: Build and Push image" {
@@ -39,7 +40,7 @@ let
             image = "johnae/${projectName}";
             imageTag = "$(buildkite-agent meta-data get '${projectName}-nixhash')";
             inherit waitForCompletion;
-            dependsOn = dependsOn ++ [ "${projectName}-docker" ];
+            dependsOn = deployDependsOn ++ [ "${projectName}-docker" ];
           }
         ))
     ];
@@ -97,7 +98,7 @@ pipeline [
               if projectName == "buildkite-agent"
               then {
                 waitForCompletion = false;
-                dependsOn =
+                deployDependsOn =
                   (map
                     (n: "${n}-deploy")
                     (filter (n: n != projectName) containerNames));
