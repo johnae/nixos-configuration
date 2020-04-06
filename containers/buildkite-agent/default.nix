@@ -82,12 +82,13 @@ dockerTools.buildImage {
       "${buildkite-latest}/bin/buildkite-agent"
     ];
     Cmd = [ "start" ];
+    WorkingDir = "/home/buildkite";
     User = "buildkite";
     Env = [
       "ENV=/etc/profile.d/nix.sh"
       "NIX_PATH=nixpkgs=${pkgs.path}"
       "PAGER=cat"
-      "PATH=/nix/var/nix/profiles/default/bin:/usr/bin:/bin"
+      "PATH=/nix/var/nix/profiles/default/bin:/home/buildkite/.nix-profile/bin:/usr/bin:/bin"
       "GIT_SSL_CAINFO=/etc/ssl/certs/ca-bundle.crt"
       "NIX_SSL_CERT_FILE=/etc/ssl/certs/ca-bundle.crt"
       "BUILDKITE_PLUGINS_PATH=/var/lib/buildkite/plugins"

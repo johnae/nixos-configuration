@@ -93,7 +93,7 @@ dockerTools.buildImage {
       "PAGER=cat"
       "ENV=/etc/profile.d/nix.sh"
       "NIX_PATH=nixpkgs=${pkgs.path}"
-      "PATH=/nix/var/nix/profiles/default/bin:/usr/bin:/bin"
+      "PATH=/nix/var/nix/profiles/default/bin:/home/argocd/.nix-profile/bin:/usr/bin:/bin"
       "GIT_SSL_CAINFO=/etc/ssl/certs/ca-bundle.crt"
       "NIX_SSL_CERT_FILE=/etc/ssl/certs/ca-bundle.crt"
     ];
