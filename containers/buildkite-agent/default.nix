@@ -26,13 +26,11 @@ let
   passwd = writeText "passwd" ''
     root:x:0:0:System administrator:/root:/bin/bash
     buildkite:x:999:999:Buildkite User:/home/buildkite:/bin/bash
-    nixbld1:x:30001:30000:Nix Build User:/var/empty:/bin/nologin
   '';
 
   group = writeText "group" ''
     root:x:0:
     buildkite:x:999:
-    nixbld:x:30000:nixbld1
   '';
 
   rootfs = stdenv.mkDerivation {

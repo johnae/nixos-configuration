@@ -31,13 +31,11 @@ let
   passwd = writeText "passwd" ''
     root:x:0:0:System administrator:/root:/bin/bash
     argocd:x:999:999:ArgoCD User:/home/argocd:/bin/bash
-    nixbld1:x:30001:30000:Nix Build User:/var/empty:/bin/nologin
   '';
 
   group = writeText "group" ''
     root:x:0:
     argocd:x:999:
-    nixbld:x:30000:nixbld1
   '';
 
   rootfs = stdenv.mkDerivation {
