@@ -9,13 +9,25 @@ let
   ## enables reading from encrypted json within nix expressions
   nixSops = pkgs.writeStrictShellScriptBin "nix-sops" ''
     export SOPS_PGP_FP="${SOPS_PGP_FP}"
-    ## can't read from fifo's it seems, which is a bit unfortunate
-    ${pkgs.sops}/bin/sops exec-file --no-fifo "$1" 'nix-instantiate --eval -E "builtins.readFile {}"'
+    OUTPUT="$(${pkgs.coreutils}/bin/mktemp .sops.XXXXXXXXXX.json)"
+    trap 'rm -f "/tmp/$OUTPUT"' EXIT
+    ${pkgs.sops}/bin/sops --output-type=json -d "$1" > "/tmp/$OUTPUT"
+    nix-instantiate --eval -E "builtins.fromJSON (builtins.readFile \"/tmp/$OUTPUT\")"
+  '';
+
+  nixFromYaml = pkgs.writeStrictShellScriptBin "nix-from-yaml" ''
+    OUTPUT="$(${pkgs.coreutils}/bin/mktemp .remarshal.XXXXXXXXXX.json)"
+    trap 'rm -f "/tmp/$OUTPUT"' EXIT
+    ${pkgs.remarshal}/bin/remarshal -i "$1" -if yaml -of json > "/tmp/$OUTPUT"
+    nix-instantiate --eval -E "builtins.fromJSON (builtins.readFile \"/tmp/$OUTPUT\")"
   '';
 
   ## ditto - points to the above
   extraBuiltins = pkgs.writeText "extra-builtins.nix" ''
-    { exec, ... }: { sops = path: exec [ ${nixSops}/bin/nix-sops path ]; }
+    { exec, ... }: {
+      sops = path: exec [ ${nixSops}/bin/nix-sops path ];
+      loadYAML = path: exec [ ${nixFromYaml}/bin/nix-from-yaml path ];
+    }
   '';
 
   ## this will build an attribute such as a machine from default.nix

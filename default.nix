@@ -14,9 +14,9 @@ let
       confName = (baseNameOf (dirOf config));
       isoConf =
         let
-          conf = "${metadataDir}/${confName}/isoconf.json";
+          conf = "${metadataDir}/${confName}/isoconf.yaml";
         in
-          if pathExists conf then fromJSON (extraBuiltins.sops conf) else { };
+          if pathExists conf then extraBuiltins.sops conf else { };
       system-closure = buildConfig config;
       configuration = {
         imports = [

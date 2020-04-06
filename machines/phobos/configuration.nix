@@ -2,8 +2,8 @@
 let
   loadSecretMetadata = path: with builtins;
     if getEnv "NIX_TEST" != ""
-    then fromJSON (readFile (path + "/meta.test.json"))
-    else fromJSON (extraBuiltins.sops (path + "/meta.json"));
+    then extraBuiltins.loadYAML (path + "/meta.test.yaml")
+    else extraBuiltins.sops (path + "/meta.yaml");
   hostName = "phobos";
 
   nixos-hardware = import ../../nix/nixos-hardware.nix;
