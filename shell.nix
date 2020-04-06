@@ -9,17 +9,17 @@ let
   ## enables reading from encrypted json within nix expressions
   nixSops = pkgs.writeStrictShellScriptBin "nix-sops" ''
     export SOPS_PGP_FP="${SOPS_PGP_FP}"
-    OUTPUT="$(${pkgs.coreutils}/bin/mktemp .sops.XXXXXXXXXX.json)"
-    trap 'rm -f "/tmp/$OUTPUT"' EXIT
-    ${pkgs.sops}/bin/sops --output-type=json -d "$1" > "/tmp/$OUTPUT"
-    nix-instantiate --eval -E "builtins.fromJSON (builtins.readFile \"/tmp/$OUTPUT\")"
+    OUTPUT="$(${pkgs.coreutils}/bin/mktemp /tmp/.sops.XXXXXXXXXX.json)"
+    trap 'rm -f "$OUTPUT"' EXIT
+    ${pkgs.sops}/bin/sops --output-type=json -d "$1" > "$OUTPUT"
+    nix-instantiate --eval -E "builtins.fromJSON (builtins.readFile \"$OUTPUT\")"
   '';
 
   nixFromYaml = pkgs.writeStrictShellScriptBin "nix-from-yaml" ''
-    OUTPUT="$(${pkgs.coreutils}/bin/mktemp .remarshal.XXXXXXXXXX.json)"
-    trap 'rm -f "/tmp/$OUTPUT"' EXIT
-    ${pkgs.remarshal}/bin/remarshal -i "$1" -if yaml -of json > "/tmp/$OUTPUT"
-    nix-instantiate --eval -E "builtins.fromJSON (builtins.readFile \"/tmp/$OUTPUT\")"
+    OUTPUT="$(${pkgs.coreutils}/bin/mktemp /tmp/.remarshal.XXXXXXXXXX.json)"
+    trap 'rm -f "$OUTPUT"' EXIT
+    ${pkgs.remarshal}/bin/remarshal -i "$1" -if yaml -of json > "$OUTPUT"
+    nix-instantiate --eval -E "builtins.fromJSON (builtins.readFile \"$OUTPUT\")"
   '';
 
   ## ditto - points to the above
