@@ -8,7 +8,7 @@
 , bashInteractive
 , openssh
 , coreutils
-, gitMinimal
+, git
 , gnutar
 , gzip
 , xz
@@ -57,7 +57,7 @@ dockerTools.buildImage {
     bashInteractive
     openssh
     coreutils
-    gitMinimal
+    git
     gnutar
     gzip
     xz
