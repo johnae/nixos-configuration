@@ -8,8 +8,6 @@ in
     ./defaults.nix
   ];
 
-  boot.extraModulePackages = with config.boot.kernelPackages; [ wireguard ];
-
   boot.kernel.sysctl = {
     "vm.dirty_writeback_centisecs" = 1500;
     "vm.laptop_mode" = 5;
