@@ -22,11 +22,24 @@ let
           secretConfig.users.extraUsers
       )
     );
+
+  xps9370 = {
+    imports = [
+      "${nixos-hardware}/common/cpu/intel/kaby-lake"
+      "${nixos-hardware}/common/pc/laptop"
+    ];
+
+    boot.kernelParams = [ "mem_sleep_default=deep" ];
+    boot.blacklistedKernelModules = [ "psmouse" ];
+    services.throttled.enable = lib.mkDefault true;
+    services.thermald.enable = true;
+  };
 in
   with lib; {
     imports = [
       ../../defaults/laptop.nix
-      "${nixos-hardware}/dell/xps/13-9370"
+      xps9370
+      #"${nixos-hardware}/dell/xps/13-9370"
       ./hardware-configuration.nix
       secretConfig
     ];
