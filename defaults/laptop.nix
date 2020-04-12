@@ -86,7 +86,7 @@ in
     font-awesome_5
     powerline-fonts
     roboto
-    nerdfonts
+    mynerdfonts
     #fira-code
     #fira-code-symbols
   ];

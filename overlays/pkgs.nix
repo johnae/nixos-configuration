@@ -70,6 +70,9 @@ rec {
   wl-clipboard-x11 = super.callPackage ../pkgs/wl-clipboard-x11 { };
   xdg-desktop-portal-wlr = super.callPackage ../pkgs/xdg-desktop-portal-wlr { };
 
+  mynerdfonts = super.callPackage ../pkgs/mynerdfonts {
+    fonts = [ "JetBrainsMono" "DroidSansMono" ];
+  };
 
   linuxPackages_5_6 = super.linuxPackages_5_6.extend
     (self: super: {
