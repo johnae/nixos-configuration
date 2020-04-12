@@ -2,7 +2,7 @@
 let
   checkNixosVersion = pkgs.writeStrictShellScriptBin "check-nixos-version" ''
     PATH=${pkgs.stdenv}/bin:${pkgs.dateutils}/bin:${pkgs.yq}/bin:${pkgs.curl}/bin:$PATH
-    RELEASES="$(mktemp nixos-version.XXXXXXXXXXX)"
+    RELEASES="$(mktemp /tmp/nixos-version.XXXXXXXXXXX)"
     curl -sS 'https://nix-releases.s3.amazonaws.com/?delimiter=/&prefix=nixos/unstable/' | \
       xq -r '.ListBucketResult.Contents[] | "\(.Key) \(.LastModified)"' > "$RELEASES"
     trap 'rm -f "$RELEASES"; exit' EXIT
