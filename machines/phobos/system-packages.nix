@@ -45,7 +45,6 @@ with pkgs; [
   bluez
   bluez-tools
   fd
-  unrar
   wireguard
   iwd
 ]
