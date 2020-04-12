@@ -77,7 +77,7 @@ rec {
         (
           oldAttrs: {
             patches = oldAttrs.patches ++ [
-              ../pkgs/broadcom-tmp/linux-5.6.patch
+              ../tmp/patches/broadcom-sta/linux-5.6.patch
             ];
           }
         );
