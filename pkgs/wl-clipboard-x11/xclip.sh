@@ -39,7 +39,7 @@ TIMEOUT_COMMAND=""
 : $((COUNT = $#))
 set -- "${@}" --
 
-while [ $COUNT -ne 0 ]
+while [ "$COUNT" -ne 0 ]
 do
     case "$1" in
         -i|-in) CLIPBOARD_COMMAND="${WL_COPY}";;
