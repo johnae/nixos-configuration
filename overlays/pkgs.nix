@@ -87,6 +87,8 @@ rec {
 
     });
 
+  gnupg = super.gnupg.override { libusb = super.libusb1; };
+
   argocd = super.callPackage ../pkgs/argocd { };
 
   fish-kubectl-completions = super.callPackage ../pkgs/fish-kubectl-completions { };

@@ -45,7 +45,7 @@ in
   services.kbfs.enable = true;
   services.keybase.enable = true;
 
-  services.pcscd.enable = true;
+  #services.pcscd.enable = true;
   services.cron.enable = true;
   services.avahi.enable = true;
   services.avahi.nssmdns = true;
