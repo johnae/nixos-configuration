@@ -70,6 +70,10 @@ rec {
   wl-clipboard-x11 = super.callPackage ../pkgs/wl-clipboard-x11 { };
   xdg-desktop-portal-wlr = super.callPackage ../pkgs/xdg-desktop-portal-wlr { };
 
+  mesa-iris = (super.mesa.override {
+    galliumDrivers = [ "nouveau" "virgl" "swrast" "iris" ];
+  });
+
   mynerdfonts = super.callPackage ../pkgs/mynerdfonts {
     fonts = [ "JetBrainsMono" "DroidSansMono" ];
   };
