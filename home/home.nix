@@ -77,7 +77,8 @@ in
       spook
 
       gnome3.nautilus
-      (pkgs.firejailed { package = chrpkgs.chromium-dev-wayland; ignore = [ "nou2f" ]; })
+      chrpkgs.chromium-dev-wayland
+      #(pkgs.firejailed { package = chrpkgs.chromium-dev-wayland; ignore = [ "nou2f" ]; })
     ];
 
   home.sessionVariables = rec {

@@ -1,11 +1,13 @@
 { pkgs, config, lib, options }:
 let
   firefox-nightly = pkgs.wrapFirefox
-    (pkgs.firejailed {
-      package = pkgs.latest.firefox-nightly-bin;
-      ignore = [ "nou2f" ];
-    }
-    ) { browserName = "firefox"; };
+    pkgs.latest.firefox-nightly-bin { browserName = "firefox"; };
+  #firefox-nightly = pkgs.wrapFirefox
+  #  (pkgs.firejailed {
+  #    package = pkgs.latest.firefox-nightly-bin;
+  #    ignore = [ "nou2f" ];
+  #  }
+  #  ) { browserName = "firefox"; };
 in
 {
   programs.firefox = {
