@@ -20,6 +20,17 @@ in
   hardware.opengl.driSupport32Bit = true;
   hardware.u2f.enable = true;
 
+  #environment.variables = {
+  #  MESA_LOADER_DRIVER_OVERRIDE = "iris";
+  #};
+  #hardware.opengl.package = pkgs.mesa-iris.drivers;
+  hardware.opengl.extraPackages = with pkgs; [
+    intel-media-driver
+    vaapiIntel
+    vaapiVdpau
+    libvdpau-va-gl
+  ];
+
   sound.enable = true;
   hardware.pulseaudio.enable = true;
   hardware.pulseaudio.package = pkgs.pulseaudioFull;
