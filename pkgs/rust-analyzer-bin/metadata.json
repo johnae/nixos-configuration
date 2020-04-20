@@ -1,5 +1,5 @@
 {
-  "hash": "sha256:0milm51j1b6zjnn6ckwzlbz6j1pqfl2pdjx1qh62d4ari709g37f",
-  "url": "https://github.com/rust-analyzer/rust-analyzer/releases/download/nightly/rust-analyzer-linux",
-  "version": "nightly"
+  "hash": "sha256:008dm27ssjza56p6wz8l2gcdwrswgwfpi6wvb96rzyj1pgjc2apz",
+  "url": "https://github.com/rust-analyzer/rust-analyzer/releases/download/2020-04-20/rust-analyzer-linux",
+  "version": "2020-04-20"
 }
