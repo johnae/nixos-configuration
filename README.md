@@ -2,7 +2,7 @@
 
 ## NixOS Configuration
 
-This repo contains NixOS configuration for all my machines. The initial bootstrapping of a machine is done by building a self-installing iso like this:
+This repo contains NixOS configuration for all my machines. It is basically a monorepo containing the configuration for my laptops and servers, including some container images. The initial bootstrapping of a machine is done by building a self-installing iso like this:
 
 ```sh
 nix-shell --run "build -A installers.<hostname-here>"
