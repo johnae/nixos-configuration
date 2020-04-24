@@ -28,8 +28,10 @@ in
     fish
   ];
 
+  services.myk3s.enable = true;
+  services.myk3s.docker = true;
+
   services.openssh.enable = true;
-  services.k3s.enable = true;
   networking.firewall.enable = false;
 
   programs.fish.enable = true;

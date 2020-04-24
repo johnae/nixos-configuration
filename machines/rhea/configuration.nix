@@ -33,11 +33,10 @@ in
     extraHosts = "127.0.1.1 ${hostName}";
   };
 
-  virtualisation.docker.enable = true;
-  services.k3s = {
+  services.myk3s = {
     nodeName = hostName;
     flannelBackend = "none";
-    extraManifests = [ ../../modules/services/k3s/calico.yaml ];
+    extraManifests = [ ../../files/k3s/calico.yaml ];
   };
 
   users.defaultUserShell = pkgs.fish;

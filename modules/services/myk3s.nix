@@ -2,7 +2,7 @@
 
 with lib;
 let
-  cfg = config.services.k3s;
+  cfg = config.services.myk3s;
   isAgent = cfg.masterUrl != null;
   isMaster = !isAgent;
   k3sDir = "/var/lib/k3s";
@@ -15,7 +15,7 @@ let
   '';
 in
 {
-  options.services.k3s = {
+  options.services.myk3s = {
 
     enable = mkEnableOption "enable k3s - lightweight kubernetes.";
 
@@ -46,7 +46,7 @@ in
 
     docker = mkOption {
       type = types.bool;
-      default = config.virtualisation.docker.enable;
+      default = false;
       description = ''
         Whether to use docker instead of containerd.
       '';
@@ -82,6 +82,19 @@ in
   };
 
   config = mkIf cfg.enable {
+    assertions = [
+      {
+        assertion = !config.services.k3s.enable;
+        message = ''
+          Only one k3s service is allowed at a time: services.k3s.enable and services.myk3s.enable are mutually exclusive.
+        '';
+      }
+    ];
+
+    virtualisation.docker = mkIf cfg.docker {
+      enable = mkDefault true;
+    };
+
     systemd.services.k3s = with pkgs; rec {
       description = "Lightweight kubernetes";
       after = [ "network-online.target" ];
