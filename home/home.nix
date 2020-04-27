@@ -122,8 +122,8 @@ in
       name = "Arc";
     };
     theme = {
-      package = pkgs.arc-theme;
-      name = "Arc-Dark";
+      package = pkgs.nordic;
+      name = "Nordic";
     };
   };
 
