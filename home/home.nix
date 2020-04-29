@@ -1,17 +1,20 @@
 { pkgs, config, lib, options }:
 let
-  chrpkgsBall = builtins.fetchTarball {
-    url =
-      "https://github.com/colemickens/nixpkgs-chromium/archive/master.tar.gz";
-  };
-  chrpkgs = import chrpkgsBall;
-
-  importsFrom = with lib; dir: mapAttrsToList (
-    name: _: dir + "/${name}"
-  ) (
-    filterAttrs (name: _: hasSuffix ".nix" name)
-      (builtins.readDir dir)
-  );
+  chromium-dev-ozone = import
+    (
+      builtins.fetchTarball {
+        url =
+          "https://github.com/colemickens/nixpkgs-chromium/archive/master.tar.gz";
+      }
+    );
+  importsFrom = with lib; dir: mapAttrsToList
+    (
+      name: _: dir + "/${name}"
+    )
+    (
+      filterAttrs (name: _: hasSuffix ".nix" name)
+        (builtins.readDir dir)
+    );
 in
 {
   nixpkgs.config = import ../nix/nixpkgs-config.nix;
@@ -77,7 +80,7 @@ in
       spook
 
       gnome3.nautilus
-      chrpkgs.chromium-dev-wayland
+      chromium-dev-ozone
       #(pkgs.firejailed { package = chrpkgs.chromium-dev-wayland; ignore = [ "nou2f" ]; })
     ];
 
