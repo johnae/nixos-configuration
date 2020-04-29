@@ -24,7 +24,7 @@ in
           "browser.bookmarks.showMobileBookmarks" = true;
           "browser.tabs.opentabfor.middleclick" = false;
           "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
-          "media.peerconnection.enabled" = false; ## disable WebRTC
+          "media.peerconnection.enabled" = true;
         };
 
         userChrome = ''
