@@ -11,7 +11,6 @@ let
     if [ ! -e /etc/k3s-node-name ]; then
       echo "${cfg.nodeName}-$(${pkgs.openssl}/bin/openssl rand -hex 4)" > /etc/k3s-node-name
     fi
-    export K3S_NODE_NAME="$(cat /etc/k3s-node-name)"
   '';
 in
 {
@@ -82,69 +81,50 @@ in
   };
 
   config = mkIf cfg.enable {
-    assertions = [
-      {
-        assertion = !config.services.k3s.enable;
-        message = ''
-          Only one k3s service is allowed at a time: services.k3s.enable and services.myk3s.enable are mutually exclusive.
-        '';
-      }
-    ];
-
-    virtualisation.docker = mkIf cfg.docker {
-      enable = mkDefault true;
-    };
-
-    systemd.services.k3s = with pkgs; rec {
-      description = "Lightweight kubernetes";
-      after = [ "network-online.target" ];
-      enable = true;
-      environment =
-        {
-          K3S_CLUSTER_SECRET = cfg.clusterSecret;
-        }
-        // (if isAgent then { K3S_URL = cfg.masterUrl; } else { });
-
-      script = (
-        if isAgent
-        then ''
-          ${k3sNodeNameGen}
-          exec ${k3s}/bin/k3s agent -d ${k3sDataDir} ${
-            if cfg.docker then "--docker" else ""
-          }\
-                              --kubelet-arg "volume-plugin-dir=${k3sDir}/libexec/kubernetes/kubelet-plugins/volume/exec" \
-                              --kubelet-arg "cni-bin-dir=${k3sDir}/opt/cni/bin" \
-                              --node-label hostname=${cfg.nodeName} \
-                              ${
-            lib.concatStringsSep " "
-                (map (v: "--node-label ${v}") cfg.labels)
-          }
-        '' else ''
-          ${k3sNodeNameGen}
-          exec ${k3s}/bin/k3s server --no-deploy=traefik --no-deploy=servicelb --no-deploy=local-storage -d ${k3sDataDir} ${
-            if cfg.docker then "--docker" else ""
-          } \
-                              -o /kubeconfig.yml --flannel-backend=${cfg.flannelBackend} \
-                              --kubelet-arg "volume-plugin-dir=${k3sDir}/libexec/kubernetes/kubelet-plugins/volume/exec" \
-                              --kubelet-arg "cni-bin-dir=${k3sDir}/opt/cni/bin" \
-                              --kube-controller-arg "flex-volume-plugin-dir=${k3sDir}/libexec/kubernetes/kubelet-plugins/volume/exec" \
-                              --node-label hostname=${cfg.nodeName} \
-                              ${
-            lib.concatStringsSep " "
-                (map (v: "--node-label ${v}") cfg.labels)
-          }
-        ''
+    services.k3s.enable = true;
+    services.k3s.role = if isAgent then "agent" else "server";
+    services.k3s.serverAddr = if cfg.masterUrl != null then cfg.masterUrl else "";
+    services.k3s.token = cfg.clusterSecret;
+    services.k3s.docker = cfg.docker;
+    services.k3s.package = pkgs.k3s;
+    services.k3s.extraFlags = lib.concatStringsSep " \\\n "
+      (
+        if isAgent then
+          [
+            ''--kubelet-arg "volume-plugin-dir=${k3sDir}/libexec/kubernetes/kubelet-plugins/volume/exec"''
+            ''--kubelet-arg "cni-bin-dir=${k3sDir}/opt/cni/bin"''
+            ''--node-name "$(cat /etc/k3s-node-name)"''
+            (lib.concatStringsSep " "
+              (map (v: "--node-label ${v}") (cfg.labels ++ [ "hostname=${cfg.nodeName}" ])))
+          ]
+        else
+          [
+            ''--no-deploy=traefik --no-deploy=servicelb --no-deploy=local-storage -d ${k3sDataDir}''
+            ''-o /kubeconfig.yml''
+            ''--flannel-backend=${cfg.flannelBackend}''
+            ''--kubelet-arg "volume-plugin-dir=${k3sDir}/libexec/kubernetes/kubelet-plugins/volume/exec"''
+            ''--kubelet-arg "cni-bin-dir=${k3sDir}/opt/cni/bin"''
+            ''--kube-controller-arg "flex-volume-plugin-dir=${k3sDir}/libexec/kubernetes/kubelet-plugins/volume/exec"''
+            ''--node-name "$(cat /etc/k3s-node-name)"''
+            (lib.concatStringsSep " "
+              (map (v: "--node-label ${v}") (cfg.labels ++ [ "hostname=${cfg.nodeName}" ])))
+          ]
       );
+
+
+    systemd.services.k3s = {
+
+      preStart = k3sNodeNameGen;
 
       postStart = (
         if isMaster
         then ''
-          echo Applying extra kubernetes manifests
+          echo Applying extra kubernetes manifests...
           set -x
           ${lib.concatStringsSep "\n" (
             map (
                 m:
-                    "${kubectl}/bin/kubectl --kubeconfig /kubeconfig.yml apply -f ${m}"
+                    "${pkgs.kubectl}/bin/kubectl --kubeconfig /kubeconfig.yml apply -f ${m}"
               )
                 cfg.extraManifests
           )}
@@ -153,21 +133,17 @@ in
       );
 
       serviceConfig = {
-        Type = if isAgent then "exec" else "notify";
         NotifyAccess = "all";
-        KillMode = "process";
-        Delegate = "yes";
         LimitNOFILE = "infinity";
         LimitNPROC = "infinity";
         LimitCORE = "infinity";
         TasksMax = "infinity";
         TimeoutStartSec = 0;
         Restart = "always";
-        RestartSec = 5;
       };
 
-      wantedBy = [ "multi-user.target" ];
     };
+
   };
 
 }
