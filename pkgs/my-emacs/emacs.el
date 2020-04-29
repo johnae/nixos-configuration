@@ -345,7 +345,7 @@
   :config
   (setq linum-relative-format "%s")
   (setq linum-relative-current-symbol "")
-  (global-linum-mode t)
+  (add-hook 'prog-mode-hook #'linum-mode)
   (linum-relative-mode t))
 
 
