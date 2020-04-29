@@ -3,6 +3,7 @@
 with lib;
 let
   cfg = config.services.myk3s;
+  k3s = config.services.k3s;
   isAgent = cfg.masterUrl != null;
   isMaster = !isAgent;
   k3sDir = "/var/lib/k3s";
@@ -140,6 +141,17 @@ in
         TasksMax = "infinity";
         TimeoutStartSec = 0;
         Restart = "always";
+        ExecStart = with lib; mkForce
+          (pkgs.writeStrictShellScript "unit-script-k3s-start"
+            (concatStringsSep " \\\n "
+              (
+                [
+                  "exec ${k3s.package}/bin/k3s ${k3s.role}"
+                ] ++ (optional k3s.docker "--docker")
+                ++ (optional k3s.disableAgent "--disable-agent")
+                ++ (optional (k3s.role == "agent") "--server ${k3s.serverAddr} --token ${k3s.token}")
+                ++ [ k3s.extraFlags ]
+              )));
       };
 
     };
