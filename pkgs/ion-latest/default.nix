@@ -16,7 +16,7 @@ buildRustPackage rec {
     sha256 = metadata.sha256;
   };
 
-  cargoSha256 = "011pql8wpa632p89965y33i14nirvaglvfpnldcx4m60g3gqh26f";
+  cargoSha256 = "13szqc9p1fbkhrd952zq0arjgf0fzhq37vv4ca2l6g9lyjqy6c29";
 
   outputs = [ "out" ];
 
