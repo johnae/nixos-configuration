@@ -19,7 +19,7 @@ rustPlatform.buildRustPackage rec {
 
   src = fetchFromGitHub metadata;
 
-  cargoSha256 = "0v2n90111qba7lazjry7162r3s18nhikj6wcv0dvzzzbgixr268f";
+  cargoSha256 = "1s0vkgacy59rigjln70ls764ga7w6wgr9yx4nrf98wzjv4jq67ar";
 
   nativeBuildInputs = [ pkg-config python3 ];
 
