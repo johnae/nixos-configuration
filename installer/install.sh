@@ -1,5 +1,6 @@
-#! /usr/bin/env nix-shell
-#! nix-shell -i bash -p jq
+#!/usr/bin/env nix-shell
+#!nix-shell -i bash -p jq
+# shellcheck shell=bash
 
 set -euo pipefail
 
@@ -26,7 +27,7 @@ retryOnce() {
     fi
 }
 
-DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
+DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd -P)
 
 ## This script bootstraps a nixos install. The assumptions are:
 # 1. You want an EFI System Partition (500MB) - so no BIOS support
@@ -205,9 +206,10 @@ retryOnce mount -o rw,noatime,compress=zstd,ssd,space_cache /dev/disk/by-label/"
 echo Creating btrfs subvolumes at /mnt
 cd /mnt
 btrfs sub create @ ## root
-mkdir -p "@/boot" "@/home" "@/var"
+mkdir -p "@/boot" "@/home" "@/var" "@/nix"
 btrfs sub create @home
 btrfs sub create @var
+btrfs sub create @nix
 
 debug "Btrfs subvolumes etc created on $DISK_ROOT, swap turned on, efi mounted at /mnt/boot etc"
 
@@ -283,6 +285,10 @@ mount -o rw,noatime,compress=zstd,ssd,space_cache,subvol=@home \
 echo Mounting var subvolume at /mnt/var
 mount -o rw,noatime,compress=zstd,ssd,space_cache,subvol=@var \
       /dev/disk/by-label/"$DISK_ROOT_LABEL" /mnt/var
+# mount @nix subvolume to /mnt/nix
+echo Mounting nix subvolume at /mnt/nix
+mount -o rw,noatime,compress=zstd,ssd,space_cache,subvol=@nix \
+      /dev/disk/by-label/"$DISK_ROOT_LABEL" /mnt/nix
 
 debug "Mounted the default volumes"
 
@@ -308,6 +314,6 @@ mount /dev/disk/by-label/"$DISK_EFI_LABEL" /mnt/boot
 debug "Mounted the boot volumes from $DISK_EFI_LABEL"
 
 #nix copy --from file:///etc/system $(cat /etc/system-closure-path) --option binary-caches "" --no-check-sigs
-nixos-install --no-root-passwd --option binary-caches "" --system $(cat /etc/system-closure-path)
+nixos-install --no-root-passwd --option binary-caches "" --system "$(cat /etc/system-closure-path)"
 
 debug "Install completed, exiting..."
