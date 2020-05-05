@@ -15,6 +15,17 @@ in
     "fs.inotify.max_user_watches" = 12288;
   };
 
+  ## wipe all state by default on boot for a squeaky clean machine
+  boot.initrd.postDeviceCommands = lib.mkAfter ''
+    mount -o rw,noatime,compress=zstd,ssd,space_cache /dev/disk/by-label/root /mnt
+    btrfs sub delete /mnt/@
+    btrfs sub delete /mnt/@var
+    btrfs subvolume create /mnt/@
+    btrfs subvolume create /mnt/@var
+    mkdir -p "/mnt/@/boot" "/mnt/@/home" "/mnt/@/var" "/mnt/@/nix"
+    umount /mnt
+  '';
+
   hardware.opengl.enable = true;
   hardware.opengl.driSupport = true;
   hardware.opengl.driSupport32Bit = true;
