@@ -4,11 +4,18 @@
 
   imports = [ ../modules ];
 
-  nix.extraOptions = ''
-    plugin-files = ${
-      pkgs.nix-plugins.override { nix = config.nix.package; }
-    }/lib/nix/plugins/libnix-extra-builtins.so
-  '';
+  nix = {
+    extraOptions = ''
+      plugin-files = ${
+        pkgs.nix-plugins.override { nix = config.nix.package; }
+      }/lib/nix/plugins/libnix-extra-builtins.so
+    '';
+
+    gc = {
+      automatic = true;
+      dates = "daily";
+    };
+  };
 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
