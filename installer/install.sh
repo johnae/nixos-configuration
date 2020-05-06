@@ -205,12 +205,19 @@ retryOnce mount -o rw,noatime,compress=zstd,ssd,space_cache /dev/disk/by-label/"
 # now create btrfs subvolumes we're interested in having
 echo Creating btrfs subvolumes at /mnt
 cd /mnt
-btrfs sub create @ ## root
+## create a base blank volume
+btrfs sub create @blank-tmp
+## make readonly snapshot of blank volume
+btrfs sub snapshot -r @blank-tmp @blank
+## remove blank volume
+btrfs sub delete @blank-tmp
+## create rest of volumes from the blank volume
+btrfs sub snapshot @blank @ ## root
 mkdir -p "@/boot" "@/home" "@/var" "@/nix" "@/keep"
-btrfs sub create @home
-btrfs sub create @var
-btrfs sub create @nix
-btrfs sub create @keep
+btrfs sub snapshot @blank @home
+btrfs sub snapshot @blank @var
+btrfs sub snapshot @blank @nix
+btrfs sub snapshot @blank @keep
 
 debug "Btrfs subvolumes etc created on $DISK_ROOT, swap turned on, efi mounted at /mnt/boot etc"
 
