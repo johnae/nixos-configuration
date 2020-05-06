@@ -37,6 +37,7 @@
 , chromium
 , nix-prefetch-github
 , signal-desktop
+, btrfs-progs
 , ...
 }:
 let
@@ -65,6 +66,24 @@ let
     exec ${skim}/bin/sk --min-height="$SK_MIN_HEIGHT" \
         --margin="$SK_MARGIN" \
         --prompt="$SK_PROMPT"
+  '';
+
+  btrfs-diff = writeStrictShellScriptBin "btrfs-diff" ''
+    usage() { echo $@ >2; echo "Usage: $0 <older-snapshot> <newer-snapshot>" >2; exit 1; }
+
+    [ $# -eq 2 ] || usage "Incorrect invocation"
+    SNAPSHOT_OLD="$1"
+    SNAPSHOT_NEW="$2"
+
+    [ -d "$SNAPSHOT_OLD" ] || usage "$SNAPSHOT_OLD does not exist"
+    [ -d "$SNAPSHOT_NEW" ] || usage "$SNAPSHOT_NEW does not exist"
+
+    OLD_TRANSID="$(btrfs subvolume find-new "$SNAPSHOT_OLD" 9999999)"
+    OLD_TRANSID=''${OLD_TRANSID#transid marker was }
+
+    [ -n "$OLD_TRANSID" -a "$OLD_TRANSID" -gt 0 ] || usage "Failed to find generation for $SNAPSHOT_NEW"
+
+    ${btrfs-progs}/bin/btrfs subvolume find-new "$SNAPSHOT_NEW" $OLD_TRANSID | ${gnused}/bin/sed '$d' | cut - f17- - d' ' | sort | uniq
   '';
 
   project-select = writeStrictShellScriptBin "project-select" ''
@@ -281,7 +300,7 @@ in
       sk-run sk-window sk-passmenu browse-chromium signal
       screenshot random-name add-wifi-network update-wifi-networks
       update-wireguard-keys spotify-play-album spotify-play-track spotify-cmd
-      spotify-play-artist spotify-play-playlist
+      spotify-play-artist spotify-play-playlist btrfs-diff
       ;
   };
 }
