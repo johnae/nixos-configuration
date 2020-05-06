@@ -46,6 +46,7 @@ with lib; {
       "/var/lib/bluetooth"
       "/var/lib/iwd"
       "/var/lib/wireguard"
+      "/root"
     ];
   };
 
