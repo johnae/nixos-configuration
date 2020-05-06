@@ -17,8 +17,6 @@ let
     };
   };
 
-  swaylockBackground = "~/Pictures/lockscreen.jpg";
-  swaylockArgs = "-e -i ${swaylockBackground} -K -s fill --font Roboto --inside-color 00000066 --inside-clear-color 00660099 --inside-ver-color 00006699 --inside-wrong-color 66000099 --key-hl-color FFFFFF99 --ring-color GGGGGGBB --ring-wrong-color FF6666BB --ring-ver-color 6666FFBB --text-color FFFFFFFF --text-clear-color FFFFFFFF --text-wrong-color FFFFFFFF --text-ver-color FFFFFFFF";
   swaylockTimeout = "300";
   swaylockSleepTimeout = "310";
 
@@ -45,7 +43,7 @@ let
   random-background = pkgs.writeStrictShellScriptBin "random-background" ''
     if [ ! -d "$HOME"/Pictures/backgrounds ] ||
     [ "$(${pkgs.findutils}/bin/find "$HOME"/Pictures/backgrounds/ -type f | wc -l)" = "0" ]; then
-    echo "$HOME"/Pictures/default-background.png
+    echo "$HOME"/Pictures/default-background.jpg
     exit
     fi
     ${pkgs.findutils}/bin/find "$HOME/Pictures/backgrounds" -type f | \
@@ -71,7 +69,9 @@ let
   rotating-background = pkgs.writeStrictShellScriptBin "rotating-background" ''
     category=''${1:-nature}
     while true; do
-    ${sway-background}/bin/sway-background "$category"
+    if ! ${sway-background}/bin/sway-background "$category"; then
+      exec swaymsg "output * bg '$HOME/Pictures/default-background.jpg' fill"
+    fi
     sleep 600
     done
   '';
@@ -92,7 +92,7 @@ in
           scale = "1.0";
         };
         "*" = {
-          bg = "~/Pictures/wallpaper.jpg fill";
+          bg = "~/Pictures/default-background.jpg fill";
         };
       };
 
@@ -108,23 +108,23 @@ in
           command = "floating enable, resize set width 100ppt height 120ppt";
           floatCommand = "floating enable";
         in
-          {
-            titlebar = false;
-            border = 0;
-            hideEdgeBorders = "smart";
-            #popupDuringFullscreen = "smart";
-            commands = [
-              { inherit command; criteria = { class = "sk-window"; }; }
-              { inherit command; criteria = { title = "sk-window"; }; }
-              { inherit command; criteria = { app_id = "sk-window"; }; }
-              { command = floatCommand; criteria = { class = "input-window"; }; }
-              { command = floatCommand; criteria = { class = "gcr-prompter"; }; }
-              { command = "inhibit_idle fullscreen"; criteria = { shell = ".*"; }; }
-            ];
-            #noFocusCriteria = [
-            #  { window_role = "browser"; }
-            #];
-          };
+        {
+          titlebar = false;
+          border = 0;
+          hideEdgeBorders = "smart";
+          #popupDuringFullscreen = "smart";
+          commands = [
+            { inherit command;criteria = { class = "sk-window"; }; }
+            { inherit command;criteria = { title = "sk-window"; }; }
+            { inherit command;criteria = { app_id = "sk-window"; }; }
+            { command = floatCommand; criteria = { class = "input-window"; }; }
+            { command = floatCommand; criteria = { class = "gcr-prompter"; }; }
+            { command = "inhibit_idle fullscreen"; criteria = { shell = ".*"; }; }
+          ];
+          #noFocusCriteria = [
+          #  { window_role = "browser"; }
+          #];
+        };
 
       floating = {
         titlebar = false;

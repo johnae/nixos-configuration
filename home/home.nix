@@ -107,6 +107,10 @@ in
     source = "${pkgs.gnome3.defaultIconTheme}/share/icons/Adwaita";
   };
 
+  home.file."Pictures/default-background.jpg" = {
+    source = "${pkgs.adapta-backgrounds}/share/backgrounds/adapta/tri-fadeno.jpg";
+  };
+
   base16-theme.enable = true;
 
   qt = {
