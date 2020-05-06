@@ -1,6 +1,9 @@
 { config, lib, pkgs, ... }:
 ## This requires certain things from your drive partitioning
 ## see ../installer/install.sh
+let
+  cfg = config.boot.btrfsCleanBoot;
+in
 with lib; {
 
   options.boot.btrfsCleanBoot = {
