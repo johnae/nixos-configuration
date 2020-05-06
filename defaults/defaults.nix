@@ -28,6 +28,10 @@
 
   programs.fish.enable = true;
 
+  security.sudo.extraConfig = ''
+    Defaults  lecture="never"
+  '';
+
   ## This just auto-creates /nix/var/nix/{profiles,gcroots}/per-user/<USER>
   ## for all extraUsers setup on the system. Without this home-manager refuses
   ## to run on boot when setup as a nix module and the user has yet to install
