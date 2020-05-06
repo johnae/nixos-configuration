@@ -4,15 +4,16 @@ let
     let
       hmeta = fromJSON (readFile ./home-manager.json);
     in
-      fetchGit {
-        url = "https://github.com/${hmeta.owner}/${hmeta.repo}";
-        inherit (hmeta) rev;
-        ref = "master";
-      };
+    fetchGit {
+      url = "https://github.com/${hmeta.owner}/${hmeta.repo}";
+      inherit (hmeta) rev;
+      ref = "master";
+    };
 in
 {
   imports = [
     ./services.nix
+    ./cleanboot.nix
     (import "${home-manager}/nixos")
   ];
 }
