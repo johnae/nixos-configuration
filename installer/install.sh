@@ -206,10 +206,11 @@ retryOnce mount -o rw,noatime,compress=zstd,ssd,space_cache /dev/disk/by-label/"
 echo Creating btrfs subvolumes at /mnt
 cd /mnt
 btrfs sub create @ ## root
-mkdir -p "@/boot" "@/home" "@/var" "@/nix"
+mkdir -p "@/boot" "@/home" "@/var" "@/nix" "@/keep"
 btrfs sub create @home
 btrfs sub create @var
 btrfs sub create @nix
+btrfs sub create @keep
 
 debug "Btrfs subvolumes etc created on $DISK_ROOT, swap turned on, efi mounted at /mnt/boot etc"
 
@@ -289,6 +290,10 @@ mount -o rw,noatime,compress=zstd,ssd,space_cache,subvol=@var \
 echo Mounting nix subvolume at /mnt/nix
 mount -o rw,noatime,compress=zstd,ssd,space_cache,subvol=@nix \
       /dev/disk/by-label/"$DISK_ROOT_LABEL" /mnt/nix
+# mount @keep subvolume to /mnt/keep
+echo Mounting persistent subvolume at /mnt/keep
+mount -o rw,noatime,compress=zstd,ssd,space_cache,subvol=@keep \
+      /dev/disk/by-label/"$DISK_ROOT_LABEL" /mnt/keep
 
 debug "Mounted the default volumes"
 
