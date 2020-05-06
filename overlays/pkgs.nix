@@ -26,13 +26,13 @@ rec {
     let
       imageTag = if tag != null then tag else head (splitString "-" (baseNameOf "${image}"));
     in
-      self.writeStrictShellScript "pushDockerArchive" ''
-        echo pushing ${image.imageName}:${imageTag} 1>&2
-        ${self.skopeo}/bin/skopeo copy "$@" \
-            docker-archive:${image} \
-            docker://${image.imageName}:${imageTag} 1>&2
-        echo ${image}
-      '';
+    self.writeStrictShellScript "pushDockerArchive" ''
+      echo pushing ${image.imageName}:${imageTag} 1>&2
+      ${self.skopeo}/bin/skopeo copy "$@" \
+          docker-archive:${image} \
+          docker://${image.imageName}:${imageTag} 1>&2
+      echo ${image}
+    '';
 
   k3s = super.callPackage ../pkgs/k3s { };
   system-san-francisco-font = super.callPackage ../pkgs/system-san-francisco-font { };
@@ -124,6 +124,6 @@ rec {
     sk-run sk-window sk-passmenu browse-chromium
     screenshot random-name add-wifi-network update-wifi-networks
     update-wireguard-keys spotify-play-album spotify-play-track spotify-cmd
-    spotify-play-artist spotify-play-playlist
+    spotify-play-artist spotify-play-playlist btrfs-diff
     ;
 }
