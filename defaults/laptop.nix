@@ -6,7 +6,6 @@ in
   imports = [
     "${nixos-hardware}/common/pc/ssd"
     ./defaults.nix
-    ./cleanboot.nix
   ];
 
   boot.kernel.sysctl = {
