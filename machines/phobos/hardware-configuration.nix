@@ -6,7 +6,7 @@
   boot.initrd.availableKernelModules =
     [ "xhci_pci" "nvme" "usb_storage" "sd_mod" "rtsx_pci_sdmmc" ];
   boot.kernelModules = [ "kvm-intel" ];
-  boot.extraModulePackages = [];
+  boot.extraModulePackages = [ ];
 
   fileSystems."/" = {
     device = "/dev/disk/by-label/root";
@@ -28,12 +28,26 @@
       [ "subvol=@var" "rw" "noatime" "compress=zstd" "ssd" "space_cache" ];
   };
 
+  fileSystems."/nix" = {
+    device = "/dev/disk/by-label/root";
+    fsType = "btrfs";
+    options =
+      [ "subvol=@nix" "rw" "noatime" "compress=zstd" "ssd" "space_cache" ];
+  };
+
+  fileSystems."/keep" = {
+    device = "/dev/disk/by-label/root";
+    fsType = "btrfs";
+    options =
+      [ "subvol=@keep" "rw" "noatime" "compress=zstd" "ssd" "space_cache" ];
+  };
+
   fileSystems."/boot" = {
     device = "/dev/disk/by-label/boot";
     fsType = "vfat";
   };
 
-  swapDevices = [ { device = "/dev/disk/by-label/swap"; } ];
+  swapDevices = [{ device = "/dev/disk/by-label/swap"; }];
 
   nix.maxJobs = lib.mkDefault 8;
   powerManagement.cpuFreqGovernor = lib.mkDefault "powersave";
