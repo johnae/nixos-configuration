@@ -9,9 +9,22 @@
 }:
 
 writeStrictShellScriptBin "initialize-user" ''
-  PATH=${sops}/bin:${update-wireguard-keys}/bin:${update-wifi-networks}/bin''${PATH:+:}$PATH
+  PATH=${sops}/bin:${git}/bin:${update-wireguard-keys}/bin:${update-wifi-networks}/bin''${PATH:+:}$PATH
   export PATH
   cd ~
+
+  if [ ! -e Development/nixos-configuration ]; then
+    git clone --recursive git@github.com:johnae/nixos-configuration Development/nixos-configuration
+  else
+    echo nixos-configuration already exists at Development/nixos-configuration
+  fi
+
+  if [ ! -e "$PASSWORD_STORE_DIR" ]; then
+    echo Cloning password store to "$PASSWORD_STORE_DIR"
+    git clone git@github.com:johnae/passwords "$PASSWORD_STORE_DIR"
+  else
+    echo Password store "$PASSWORD_STORE_DIR" already present
+  fi
 
   sudo mkdir -p /root/.ssh
   sudo chmod 0700 /root/.ssh
