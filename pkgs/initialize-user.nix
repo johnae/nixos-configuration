@@ -28,6 +28,8 @@ writeStrictShellScriptBin "initialize-user" ''
     echo Password store "$PASSWORD_STORE_DIR" already present
   fi
 
+  mu init --maildir ~/.mail
+
   sudo mkdir -p /root/.ssh
   sudo chmod 0700 /root/.ssh
   sops -d Development/nixos-configuration/metadata/backup_id_rsa | \
