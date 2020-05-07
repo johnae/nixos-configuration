@@ -13,6 +13,8 @@ writeStrictShellScriptBin "initialize-user" ''
   export PATH
   cd ~
 
+  chmod 0700 .gnupg
+
   if [ ! -e Development/nixos-configuration ]; then
     git clone --recursive git@github.com:johnae/nixos-configuration Development/nixos-configuration
   else
