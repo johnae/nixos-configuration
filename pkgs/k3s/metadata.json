@@ -1,5 +1,5 @@
 {
-  "hash": "sha256:0cnapqrd3vjq1afjmf7nq10k9drzypyy0wq61swcdlnhm5m6rwv0",
-  "url": "https://github.com/rancher/k3s/releases/download/v1.17.4+k3s1/k3s",
-  "version": "v1.17.4+k3s1"
+  "hash": "sha256:004gzr8nm8vyslwmx68fyshqj06dbn5q22f7nj4h7n5radfp7qfd",
+  "url": "https://github.com/rancher/k3s/releases/download/v1.17.5+k3s1/k3s",
+  "version": "v1.17.5+k3s1"
 }
