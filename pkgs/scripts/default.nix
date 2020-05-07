@@ -248,12 +248,11 @@ let
   update-wireguard-keys = writeStrictShellScriptBin "update-wireguard-keys" ''
     IFS=$'\n'
     HN="$(${hostname}/bin/hostname)"
-    mkdir -p ~/.wireguard
     for KEY in $(find "$PASSWORD_STORE_DIR"/vpn/wireguard/"$HN"/ -type f -print0 | xargs -0 -I{} basename {}); do
       KEYNAME=$(basename "$KEY" .gpg)
       echo "Ensure wireguard key \"$KEYNAME\" is available"
-      ${pass}/bin/pass show "vpn/wireguard/$HN/$KEYNAME" > ~/.wireguard/"$KEYNAME"
-      chmod 0600 ~/.wireguard/"$KEYNAME"
+      ${pass}/bin/pass show "vpn/wireguard/$HN/$KEYNAME" | sudo tee /var/lib/wireguard/"$KEYNAME" > /dev/null
+      sudo chmod 0600 /var/lib/wireguard/"$KEYNAME"
     done
   '';
 

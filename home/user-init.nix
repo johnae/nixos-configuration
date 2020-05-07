@@ -5,7 +5,7 @@ with pkgs; {
     enable = true;
     target = [ "sway-session.target" ];
     script = ''
-      PATH=${sops}/bin:${git}/bin:${btrfs-progs}/bin''${PATH:+:}$PATH
+      PATH=${git}/bin:${btrfs-progs}/bin''${PATH:+:}$PATH
       export PATH
       cd ~
       for vol in Sync Downloads; do

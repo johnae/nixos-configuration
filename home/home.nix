@@ -54,6 +54,7 @@ in
       add-wifi-network
       update-wifi-networks
       update-wireguard-keys
+      initialize-user
       spotify-cmd
       spotify-play-album
       spotify-play-track

@@ -117,7 +117,7 @@ rec {
   inherit (scripts)
     writeStrictShellScript writeStrictShellScriptBin mkStrictShellScript;
 
-  initInstall = super.callPackage ../pkgs/initInstall.nix { };
+  initialize-user = super.callPackage ../pkgs/initialize-user.nix { };
 
   inherit ((super.callPackage ../pkgs/scripts { }).paths)
     mail project-select launch git-credential-pass sk-sk
