@@ -1,6 +1,6 @@
 {
     "owner": "nix-community",
     "repo": "nixpkgs-fmt",
-    "rev": "260e3c566c33e1910ccb0823d97167eb0a850c4e",
-    "sha256": "0kywc7n6qs9biqiw6pxpzrrv0bg021lsh9b9lj2pjiqqayqigd9m"
+    "rev": "3c2e578e7e13d7a403fa0f02ef09492e0284de57",
+    "sha256": "1kkw87c63nx5pqsxcwn6iw27k02j9ls21zyhb5dvf0zaqd9sz7ad"
 }
