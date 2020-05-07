@@ -56,6 +56,17 @@ with lib; {
     '';
   };
 
+  boot.btrfsCleanBoot = {
+    enable = true;
+    wipe = [ "@" "@var" ];
+    keep = [
+      "/var/lib/bluetooth"
+      "/var/lib/iwd"
+      "/var/lib/wireguard"
+      "/root"
+    ];
+  };
+
   environment.systemPackages = import ./system-packages.nix pkgs;
 
   ## trying to fix bluetooth disappearing after suspend

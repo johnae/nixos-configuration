@@ -29,19 +29,19 @@
       [ "subvol=@var" "rw" "noatime" "compress=zstd" "ssd" "space_cache" ];
   };
 
-  #fileSystems."/nix" = {
-  #  device = "/dev/disk/by-label/root";
-  #  fsType = "btrfs";
-  #  options =
-  #    [ "subvol=@nix" "rw" "noatime" "compress=zstd" "ssd" "space_cache" ];
-  #};
+  fileSystems."/nix" = {
+    device = "/dev/disk/by-label/root";
+    fsType = "btrfs";
+    options =
+      [ "subvol=@nix" "rw" "noatime" "compress=zstd" "ssd" "space_cache" ];
+  };
 
-  #fileSystems."/keep" = {
-  #  device = "/dev/disk/by-label/root";
-  #  fsType = "btrfs";
-  #  options =
-  #    [ "subvol=@keep" "rw" "noatime" "compress=zstd" "ssd" "space_cache" ];
-  #};
+  fileSystems."/keep" = {
+    device = "/dev/disk/by-label/root";
+    fsType = "btrfs";
+    options =
+      [ "subvol=@keep" "rw" "noatime" "compress=zstd" "ssd" "space_cache" ];
+  };
 
   fileSystems."/boot" = {
     device = "/dev/disk/by-label/boot";
