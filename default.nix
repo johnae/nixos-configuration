@@ -16,7 +16,7 @@ let
         let
           conf = "${metadataDir}/${confName}/isoconf.yaml";
         in
-          if pathExists conf then extraBuiltins.sops conf else { };
+        if pathExists conf then extraBuiltins.sops conf else { };
       system-closure = buildConfig config;
       configuration = {
         imports = [
@@ -47,7 +47,7 @@ let
           wpa_supplicant -B -i INTERFACE -c <(wpa_passphrase 'NETWORK' 'PASSWORD')
 
           EOF
-              bash
+              sudo bash
           fi
 
           ${lib.concatMapStringsSep "\n"
@@ -57,13 +57,13 @@ let
           sudo --preserve-env=DISK_PASSWORD,ADDITIONAL_VOLUMES,ADDITIONAL_DISK \
                 /etc/install.sh
 
-          echo Rebooting in 10 seconds
-          sleep 10
+          echo Rebooting in 5 seconds
+          sleep 5
           sudo shutdown -h now
         '';
       };
     in
-      (nixosFunc { inherit configuration; }).config.system.build.isoImage;
+    (nixosFunc { inherit configuration; }).config.system.build.isoImage;
 in
 rec {
   inherit pkgs;
@@ -82,20 +82,21 @@ rec {
   };
   packages =
     let
-      toCache = lib.mapAttrs'
-        (
-          name: _: lib.nameValuePair name pkgs."${name}"
-        ) (
-        lib.filterAttrs
-          (name: type: type == "directory")
-          (builtins.readDir ./pkgs)
-      );
-    in with pkgs;
-    pkgs.recurseIntoAttrs
-      (toCache // {
-        inherit gnupg mesa-iris;
-      }
-      );
+      toCache =
+        lib.mapAttrs'
+          (
+            name: _: lib.nameValuePair name pkgs."${name}"
+          )
+          (
+            lib.filterAttrs
+              (name: type: type == "directory")
+              (builtins.readDir ./pkgs)
+          );
+    in
+    with pkgs;
+    pkgs.recurseIntoAttrs (toCache // {
+      inherit gnupg mesa-iris;
+    });
   installers = {
     europa = buildIso ./machines/europa/configuration.nix;
     phobos = buildIso ./machines/phobos/configuration.nix;
