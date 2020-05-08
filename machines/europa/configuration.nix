@@ -16,14 +16,13 @@ let
   ## determine what username we're using so we define it in one
   ## place
   userName = with lib;
-    head
-      (
-        attrNames
-          (
-            filterAttrs (_: value: value.uid == 1337)
-              secretConfig.users.extraUsers
-          )
-      );
+    head (
+      attrNames (
+        filterAttrs
+          (_: value: value.uid == 1337)
+          secretConfig.users.extraUsers
+      )
+    );
 
   xps9370 = {
     imports = [
@@ -63,6 +62,7 @@ with lib; {
       "/var/lib/bluetooth"
       "/var/lib/iwd"
       "/var/lib/wireguard"
+      "/var/lib/systemd"
       "/root"
     ];
   };

@@ -7,8 +7,9 @@ in
 with lib; {
 
   options.boot.btrfsCleanBoot = {
-    enable = mkEnableOption
-      "enable the cleanboot option to erase your / and /var etc on every boot";
+    enable =
+      mkEnableOption
+        "enable the cleanboot option to erase your / and /var etc on every boot";
 
     wipe = mkOption {
       type = types.listOf types.str;
@@ -30,11 +31,32 @@ with lib; {
 
   config = mkIf cfg.enable {
 
+    systemd.services.cleanboot-before-hibernate =
+      {
+        description = "Before Hibernate cleanboot";
+        wantedBy = [ "hibernate.target" ];
+        before = [ "hibernate.target" ];
+        script =
+          ''
+            echo Creating /nowipe
+            touch /nowipe
+          '';
+        serviceConfig.Type = "oneshot";
+      };
+
+    powerManagement.powerUpCommands = lib.mkAfter ''
+      echo Removing /nowipe
+      rm /nowipe
+    '';
+
     boot.initrd.postDeviceCommands = lib.mkAfter ''
-      echo Wiping ephemeral data
       mkdir -p /mnt
       mount -o rw,noatime,compress=zstd,ssd,space_cache /dev/disk/by-label/root /mnt
-      ${lib.concatStringsSep "\n" (
+      if test -e /mnt/@/nowipe; then
+        echo Not wiping ephemeral data as /nowipe was detected
+      else
+        echo Wiping ephemeral data
+        ${lib.concatStringsSep "\n" (
         map (vol: ''
             for vol in $(find "/mnt/${vol}" -depth -inum 256)
             do
@@ -44,36 +66,39 @@ with lib; {
             echo Creating subvolume "$vol" from /mnt/@blank snapshot
             btrfs sub snapshot /mnt/@blank /mnt/${vol}
           ''
-          ) cfg.wipe
-      )}
+            ) cfg.wipe
+        )}
 
-      ${lib.concatStringsSep "\n" (
+        ${lib.concatStringsSep "\n" (
         map (m:
             let
-                dir = builtins.dirOf m;
-              in
-                ''
-                  if [ ! -e "/mnt/@keep${m}" ]; then
-                    echo Creating subvolume "/keep${m}"
-                    mkdir -p "/mnt/@keep${dir}"
-                    btrfs sub create "/mnt/@keep${m}"
-                  fi
-                ''
-          ) cfg.keep
-      )}
+            dir = builtins.dirOf m;
+            in
+            ''
+              if [ ! -e "/mnt/@keep${m}" ]; then
+                echo Creating subvolume "/keep${m}"
+                mkdir -p "/mnt/@keep${dir}"
+                btrfs sub create "/mnt/@keep${m}"
+              fi
+            ''
+            ) cfg.keep
+        )}
+      fi
     '';
 
-    systemd.mounts = map
-      (where:
-        {
-          before = [ "local-fs.target" ];
-          wantedBy = [ "local-fs.target" ];
-          what = "/keep${where}";
-          inherit where;
-          type = "none";
-          options = "bind";
-        }
-      ) cfg.keep;
+    systemd.mounts =
+      map
+        (where:
+          {
+            before = [ "local-fs.target" ];
+            wantedBy = [ "local-fs.target" ];
+            what = "/keep${where}";
+            inherit where;
+            type = "none";
+            options = "bind";
+          }
+        )
+        cfg.keep;
   };
 
 }
