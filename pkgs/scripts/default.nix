@@ -69,21 +69,24 @@ let
   '';
 
   btrfs-diff = writeStrictShellScriptBin "btrfs-diff" ''
-    usage() { echo $@ >2; echo "Usage: $0 <older-snapshot> <newer-snapshot>" >2; exit 1; }
+    usage() { echo "$@" >&2; echo "Usage: $0 <older-snapshot> <newer-snapshot>" >&2; exit 1; }
 
-    [ $# -eq 2 ] || usage "Incorrect invocation"
-    SNAPSHOT_OLD="$1"
-    SNAPSHOT_NEW="$2"
+    [ $# -eq 2 ] || usage "Wrong number of arguments"
+    snapshot_old="$1"
+    snapshot_new="$2"
 
-    [ -d "$SNAPSHOT_OLD" ] || usage "$SNAPSHOT_OLD does not exist"
-    [ -d "$SNAPSHOT_NEW" ] || usage "$SNAPSHOT_NEW does not exist"
+    [ -d "$snapshot_old" ] || usage "$snapshot_old does not exist"
+    [ -d "$snapshot_new" ] || usage "$snapshot_new does not exist"
 
-    OLD_TRANSID="$(btrfs subvolume find-new "$SNAPSHOT_OLD" 9999999)"
-    OLD_TRANSID=''${OLD_TRANSID#transid marker was }
+    old_transid="$(btrfs subvolume find-new "$snapshot_old" 9999999)"
+    old_transid=''${old_transid#transid marker was }
 
-    [ -n "$OLD_TRANSID" -a "$OLD_TRANSID" -gt 0 ] || usage "Failed to find generation for $SNAPSHOT_NEW"
+    { [ -n "$old_transid" ] && [ "$old_transid" -gt 0 ]; } || usage "Couldn't find generation for $snapshot_new"
 
-    ${btrfs-progs}/bin/btrfs subvolume find-new "$SNAPSHOT_NEW" $OLD_TRANSID | ${gnused}/bin/sed '$d' | cut - f17- - d' ' | sort | uniq
+    ${btrfs-progs}/bin/btrfs subvolume find-new "$snapshot_new" "$old_transid" | \
+                             ${gnused}/bin/sed '$d' | \
+                             ${gawk}/bin/awk '{print $17}' | \
+                             sort -u
   '';
 
   project-select = writeStrictShellScriptBin "project-select" ''
