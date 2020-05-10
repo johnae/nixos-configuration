@@ -70,13 +70,15 @@ with lib; {
   environment.systemPackages = import ./system-packages.nix pkgs;
 
   ## trying to fix bluetooth disappearing after suspend
-  powerManagement.powerDownCommands = ''
-    systemctl stop bluetooth && rmmod btusb
-  '';
-
-  powerManagement.powerUpCommands = ''
-    modprobe btusb && systemctl start bluetooth
-  '';
+  sleepManagement = {
+    enable = true;
+    sleepCommands = ''
+      ${pkgs.libudev}/bin/systemctl stop bluetooth && ${pkgs.kmod}/bin/modprobe -r btusb
+    '';
+    wakeCommands = ''
+      ${pkgs.kmod}/bin/modprobe btusb && ${pkgs.libudev}/bin/systemctl start bluetooth
+    '';
+  };
   ## end fix
 
   security.pam.services.swaylock = {
