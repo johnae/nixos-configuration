@@ -34,8 +34,8 @@ with lib; {
     systemd.services.cleanboot-before-hibernate =
       {
         description = "Before Hibernate cleanboot";
-        wantedBy = [ "hibernate.target" ];
-        before = [ "hibernate.target" ];
+        wantedBy = [ "suspend.target" "hibernate.target" "hybrid-sleep.target" "suspend-then-hibernate.target" ];
+        before = [ "suspend.target" "hibernate.target" "hybrid-sleep.target" "suspend-then-hibernate.target" ];
         script =
           ''
             echo Creating /nowipe
