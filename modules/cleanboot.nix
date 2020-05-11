@@ -44,16 +44,25 @@ with lib; {
         serviceConfig.Type = "oneshot";
       };
 
-    powerManagement.powerUpCommands = lib.mkAfter ''
-      echo Removing /nowipe
-      rm /nowipe
-    '';
+    systemd.services.cleanboot-after-hibernate =
+      {
+        description = "After Hibernate cleanboot";
+        wantedBy = [ "hibernate.target" "hybrid-sleep.target" "suspend-then-hibernate.target" ];
+        after = [ "hibernate.target" "hybrid-sleep.target" "suspend-then-hibernate.target" ];
+        script =
+          ''
+            echo Removing /nowipe
+            rm -f /nowipe
+          '';
+        serviceConfig.Type = "oneshot";
+      };
 
     boot.initrd.postDeviceCommands = lib.mkAfter ''
       mkdir -p /mnt
       mount -o rw,noatime,compress=zstd,ssd,space_cache /dev/disk/by-label/root /mnt
       if test -e /mnt/@/nowipe; then
         echo Not wiping ephemeral data as /nowipe was detected
+        rm -f /mnt/@/nowipe
       else
         echo Wiping ephemeral data
         ${lib.concatStringsSep "\n" (
