@@ -93,8 +93,6 @@ rec {
 
   ion-latest = super.callPackage ../pkgs/ion-latest { };
 
-  skopeo = super.callPackage ../pkgs/skopeo { };
-
   insane = super.recurseIntoAttrs (super.callPackage ../pkgs/insane { });
   inherit (insane) insane-lib buildkite;
 
