@@ -78,19 +78,6 @@ rec {
     fonts = [ "JetBrainsMono" "DroidSansMono" ];
   };
 
-  linuxPackages_5_6 = super.linuxPackages_5_6.extend
-    (self: super: {
-      broadcom_sta = super.broadcom_sta.overrideAttrs
-        (
-          oldAttrs: {
-            patches = oldAttrs.patches ++ [
-              ../tmp/patches/broadcom-sta/linux-5.6.patch
-            ];
-          }
-        );
-
-    });
-
   argocd = super.callPackage ../pkgs/argocd { };
 
   fish-kubectl-completions = super.callPackage ../pkgs/fish-kubectl-completions { };
