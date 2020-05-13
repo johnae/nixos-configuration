@@ -123,7 +123,7 @@ let
     VERSION=''${1:-}
     if [ -z "$VERSION" ]; then
       VERSION="$(curl https://api.github.com/repos/rancher/k3s/releases | \
-                 jq -r '[.[] | select(.prerelease == false)]' | jq -r '. | first.tag_name')"
+                 jq -r '[.[] | select(.tag_name | contains("rc") | not)] | sort_by(.tag_name) | last.tag_name')"
     fi
     URL="https://github.com/rancher/k3s/releases/download/$VERSION/k3s"
     HASH="$(nix-prefetch-url "$URL" 2>&1 | tail -1)"
