@@ -7,71 +7,45 @@
 
 with builtins;
 with lib;
+with (import ./util { inherit lib; });
 let
-  util = import ./util.nix { inherit lib; };
-
-  deployImage =
-    with util;
-    { projectName
-    , runDeploy ? (getEnv "BUILDKITE_BRANCH" == "master")
-    , waitForCompletion ? true
-    , dependsOn ? [ ]
-    , deployDependsOn ? [ ]
-    }:
+  containersToDeploy = filter (v: v != "argocd" && v != "buildkite-agent") containerNames;
+  deployContainers =
     {
-      steps = {
-        commands."${projectName}-docker" = {
-          inherit dependsOn;
-          agents.queue = "linux";
-          label = "Build and push docker image for ${projectName}";
-          command = withBuildEnv ''
-            echo +++ Nix build and push image
-            # shellcheck disable=SC2091
-            image="$($(build -A pkgs.pushDockerArchive \
-                           --arg image \
-                           "(import ./default.nix).containers.${projectName}"))"
-            nixhash="$(basename "$image" | awk -F'-' '{print $1}')"
-            buildkite-agent meta-data set "${projectName}-nixhash" "$nixhash"
-          '';
-        };
-      } // (
-        if runDeploy then
-          {
-            deploys."${projectName}-deploy" = {
-              label = "Deploy ${projectName}";
-              agents.queue = "linux";
-              application = projectName;
-              dependsOn = with cfg.steps; deployDependsOn ++ [ commands."${projectName}-docker" ];
-            };
-          }
-        else { }
+      steps.deploys = listToAttrs (
+        map
+          (
+            name:
+            {
+              inherit name;
+              value = {
+                agents.queue = "linux";
+                dependsOn = keysOf cachePkgs.steps.commands;
+              };
+            }
+          )
+          containersToDeploy
       );
     };
 
-  deployContainers =
-    with util;
-    map
-      (projectName:
-        deployImage ({
-          inherit projectName; dependsOn = cachePkgsCmds;
-        }
-        //
-        (
-          if projectName == "buildkite-agent"
-          then {
-            waitForCompletion = false;
-            deployDependsOn =
-              (map
-                (n: "${n}-deploy")
-                (filter (n: n != projectName) containerNames)
-              );
-          } else { }
-        ))
-      )
-      containerNames;
+  argocdDeploy = {
+    steps.deploys.argocd = {
+      agents.queue = "linux";
+      #runDeploy = false; ## do this manually for now
+      dependsOn = keysOf cachePkgs.steps.commands;
+    };
+  };
+
+  buildkiteDeploy = {
+    steps.deploys.buildkite-agent = {
+      agents.queue = "linux";
+      waitForCompletion = false;
+      dependsOn = (keysOf cachePkgs.steps.commands);
+      deployDependsOn = (keysOf deployContainers.steps.deploys) ++ [ cfg.steps.deploys.argocd ];
+    };
+  };
 
   cachePkgs =
-    with util;
     {
       steps.commands = listToAttrs (
         map
@@ -93,26 +67,31 @@ let
       );
     };
 
-  cachePkgsCmds =
+  ## this exists because we must refer to what is
+  ## actually in config
+  keysOf = attr:
     with cfg.steps;
     mapAttrsToList
       (name: _: commands."${name}")
-      cachePkgs.steps.commands;
+      attr;
 
 in
-with cfg.steps; with util; {
+with cfg.steps; {
 
   imports = [
-    (import ./deploys.nix)
+    (import ./modules/deploys.nix)
     cachePkgs
-  ] ++ deployContainers;
+    deployContainers
+    buildkiteDeploy
+    argocdDeploy
+  ];
 
   steps = {
     commands.build-machines = {
       agents.queue = "linux";
       label = "Build machines";
-      dependsOn = lib.mapAttrsToList (name: _: commands."${name}") cachePkgs.steps.commands;
-      env.NIX_TEST = "yep";
+      dependsOn = keysOf cachePkgs.steps.commands;
+      env.NIX_TEST = "yep"; ## uses dummy secrets
       command = withBuildEnv ''
         cachix use nixpkgs-wayland
         nix-shell --run "build -A machines"

@@ -19,10 +19,10 @@ rec {
 
   derivationNames = pkgs: attrNames (onlyDerivations pkgs);
 
-  containerNames = derivationNames (import ../default.nix).containers;
+  containerNames = derivationNames (import ../../default.nix).containers;
 
   pkgNames = sort (a: b: last (splitString "." a) < last (splitString "." b)) ((
-    map (n: "packages.${n}") (derivationNames (import ../default.nix).packages)
+    map (n: "packages.${n}") (derivationNames (import ../../default.nix).packages)
   )
   ++ (
     map (n: "containers.${n}") containerNames
