@@ -1,123 +1,122 @@
 ## To generate the buildkite json, run this on the command line:
 ##
-## nix eval -f .buildkite/pipeline.nix --json steps
+## nix-instantiate --eval --strict --json --argstr pipeline "$(pwd)"/.buildkite/pipeline.nix .buildkite | jq .
 
 ##
-with (import ../nix/nixpkgs.nix) {
-  overlays = (import ../nix/nixpkgs-overlays.nix);
-};
+{ cfg, pkgs, lib }:
+
 with builtins;
 with lib;
-with buildkite;
 let
+  util = import ./util.nix { inherit lib; };
+
   deployImage =
+    with util;
     { projectName
     , runDeploy ? (getEnv "BUILDKITE_BRANCH" == "master")
     , waitForCompletion ? true
     , dependsOn ? [ ]
     , deployDependsOn ? [ ]
     }:
-    [
-      (run ":pipeline: Build and Push image" {
-        key = "${projectName}-docker";
-        inherit dependsOn;
-        buildNixPath = "shell.nix";
-        command = ''
-          echo +++ Nix build and push image
-          # shellcheck disable=SC2091
-          image="$($(build -A pkgs.pushDockerArchive \
-                         --arg image \
-                         "(import ./default.nix).containers.${projectName}"))"
-          nixhash="$(basename "$image" | awk -F'-' '{print $1}')"
-          buildkite-agent meta-data set "${projectName}-nixhash" "$nixhash"
-        '';
-      })
-      (when runDeploy
-        (
-          deploy {
-            key = "${projectName}-deploy";
-            application = projectName;
-            image = "johnae/${projectName}";
-            imageTag = "$(buildkite-agent meta-data get '${projectName}-nixhash')";
-            inherit waitForCompletion;
-            dependsOn = deployDependsOn ++ [ "${projectName}-docker" ];
+    {
+      steps = {
+        commands."${projectName}-docker" = {
+          inherit dependsOn;
+          agents.queue = "linux";
+          label = "Build and push docker image for ${projectName}";
+          command = withBuildEnv ''
+            echo +++ Nix build and push image
+            # shellcheck disable=SC2091
+            image="$($(build -A pkgs.pushDockerArchive \
+                           --arg image \
+                           "(import ./default.nix).containers.${projectName}"))"
+            nixhash="$(basename "$image" | awk -F'-' '{print $1}')"
+            buildkite-agent meta-data set "${projectName}-nixhash" "$nixhash"
+          '';
+        };
+      } // (
+        if runDeploy then
+          {
+            deploys."${projectName}-deploy" = {
+              label = "Deploy ${projectName}";
+              agents.queue = "linux";
+              application = projectName;
+              dependsOn = with cfg.steps; deployDependsOn ++ [ commands."${projectName}-docker" ];
+            };
           }
-        ))
-    ];
+        else { }
+      );
+    };
 
-  chunksOf = n: l:
-    if length l > 0
-    then [ (take n l) ] ++ (chunksOf n (drop n l))
-    else [ ];
-
-  onlyDerivations = filterAttrs (_: v: isDerivation v);
-
-  derivationNames = pkgs: attrNames (onlyDerivations pkgs);
-
-  containerNames = derivationNames (import ../default.nix).containers;
-
-  pkgNames = sort (a: b: last (splitString "." a) < last (splitString "." b)) ((
-    map (n: "packages.${n}") (derivationNames (import ../default.nix).packages)
-  )
-  ++ (
-    map (n: "containers.${n}") containerNames
-  ));
-
-  pkgBatches = chunksOf (length pkgNames / 4 + 1) pkgNames;
-
-  toKeyName = pkgNames: hashString "sha256" (concatStringsSep "-" pkgNames);
-
-  cachePkgs = map (
-    pkgs:
-    (
-      run "Cachix cache ${concatStringsSep " " pkgs} packages" {
-        key = "${(toKeyName pkgs)}-cachix";
-        command = ''
-          nix-shell --run "build -A ${concatStringsSep " -A " pkgs}" | cachix push insane
-        '';
-      }
-    )
-  ) pkgBatches;
-
-  cacheStepsKeys = map (pkgs: "${toKeyName pkgs}-cachix") pkgBatches;
-in
-pipeline [
-
-  cachePkgs
-  (
+  deployContainers =
+    with util;
     map
-      (
-        projectName: deployImage
+      (projectName:
+        deployImage ({
+          inherit projectName; dependsOn = cachePkgsCmds;
+        }
+        //
+        (
+          if projectName == "buildkite-agent"
+          then {
+            waitForCompletion = false;
+            deployDependsOn =
+              (map
+                (n: "${n}-deploy")
+                (filter (n: n != projectName) containerNames)
+              );
+          } else { }
+        ))
+      )
+      containerNames;
+
+  cachePkgs =
+    with util;
+    {
+      steps.commands = listToAttrs (
+        map
           (
-            {
-              inherit projectName;
-              dependsOn = cacheStepsKeys;
-            }
-            //
-            (
-              if projectName == "buildkite-agent"
-              then {
-                waitForCompletion = false;
-                deployDependsOn =
-                  (map
-                    (n: "${n}-deploy")
-                    (filter (n: n != projectName) containerNames));
-              } else { }
+            pkgs: (
+              {
+                name = "${toKeyName pkgs}-cachix";
+                value = {
+                  agents.queue = "linux";
+                  label = "Cache pkgs: ${concatStringsSep " " pkgs}";
+                  command = withBuildEnv ''
+                    nix-shell --run "build -A ${concatStringsSep " -A " pkgs}" | cachix push insane
+                  '';
+                };
+              }
             )
           )
-      ) containerNames
-  )
-  (
-    run "Build machines" {
-      dependsOn = cacheStepsKeys;
-      key = "build";
-      env = {
-        NIX_TEST = "yep"; ## uses dummy metadata
-      };
-      command = ''
+          pkgBatches
+      );
+    };
+
+  cachePkgsCmds =
+    with cfg.steps;
+    mapAttrsToList
+      (name: _: commands."${name}")
+      cachePkgs.steps.commands;
+
+in
+with cfg.steps; with util; {
+
+  imports = [
+    (import ./deploys.nix)
+    cachePkgs
+  ] ++ deployContainers;
+
+  steps = {
+    commands.build-machines = {
+      agents.queue = "linux";
+      label = "Build machines";
+      dependsOn = lib.mapAttrsToList (name: _: commands."${name}") cachePkgs.steps.commands;
+      env.NIX_TEST = "yep";
+      command = withBuildEnv ''
         cachix use nixpkgs-wayland
         nix-shell --run "build -A machines"
       '';
-    }
-  )
-]
+    };
+  };
+}
