@@ -28,23 +28,6 @@ let
       );
     };
 
-  argocdDeploy = {
-    steps.deploys.argocd = {
-      agents.queue = "linux";
-      #runDeploy = false; ## do this manually for now
-      dependsOn = keysOf cachePkgs.steps.commands;
-    };
-  };
-
-  buildkiteDeploy = {
-    steps.deploys.buildkite-agent = {
-      agents.queue = "linux";
-      waitForCompletion = false;
-      dependsOn = (keysOf cachePkgs.steps.commands);
-      deployDependsOn = (keysOf deployContainers.steps.deploys) ++ [ cfg.steps.deploys.argocd ];
-    };
-  };
-
   cachePkgs =
     {
       steps.commands = listToAttrs (
@@ -82,11 +65,23 @@ with cfg.steps; {
     (import ./modules/deploys.nix)
     cachePkgs
     deployContainers
-    buildkiteDeploy
-    argocdDeploy
   ];
 
   steps = {
+
+    deploys.argocd = {
+      agents.queue = "linux";
+      #runDeploy = false; ## do this manually for now
+      dependsOn = keysOf cachePkgs.steps.commands;
+    };
+
+    deploys.buildkite-agent = {
+      agents.queue = "linux";
+      waitForCompletion = false;
+      dependsOn = (keysOf cachePkgs.steps.commands);
+      deployDependsOn = (keysOf deployContainers.steps.deploys) ++ [ cfg.steps.deploys.argocd ];
+    };
+
     commands.build-machines = {
       agents.queue = "linux";
       label = "Build machines";
