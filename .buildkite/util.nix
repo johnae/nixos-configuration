@@ -5,7 +5,7 @@ with lib;
 
 rec {
   withBuildEnv = cmd: ''
-    nix-shell .buildkite/build.nix --run strict-bash <<'NIXSH'
+    nix-shell shell.nix --run strict-bash <<'NIXSH'
     ${cmd}
     NIXSH
   '';
