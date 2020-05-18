@@ -9,7 +9,7 @@ buildGoModule rec {
 
   src = fetchFromGitHub metadata;
 
-  modSha256 = "024xsx2ia26p89ql0k7rqsrf55fz6gqaivw4pdzcvk5f4cza8mi5";
+  vendorSha256 = "024xsx2ia26p89ql0k7rqsrf55fz6gqaivw4pdzcvk5f4cza8mi5";
 
   nativeBuildInputs = [ packr ];
 
