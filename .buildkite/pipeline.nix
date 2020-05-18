@@ -59,7 +59,7 @@ let
       attr;
 
 in
-with cfg.steps; {
+{
 
   imports = [
     (import ./modules/deploys.nix)
@@ -67,7 +67,7 @@ with cfg.steps; {
     deployContainers
   ];
 
-  steps = {
+  steps = with cfg.steps; {
 
     deploys.argocd = {
       agents.queue = "linux";
