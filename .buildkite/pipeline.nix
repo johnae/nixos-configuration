@@ -38,7 +38,7 @@ let
                 name = "${toKeyName pkgs}-cachix";
                 value = {
                   agents.queue = "linux";
-                  label = "Cache pkgs: ${concatStringsSep " " pkgs}";
+                  label = ":nix: Cache pkgs: ${concatStringsSep " " pkgs}";
                   command = withBuildEnv ''
                     nix-shell --run "build -A ${concatStringsSep " -A " pkgs}" | cachix push insane
                   '';
@@ -84,7 +84,7 @@ in
 
     commands.build-machines = {
       agents.queue = "linux";
-      label = "Build machines";
+      label = ":nix: Build machines";
       dependsOn = keysOf cachePkgs.steps.commands;
       env.NIX_TEST = "yep"; ## uses dummy secrets
       command = withBuildEnv ''

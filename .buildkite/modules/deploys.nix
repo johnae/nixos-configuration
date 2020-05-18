@@ -73,7 +73,7 @@ with lib; with util; with builtins; {
           ({
             "${imgBuildKey}" = {
               inherit (value) dependsOn agents;
-              label = "Build docker image for ${name}";
+              label = ":nix: :docker: Build docker image for ${name}";
               command = with value; withBuildEnv ''
                 echo +++ Nix build and push image
                 # shellcheck disable=SC2091
@@ -91,7 +91,7 @@ with lib; with util; with builtins; {
                 "${name}-trigger" = {
                   inherit (value) agents;
                   dependsOn = with value; deployDependsOn ++ dependsOn ++ [ cfg.commands."${imgBuildKey}" ];
-                  label = "Trigger gitops pipeline for ${name}";
+                  label = ":nix: :git: Trigger gitops pipeline for ${name}";
                   command = ''
                     cat<<json | buildkite-agent pipeline upload --no-interpolation
                     {
@@ -108,7 +108,7 @@ with lib; with util; with builtins; {
                 };
 
                 "${name}" = {
-                  label = "Deploy ${name}";
+                  label = ":nix: :k8s: Deploy ${name}";
                   dependsOn = with value; deployDependsOn ++ dependsOn ++ [
                     cfg.commands."${name}-trigger"
                   ];
