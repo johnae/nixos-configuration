@@ -1,6 +1,6 @@
 with builtins;
 import (fetchGit {
   url = "https://github.com/johnae/nixkite";
-  rev = "e43cef1d07f1fb62bdb6bcd62e6037a5d33b4c5d";
+  rev = "17a89b5f8e6c7c299af37504c28a8ec04dbc223f";
   ref = "master";
 })
