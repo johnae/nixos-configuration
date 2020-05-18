@@ -18,7 +18,7 @@ with lib; with util; with builtins; {
           };
           application = mkOption {
             type = str;
-            default = toLower (getEnv "BUILDKITE_PIPELINE_SLUG");
+            default = name;
           };
           runDeploy = mkOption {
             type = bool;
