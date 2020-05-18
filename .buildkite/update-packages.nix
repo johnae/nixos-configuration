@@ -7,7 +7,7 @@
 
 with builtins;
 with lib;
-with (import ./util.nix { inherit lib; });
+with (import ./util { inherit lib; });
 let
   skipPackages = [ ];
 in
