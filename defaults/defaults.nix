@@ -48,5 +48,5 @@
   ## to run properly on boot.
   services.nix-dirs.enable = true;
 
-  system.stateVersion = "20.03";
+  system.nixos.versionSuffix = "git.${builtins.substring 0 11 pkgs.sources.nixpkgs.rev}";
 }
