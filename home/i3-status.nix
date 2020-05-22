@@ -18,7 +18,9 @@ let
     fi
 
     LATEST=$(echo "$CURRENT" | awk -F'.' '{print $NF}')
-    LOCAL=$(awk -F'.' '{print $2}' < ~/.nix-defexpr/channels_root/nixos/.version-suffix)
+    # shellcheck disable=SC1091
+    source /etc/os-release
+    LOCAL=$(echo "$VERSION_ID" | awk -F'.' '{print $3}')
 
     if [ "$LOCAL" != "$LATEST" ]; then
       echo " $LATEST ($AGE_DAYS)"
