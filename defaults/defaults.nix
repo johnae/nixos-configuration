@@ -30,7 +30,7 @@
   time.timeZone = "Europe/Stockholm";
 
   nixpkgs.config.allowUnfree = true;
-  nixpkgs.overlays = [ (import ../nix/pkgs.nix) ];
+  nixpkgs.pkgs = (import ../nix { });
 
   environment.shells = [ pkgs.bashInteractive pkgs.zsh pkgs.fish ];
 

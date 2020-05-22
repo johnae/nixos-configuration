@@ -12,7 +12,7 @@ let
 
   fetch_tarball = pkgs: spec:
     if spec.builtin or true then
-      builtins.trace ("fetch: ${spec.url}") (builtins_fetchTarball { inherit (spec) url sha256; })
+      builtins_fetchTarball { inherit (spec) url sha256; }
     else
       pkgs.fetchzip { inherit (spec) url sha256; };
 

@@ -97,9 +97,9 @@ in
 
   xdg.enable = true;
 
-  xdg.configFile."nixpkgs/config.nix".source = ../nix/nixpkgs-config.nix;
-  xdg.configFile."nixpkgs/overlays".source = ../overlays;
-  xdg.configFile."nixpkgs/pkgs".source = ../pkgs;
+  #xdg.configFile."nixpkgs/config.nix".source = ../nix/nixpkgs-config.nix;
+  #xdg.configFile."nixpkgs/overlays".source = ../overlays;
+  #xdg.configFile."nixpkgs/pkgs".source = ../pkgs;
   xdg.configFile."nix/nix.conf".source = pkgs.writeText "nix.conf" ''
     substituters = ${lib.concatStringsSep " " config.nixpkgs.config.nix.binaryCaches}
     trusted-public-keys = ${lib.concatStringsSep " " config.nixpkgs.config.nix.binaryCachePublicKeys}

@@ -9,6 +9,7 @@
 , libjpeg
 , git
 , systemd
+, scdoc
 , sources
 }:
 
@@ -18,7 +19,7 @@ stdenv.mkDerivation rec {
 
   src = sources.grim;
 
-  nativeBuildInputs = [ meson ninja pkgconfig git ];
+  nativeBuildInputs = [ meson ninja pkgconfig git scdoc ];
   buildInputs = [ wayland wayland-protocols cairo libjpeg systemd ];
 
   meta = with stdenv.lib; {

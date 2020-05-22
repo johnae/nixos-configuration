@@ -8,9 +8,6 @@
 with builtins;
 with lib;
 with (import ./util { inherit lib; });
-let
-  skipPackages = [ ];
-in
 {
   steps.commands.update-packages = {
     label = "Update packages";
@@ -30,49 +27,11 @@ in
       echo --- Updating packages
       nix-shell --run update-k3s
       nix-shell --run update-rust-analyzer
-      nix-shell --run update-user-nixpkgs
-
-      SKIP="${concatStringsSep " " skipPackages}"
-      for change in $(git diff-index --name-only HEAD); do
-        pkg="$(echo "$change" | awk -F'/' '{print $2}')"
-        for skip in $SKIP; do
-          if [ "$skip" = "$pkg" ]; then
-            echo --- Skipping package "$pkg" because of skiplist
-            git checkout "pkgs/$pkg"
-          fi
-        done
-      done
-      for change in $(git diff-index --name-only HEAD); do
-        pkg="$(echo "$change" | awk -F'/' '{print $2}')"
-        git add "pkgs/$pkg"
-        if ! git diff --quiet --staged --exit-code; then
-          echo --- Building and caching pkg "pkgs/$pkg"
-          git diff --staged
-          nix-shell --run "build -A packages.$pkg" | cachix push insane
-          echo --- Committing changes to pkg "pkgs/$pkg"
-          git commit -m "Auto updated $pkg"
-        fi
-      done
-
-      echo --- Updating home-manager
-      nix-shell --run update-home-manager
-      echo --- Updating nixos-hardware
+      nix-shell --run "niv update"
       nix-shell --run update-nixos-hardware
-      echo --- Updating overlays
-      nix-shell --run update-overlays
-      echo --- Updating nixos
-      nix-shell --run update-nixos
-
-      for change in $(git diff-index HEAD | awk '{print $NF}'); do
-        pkg="$(basename "$change" .json)"
-
-        git add "$change"
-        if ! git diff --quiet --staged --exit-code; then
-          echo --- Committing changes to "$pkg"
-          git diff --staged
-          git commit -m "Auto updated $pkg"
-        fi
-      done
+      nix-shell --run "build -A packages" | cachix push insane
+      git add nix
+      git commit -m "Automatic update"
 
       echo --- Current revisions
       echo "local: $(git rev-parse HEAD)"
