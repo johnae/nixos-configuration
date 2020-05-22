@@ -1,5 +1,4 @@
 { stdenv
-, fetchFromGitHub
 , meson
 , ninja
 , pkgconfig
@@ -19,19 +18,17 @@
 , gdk_pixbuf
 , libevdev
 , wlroots
+, sources
 , buildDocs ? true
 }:
-let
-  metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
-in
 stdenv.mkDerivation rec {
-  name = "${metadata.repo}-${version}";
-  version = metadata.rev;
+  name = "${sources.sway.repo}-${version}";
+  version = sources.sway.rev;
 
-  src = fetchFromGitHub metadata;
+  src = sources.sway;
 
   nativeBuildInputs = [ pkgconfig meson ninja ]
-  ++ stdenv.lib.optional buildDocs scdoc;
+    ++ stdenv.lib.optional buildDocs scdoc;
 
   buildInputs = [
     wayland
@@ -66,8 +63,7 @@ stdenv.mkDerivation rec {
   enableParallelBuilding = true;
 
   meta = with stdenv.lib; {
-    description = "i3-compatible window manager for Wayland";
-    homepage = "http://swaywm.org";
+    inherit (sources.sway) description homepage;
     license = licenses.mit;
     platforms = platforms.linux;
     maintainers = with maintainers; [

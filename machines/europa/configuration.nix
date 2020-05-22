@@ -7,7 +7,7 @@ let
 
   hostName = "europa";
 
-  nixos-hardware = import ../../nix/nixos-hardware.nix;
+  #nixos-hardware = pkgs.sources.nixos-hardware;
 
   ## some of the important values come from secrets as they are
   ## sensitive - otherwise works like any module.
@@ -24,22 +24,22 @@ let
       )
     );
 
-  xps9370 = {
-    imports = [
-      "${nixos-hardware}/common/cpu/intel/kaby-lake"
-      "${nixos-hardware}/common/pc/laptop"
-    ];
+  #xps9370 = {
+  #  imports = [
+  #    "${nixos-hardware}/common/cpu/intel/kaby-lake"
+  #    "${nixos-hardware}/common/pc/laptop"
+  #  ];
 
-    boot.kernelParams = [ "mem_sleep_default=deep" ];
-    boot.blacklistedKernelModules = [ "psmouse" ];
-    services.throttled.enable = lib.mkDefault true;
-    services.thermald.enable = true;
-  };
+  #  boot.kernelParams = [ "mem_sleep_default=deep" ];
+  #  boot.blacklistedKernelModules = [ "psmouse" ];
+  #  services.throttled.enable = lib.mkDefault true;
+  #  services.thermald.enable = true;
+  #};
 in
 with lib; {
   imports = [
     ../../defaults/laptop.nix
-    xps9370
+    #xps9370
     #"${nixos-hardware}/dell/xps/13-9370"
     ./hardware-configuration.nix
     secretConfig

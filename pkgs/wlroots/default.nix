@@ -1,5 +1,4 @@
 { stdenv
-, fetchFromGitHub
 , fetchpatch
 , meson
 , ninja
@@ -17,15 +16,14 @@
 , xcbutilerrors
 , mesa_noglu
 , libpng
+, sources
 }:
-let
-  metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
-in
-stdenv.mkDerivation rec {
-  name = metadata.repo;
-  version = metadata.rev;
 
-  src = fetchFromGitHub metadata;
+stdenv.mkDerivation rec {
+  name = sources.wlroots.repo;
+  version = sources.wlroots.rev;
+
+  src = sources.wlroots;
 
   outputs = [ "out" ];
 
@@ -58,8 +56,7 @@ stdenv.mkDerivation rec {
   ];
 
   meta = with stdenv.lib; {
-    description = "A modular Wayland compositor library";
-    inherit (src.meta) homepage;
+    inherit (sources.wlroots) description homepage;
     license = licenses.mit;
     platforms = platforms.linux;
     maintainers = with maintainers; [

@@ -1,13 +1,10 @@
-{ stdenv, lib, buildGoModule, fetchFromGitHub, packr }:
-let
-  metadata = lib.importJSON ./metadata.json;
-in
+{ stdenv, lib, buildGoModule, packr, sources }:
 buildGoModule rec {
   pname = "argocd";
-  commit = metadata.rev;
-  version = "1.5.0";
+  commit = sources.argo-cd.version;
+  version = sources.argo-cd.version;
 
-  src = fetchFromGitHub metadata;
+  src = sources.argo-cd;
 
   modSha256 = "024xsx2ia26p89ql0k7rqsrf55fz6gqaivw4pdzcvk5f4cza8mi5";
 

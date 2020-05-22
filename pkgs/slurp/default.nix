@@ -1,5 +1,4 @@
 { stdenv
-, fetchFromGitHub
 , meson
 , ninja
 , pkgconfig
@@ -11,15 +10,13 @@
 , git
 , systemd
 , scdoc
+, sources
 }:
-let
-  metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
-in
 stdenv.mkDerivation rec {
-  name = "${metadata.repo}-${version}";
-  version = metadata.rev;
+  name = "${sources.slurp.repo}-${version}";
+  version = sources.slurp.rev;
 
-  src = fetchFromGitHub metadata;
+  src = sources.slurp;
 
   nativeBuildInputs = [ meson ninja pkgconfig git scdoc ];
   buildInputs = [
@@ -32,8 +29,7 @@ stdenv.mkDerivation rec {
   ];
 
   meta = with stdenv.lib; {
-    description = "select a region in a wayland compositor";
-    homepage = "https://wayland.emersion.fr/slurp/";
+    inherit (sources.slurp) description homepage;
     license = licenses.mit;
     platforms = platforms.linux;
   };

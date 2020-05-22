@@ -1,23 +1,20 @@
 { stdenv
 , lib
-, fetchFromGitHub
 , rustPlatform
 , openssl
 , pkg-config
 , python3
 , xorg
+, sources
 , withStableFeatures ? true
 , withTestBinaries ? true
 }:
-let
-  metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
-in
 rustPlatform.buildRustPackage rec {
-  pname = metadata.repo;
-  version = metadata.rev;
+  pname = sources.nushell.repo;
+  version = sources.nushell.rev;
   doCheck = false;
 
-  src = fetchFromGitHub metadata;
+  src = sources.nushell;
 
   cargoSha256 = "1fph2nm6acbqaw2r37kng7177qwpqs4gb67hzcqchjl4dhfd9z2s";
 
@@ -36,19 +33,17 @@ rustPlatform.buildRustPackage rec {
   checkPhase = ''
     runHook preCheck
     echo "Running cargo cargo test ${
-  lib.strings.concatStringsSep " " cargoTestFlags
-  } -- ''${checkFlags} ''${checkFlagsArray+''${checkFlagsArray[@]}}"
+      lib.strings.concatStringsSep " " cargoTestFlags
+    } -- ''${checkFlags} ''${checkFlagsArray+''${checkFlagsArray[@]}}"
     cargo test ${
-  lib.strings.concatStringsSep " " cargoTestFlags
-  } -- ''${checkFlags} ''${checkFlagsArray+"''${checkFlagsArray[@]}"}
+      lib.strings.concatStringsSep " " cargoTestFlags
+    } -- ''${checkFlags} ''${checkFlagsArray+"''${checkFlagsArray[@]}"}
     runHook postCheck
   '';
 
   meta = with lib; {
-    description = "A modern shell written in Rust";
-    homepage = "https://www.nushell.sh/";
+    inherit (sources.nushell) description homepage;
     license = licenses.mit;
-    maintainers = with maintainers; [ filalex77 marsam ];
     platforms = [ "x86_64-linux" "i686-linux" "x86_64-darwin" ];
   };
 

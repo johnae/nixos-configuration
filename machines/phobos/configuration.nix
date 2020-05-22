@@ -6,7 +6,7 @@ let
     else extraBuiltins.sops (path + "/meta.yaml");
   hostName = "phobos";
 
-  nixos-hardware = import ../../nix/nixos-hardware.nix;
+  nixos-hardware = pkgs.sources.nixos-hardware;
 
   ## some of the important values come from secrets as they are
   ## sensitive - otherwise works like any module.

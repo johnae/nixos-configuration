@@ -1,6 +1,6 @@
 { config, lib, pkgs, ... }:
 let
-  nixos-hardware = import ../nix/nixos-hardware.nix;
+  nixos-hardware = pkgs.sources.nixos-hardware;
 in
 {
   imports = [

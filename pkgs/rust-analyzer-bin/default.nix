@@ -1,11 +1,8 @@
-{ stdenv, fetchurl }:
-let
-  metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
-in
+{ stdenv, sources }:
 stdenv.mkDerivation rec {
-  inherit (metadata) version;
+  inherit (sources.rust-analyzer) version;
   name = "rust-analyzer-${version}";
-  src = fetchurl { inherit (metadata) hash url; };
+  src = sources.rust-analyzer;
   installPhase = ''
     mkdir -p $out/bin
     cp ${src} $out/bin/rust-analyzer

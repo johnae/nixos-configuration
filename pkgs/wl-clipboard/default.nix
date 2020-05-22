@@ -1,5 +1,4 @@
 { stdenv
-, fetchFromGitHub
 , coreutils
 , gnused
 , meson
@@ -9,15 +8,14 @@
 , wayland-protocols
 , git
 , systemd
+, sources
 }:
-let
-  metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
-in
-stdenv.mkDerivation rec {
-  name = "${metadata.repo}-${version}";
-  version = metadata.rev;
 
-  src = fetchFromGitHub metadata;
+stdenv.mkDerivation rec {
+  name = "${sources.wl-clipboard.repo}-${version}";
+  version = sources.wl-clipboard.rev;
+
+  src = sources.wl-clipboard;
 
   preConfigure = ''
     echo "Fixing cat path..."
@@ -34,10 +32,8 @@ stdenv.mkDerivation rec {
   enableParallelBuilding = true;
 
   meta = with stdenv.lib; {
-    description = "Hacky clipboard manager for Wayland";
-    homepage = "https://github.com/bugaevc/wl-clipboard";
+    inherit (sources.wl-clipboard) description homepage;
     license = licenses.gpl3;
     platforms = platforms.linux;
-    maintainers = with maintainers; [ primeos ]; # Trying to keep it up-to-date.
   };
 }

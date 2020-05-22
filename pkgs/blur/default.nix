@@ -1,12 +1,9 @@
-{ stdenv, rustPlatform, fetchFromGitHub }:
-let
-  metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
-in
+{ stdenv, rustPlatform, sources }:
 rustPlatform.buildRustPackage rec {
-  pname = metadata.repo;
-  version = metadata.rev;
+  pname = sources.blur.repo;
+  version = sources.blur.rev;
 
-  src = fetchFromGitHub metadata;
+  src = sources.blur;
   cargoSha256 = "1gi84ialj15fz6ispk245pk8ncwaw86kr2yzwzi1wqnq7gnfixv3";
 
   doCheck = false;

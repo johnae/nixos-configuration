@@ -1,5 +1,4 @@
 { stdenv
-, fetchFromGitHub
 , pkgconfig
 , meson
 , ninja
@@ -14,15 +13,14 @@
 , neatvnc
 , libX11
 , libdrm
+, sources
 }:
-let
-  metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
-in
+
 stdenv.mkDerivation rec {
   name = "wayvnc-${version}";
-  version = metadata.rev;
+  version = sources.wayvnc.rev;
 
-  src = fetchFromGitHub metadata;
+  src = sources.wayvnc;
 
   #patches = [
   #  ./disable-input.patch
@@ -46,8 +44,7 @@ stdenv.mkDerivation rec {
   enableParallelBuilding = true;
 
   meta = with stdenv.lib; {
-    description = "VNC server for wlroots based Wayland compositors. It attaches to a running Wayland session, creates virtual input devices and exposes a single display via the RFB protocol.";
-    homepage = "https://github.com/any1/wayvnc";
+    inherit (sources.wayvnc) description homepage;
     license = licenses.mit;
     platforms = platforms.linux;
     maintainers = [

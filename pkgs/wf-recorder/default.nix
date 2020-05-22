@@ -1,5 +1,4 @@
 { stdenv
-, fetchFromGitHub
 , meson
 , ninja
 , pkgconfig
@@ -8,15 +7,14 @@
 , ffmpeg
 , wayland-protocols
 , libpulseaudio
+, sources
 }:
-let
-  metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
-in
-stdenv.mkDerivation rec {
-  name = "${metadata.repo}-${version}";
-  version = metadata.rev;
 
-  src = fetchFromGitHub metadata;
+stdenv.mkDerivation rec {
+  name = "${sources.wf-recorder.repo}-${version}";
+  version = sources.wf-recorder.rev;
+
+  src = sources.wf-recorder;
 
   nativeBuildInputs = [ meson ninja pkgconfig scdoc ];
 
@@ -25,8 +23,7 @@ stdenv.mkDerivation rec {
   mesonFlags = [ "-Dopencl=disabled" ];
 
   meta = with stdenv.lib; {
-    description = "Screen Recorder for Wlroots compositors";
-    homepage = "https://github.com/ammen99/wf-recorder";
+    inherit (sources.wf-recorder) description homepage;
     license = licenses.mit;
     platforms = platforms.linux;
   };

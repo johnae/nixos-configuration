@@ -4,7 +4,8 @@ let
   nixpkgsPath = toString ./nix;
   pkgs = import nixpkgsPath { };
 
-  nixosChannelPath = toString ./nix/nixos-channel;
+  #nixosChannelPath = toString ./nix/nixos-channel;
+  nixosChannel = pkgs.sources.nixpkgs.url;
 
   ## enables reading from encrypted json within nix expressions
   nixSops = pkgs.writeStrictShellScriptBin "nix-sops" ''
@@ -58,7 +59,7 @@ let
     pathToConfig="$(${build}/bin/build -A machines."$(${pkgs.hostname}/bin/hostname)")"
 
     echo Ensuring nix-channel set in git repo is used
-    sudo nix-channel --add "$(tr -d '\n' < ${nixosChannelPath})" nixos
+    sudo nix-channel --add "${nixosChannel}" nixos
     sudo nix-channel --update
 
     echo Updating system profile
@@ -86,7 +87,7 @@ let
 
     export NIX_SSHOPTS="-T -o RemoteCommand=none"
 
-    CHANNEL="$(tr -d '\n' < ${nixosChannelPath})"
+    CHANNEL="${nixosChannel}"
 
     echo Copying closure to remote
     nix-copy-closure "$machine" "$pathToConfig"
@@ -179,18 +180,18 @@ let
     EOF
   '';
 
-  updateNixos = pkgs.writeStrictShellScriptBin "update-nixos" ''
-    export PATH=${pkgs.curl}/bin:${pkgs.gnugrep}/bin:${pkgs.gawk}/bin:$PATH
-    curl -sS -I https://channels.nixos.org/nixos-unstable | grep -i Location: | awk '{printf "%s",$2}' | tr -d '\r\n' > ${nixosChannelPath}
-    nixpkgsUrl="$(cat ${nixosChannelPath})"/nixexprs.tar.xz
-    hash="$(nix-prefetch-url --type sha256 --unpack "$nixpkgsUrl")"
-    cat<<EOF>${nixpkgsPath}/nixpkgs.json
-    {
-      "url": "$nixpkgsUrl",
-      "sha256": "$hash"
-    }
-    EOF
-  '';
+  #updateNixos = pkgs.writeStrictShellScriptBin "update-nixos" ''
+  #  export PATH=${pkgs.curl}/bin:${pkgs.jq}/bin:${pkgs.gnugrep}/bin:${pkgs.gawk}/bin:$PATH
+  #  curl -sS -I https://channels.nixos.org/nixos-unstable | grep -i Location: | awk '{printf "%s",$2}' | tr -d '\r\n' > ${nixosChannelPath}
+  #  nixpkgsUrl="$(cat ${nixosChannelPath})"/nixexprs.tar.xz
+  #  hash="$(nix-prefetch-url --type sha256 --unpack "$nixpkgsUrl")"
+  #  cat<<EOF>${nixpkgsPath}/nixpkgs.json
+  #  {
+  #    "url": "$nixpkgsUrl",
+  #    "sha256": "$hash"
+  #  }
+  #  EOF
+  #'';
 
   updateOverlays = pkgs.writeStrictShellScriptBin "update-overlays" ''
     for overlay in overlays/*.json; do
@@ -208,6 +209,12 @@ let
         exit 1
       fi
     done
+  '';
+
+  latestRelease = pkgs.writeStrictShellScriptBin "latest-release" ''
+    REPO=''${1:-}
+    curl -sS https://api.github.com/repos/"$REPO"/releases | \
+             jq -r 'map(select(.tag_name | contains("rc") | not) | select(.tag_name != null)) | max_by(.tag_name | [splits("[-.a-zA-Z+]")] | map(select(length > 0)) | map(tonumber)) | .tag_name'
   '';
 
   updateHomeManager = pkgs.writeStrictShellScriptBin "update-home-manager" ''
@@ -385,7 +392,6 @@ let
   '';
 
   updateAll = pkgs.writeStrictShellScriptBin "update-all" ''
-    ${updateNixos}/bin/update-nixos
     ${updateNixosHardware}/bin/update-nixos-hardware
     ${updateHomeManager}/bin/update-home-manager
     ${updateRustAnalyzer}/bin/update-rust-analyzer
@@ -436,8 +442,9 @@ pkgs.mkShell {
     bootVm
     bootVmFromIso
     sops
+    niv
     updateK3s
-    updateNixos
+    #updateNixos
     updateHomeManager
     updateNixosHardware
     updateAll
@@ -452,6 +459,7 @@ pkgs.mkShell {
     updateRemoteSystem
     updateNixpkgsDockerImage
     updateBuildkiteVersion
+    latestRelease
     insane-lib.strict-bash
   ];
   inherit SOPS_PGP_FP;

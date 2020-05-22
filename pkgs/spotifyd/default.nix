@@ -1,20 +1,18 @@
 { stdenv
 , rustPlatform
-, fetchFromGitHub
 , pkgconfig
 , dbus
 , libpulseaudio
 , alsaLib
 , openssl
+, sources
 }:
-let
-  metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
-in
-rustPlatform.buildRustPackage rec {
-  pname = metadata.repo;
-  version = metadata.rev;
 
-  src = fetchFromGitHub metadata;
+rustPlatform.buildRustPackage rec {
+  pname = sources.spotifyd.repo;
+  version = sources.spotifyd.rev;
+
+  src = sources.spotifyd;
   cargoSha256 = "0sc73cd2xdm4mffzx0hj0qcwlyln1ph1sacy89ffnaaaqjx7xpa0";
 
   nativeBuildInputs = [ pkgconfig ];
@@ -26,8 +24,7 @@ rustPlatform.buildRustPackage rec {
   cargoBuildFlags = [ "--features pulseaudio_backend" ];
 
   meta = with stdenv.lib; {
-    description = "Simple spotify device daemon";
-    homepage = "https://github.com/spotifyd/spotifyd";
+    inherit (sources.spotifyd) description homepage;
     license = licenses.gpl3;
     maintainers = [
       {
