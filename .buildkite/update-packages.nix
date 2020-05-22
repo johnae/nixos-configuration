@@ -27,8 +27,18 @@ with (import ./util { inherit lib; });
       echo --- Updating packages
       nix-shell --run update-k3s
       nix-shell --run update-rust-analyzer
-      nix-shell --run "niv update"
       nix-shell --run update-nixos-hardware
+      nix-shell --run "niv update"
+
+      for pkg in pkgs/*; do
+        if [ -d "$pkg" ]; then
+          pkgname="$(basename "$pkg")"
+          if nix eval -f default.nix packages."$pkgname".cargoSha256 2>&1 > /dev/null; then
+            nix-shell --run "update-rust-package-cargo '$pkgname'"
+            git add "$pkg"
+          fi
+        fi
+      done
       nix-shell --run "build -A packages" | cachix push insane
       git add nix
       git commit -m "Automatic update"
