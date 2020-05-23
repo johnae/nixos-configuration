@@ -39,16 +39,16 @@ with (import ./util { inherit lib; });
 
       echo --- Updating packages
 
-      nix-shell --run update-k3s
+      update-k3s
       gitCommitUpdate k3s
 
-      nix-shell --run update-rust-analyzer
+      update-rust-analyzer
       gitCommitUpdate rust-analyzer
 
-      nix-shell --run update-buildkite
+      update-buildkite
       gitCommitUpdate buildkite
 
-      nix-shell --run update-nixos-hardware
+      update-nixos-hardware
       gitCommitUpdate nixos-hardware
 
       for pkg in $(jq -r '. | keys | .[]' nix/sources.json); do
@@ -56,10 +56,10 @@ with (import ./util { inherit lib; });
           niv update "$pkg"
           if gitCommitUpdate "$pkg"; then
             if nix eval -f default.nix packages."$pkg".cargoSha256 > /dev/null 2>&1; then
-              nix-shell --run "update-rust-package-cargo '$pkg'"
+              update-rust-package-cargo '$pkg'
               gitCommitUpdate "$pkg cargo dependencies"
             fi
-            nix-shell --run "build -A packages.$pkg" | cachix push insane
+            build -A packages."$pkg" | cachix push insane
           fi
         fi
       done
