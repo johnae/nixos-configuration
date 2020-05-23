@@ -175,14 +175,20 @@ in
     };
   };
 
-  programs.command-not-found.enable = true;
-  programs.starship.enable = true;
-  programs.starship.settings = {
-    kubernetes.disabled = false;
-    kubernetes.style = "bold blue";
-    nix_shell.disabled = false;
-    nix_shell.use_name = true;
-    rust.symbol = " ";
+  programs.command-not-found = {
+    enable = true;
+    dbPath = "${./..}/programs.sqlite";
+  };
+
+  programs.starship = {
+    enable = true;
+    settings = {
+      kubernetes.disabled = false;
+      kubernetes.style = "bold blue";
+      nix_shell.disabled = false;
+      nix_shell.use_name = true;
+      rust.symbol = " ";
+    };
   };
 
   programs.lsd = {
