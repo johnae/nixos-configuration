@@ -12,6 +12,8 @@ with (import ./util { inherit lib; });
   steps.commands.update-packages = {
     label = "Update packages";
     command = withBuildEnv ''
+      FORCE_UPDATE=''${FORCE_UPDATE:-}
+
       echo --- Ensuring proper git configuration
       git config user.name "$BUILDKITE_AGENT_META_DATA_HOSTNAME"
       git config user.email "$USER@$BUILDKITE_AGENT_META_DATA_HOSTNAME"
