@@ -218,6 +218,7 @@ pkgs.mkShell {
   buildInputs = with pkgs; [
     sops
     niv
+    jq
     updateK3s
     updateNixosHardware
     updateAll
