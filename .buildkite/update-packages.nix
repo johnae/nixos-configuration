@@ -37,6 +37,13 @@ with (import ./util { inherit lib; });
         return 1
       }
 
+      maybeUpdateCargoShas() {
+        if nix eval -f default.nix packages."$1".cargoSha256 > /dev/null 2>&1; then
+          update-rust-package-cargo "$1"
+          gitCommitUpdate "$1 cargo dependencies" || echo no update
+        fi
+      }
+
       echo --- Updating packages
 
       update-k3s
@@ -54,11 +61,8 @@ with (import ./util { inherit lib; });
       for pkg in $(jq -r '. | keys | .[]' nix/sources.json); do
         if [ -d "pkgs/$pkg" ]; then
           niv update "$pkg"
-          if gitCommitUpdate "$pkg"; then
-            if nix eval -f default.nix packages."$pkg".cargoSha256 > /dev/null 2>&1; then
-              update-rust-package-cargo "$pkg"
-              gitCommitUpdate "$pkg cargo dependencies" || echo no update
-            fi
+          if gitCommitUpdate "$pkg" || [ "$FORCE_UPDATE" = "yes" ]; then
+            maybeUpdateCargoShas "$pkg"
             build -A packages."$pkg" | cachix push insane
           fi
         fi
