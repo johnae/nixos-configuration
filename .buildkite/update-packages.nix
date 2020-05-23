@@ -46,7 +46,7 @@ with (import ./util { inherit lib; });
       gitCommitUpdate rust-analyzer || echo no update
 
       update-buildkite
-      gitCommitUpdate buildkite || echo no updateb
+      gitCommitUpdate buildkite || echo no update
 
       update-nixos-hardware
       gitCommitUpdate nixos-hardware || echo no update
