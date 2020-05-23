@@ -62,10 +62,10 @@
         "homepage": "",
         "owner": "nix-community",
         "repo": "emacs-overlay",
-        "rev": "3477e9917d79d08e0de38594529b1af95c45a9c6",
-        "sha256": "0rb9bjv0snc1viw6mb51ckihsyi65379x1hj9wg578fxhwywx4gj",
+        "rev": "8f4e07b0666682184f57b6feb91b0e4d228fef75",
+        "sha256": "0p3jwi7h55ynz0lghw1kpd8w3cqkkgzjpx883cxazinv2pyn06d9",
         "type": "tarball",
-        "url": "https://github.com/nix-community/emacs-overlay/archive/3477e9917d79d08e0de38594529b1af95c45a9c6.tar.gz",
+        "url": "https://github.com/nix-community/emacs-overlay/archive/8f4e07b0666682184f57b6feb91b0e4d228fef75.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "fire": {
@@ -86,10 +86,10 @@
         "homepage": "",
         "owner": "evanlucas",
         "repo": "fish-kubectl-completions",
-        "rev": "09c1e7e4803bb5b3a16dd209d3663207579bf6de",
-        "sha256": "15k0khzfkms2bh4b4x3fa142wmmn6cfd044mclj3d12fvylr366f",
+        "rev": "7bea3e12ff2147961e808b9308b79828aa17b222",
+        "sha256": "1mikic0314619bkgan5pjg74xri9x2m3gq16n5f4bicqfbsb7kkc",
         "type": "tarball",
-        "url": "https://github.com/evanlucas/fish-kubectl-completions/archive/09c1e7e4803bb5b3a16dd209d3663207579bf6de.tar.gz",
+        "url": "https://github.com/evanlucas/fish-kubectl-completions/archive/7bea3e12ff2147961e808b9308b79828aa17b222.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "google-cloud-sdk-fish-completion": {
@@ -122,10 +122,10 @@
         "homepage": null,
         "owner": "greshake",
         "repo": "i3status-rust",
-        "rev": "4f15fd11f24fe65d62a44059046ea732f8a9ab96",
-        "sha256": "1gb74yqaxq1lmnqkr22wz6dv0h0iisdp736427i5xb0sz2iz8kzr",
+        "rev": "d84d9ba7026741aca23a75b257aca9ece98d77d4",
+        "sha256": "13q06d841ddv34y3ah870cyg04q7hyx0sdqykgm5vaq7gy58gv5b",
         "type": "tarball",
-        "url": "https://github.com/greshake/i3status-rust/archive/4f15fd11f24fe65d62a44059046ea732f8a9ab96.tar.gz",
+        "url": "https://github.com/greshake/i3status-rust/archive/d84d9ba7026741aca23a75b257aca9ece98d77d4.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "k3s": {
@@ -153,10 +153,10 @@
         "homepage": "",
         "owner": "any1",
         "repo": "neatvnc",
-        "rev": "8f9c71bb3386a5c7e670a25e5dedfa1189ee2f64",
-        "sha256": "11wf9vak3v1x6gwb9waj1f705rvmghc2wkd56p02pi5bv5r54ahz",
+        "rev": "d2527e57f0b805c1a75e0f7a291ae0dcbf3deb21",
+        "sha256": "17d9hngslf9gzh5j3dvwv1x42533k3g538gv1r5pis6k125m0vj8",
         "type": "tarball",
-        "url": "https://github.com/any1/neatvnc/archive/8f9c71bb3386a5c7e670a25e5dedfa1189ee2f64.tar.gz",
+        "url": "https://github.com/any1/neatvnc/archive/d2527e57f0b805c1a75e0f7a291ae0dcbf3deb21.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "netns-exec": {
@@ -225,10 +225,10 @@
         "homepage": "https://www.nushell.sh/",
         "owner": "nushell",
         "repo": "nushell",
-        "rev": "5de30d0ae5eedefc097810dadd548982d3932640",
-        "sha256": "1y8x9rv2c7knzygca0943992zjrmgwm49r5f1d4daqi4lr1qnwir",
+        "rev": "460daf029b6d60f503977c563c075025c854c85d",
+        "sha256": "1qryympf3s3ls0069si6d0jcy6hg75k5mxmri496xbh50a2w2vd6",
         "type": "tarball",
-        "url": "https://github.com/nushell/nushell/archive/5de30d0ae5eedefc097810dadd548982d3932640.tar.gz",
+        "url": "https://github.com/nushell/nushell/archive/460daf029b6d60f503977c563c075025c854c85d.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "persway": {
@@ -340,10 +340,10 @@
         "homepage": "",
         "owner": "any1",
         "repo": "wayvnc",
-        "rev": "9b48290d09551b599ed227b7aa20254ca83cb53c",
-        "sha256": "10bhvflpxy9r14hkvf9r7px1vm1vl4hwh0gawld03jssvw9mdr4r",
+        "rev": "ff1223e4f9a2525fb03b471ea93c53b40c209479",
+        "sha256": "0n80bb047x5i4i7n0nkrq58bdw9dgikvxhq2qsj3f08viby66imy",
         "type": "tarball",
-        "url": "https://github.com/any1/wayvnc/archive/9b48290d09551b599ed227b7aa20254ca83cb53c.tar.gz",
+        "url": "https://github.com/any1/wayvnc/archive/ff1223e4f9a2525fb03b471ea93c53b40c209479.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "wf-recorder": {
