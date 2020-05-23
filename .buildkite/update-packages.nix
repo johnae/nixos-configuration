@@ -24,24 +24,45 @@ with (import ./util { inherit lib; });
       git checkout "$branch"
       git reset --hard "$remote/$branch"
 
-      echo --- Updating packages
-      nix-shell --run update-k3s
-      nix-shell --run update-rust-analyzer
-      nix-shell --run update-nixos-hardware
-      nix-shell --run "niv update"
+      gitCommitUpdate() {
+        for change in $(git diff-index HEAD | awk '{print $NF}'); do
+          git add "$change"
+          if ! git diff --quiet --staged --exit-code; then
+            echo --- Committing changes to "$1"
+            git diff --staged
+            git commit -m "Auto updated $1"
+            return 0
+          fi
+        done
+        return 1
+      }
 
-      for pkg in pkgs/*; do
-        if [ -d "$pkg" ]; then
-          pkgname="$(basename "$pkg")"
-          if nix eval -f default.nix packages."$pkgname".cargoSha256 2>&1 > /dev/null; then
-            nix-shell --run "update-rust-package-cargo '$pkgname'"
-            git add "$pkg"
+      echo --- Updating packages
+
+      nix-shell --run update-k3s
+      gitCommitUpdate k3s
+
+      nix-shell --run update-rust-analyzer
+      gitCommitUpdate rust-analyzer
+
+      nix-shell --run update-buildkite
+      gitCommitUpdate buildkite
+
+      nix-shell --run update-nixos-hardware
+      gitCommitUpdate nixos-hardware
+
+      for pkg in $(jq -r '. | keys | .[]' nix/sources.json); do
+        if [ -d "pkgs/$pkg" ]; then
+          niv update "$pkg"
+          if gitCommitUpdate "$pkg"; then
+            if nix eval -f default.nix packages."$pkg".cargoSha256 2>&1 > /dev/null; then
+              nix-shell --run "update-rust-package-cargo '$pkg'"
+              gitCommitUpdate "$pkg cargo dependencies"
+            fi
+            nix-shell --run "build -A packages.$pkg" | cachix push insane
           fi
         fi
       done
-      nix-shell --run "build -A packages" | cachix push insane
-      git add nix
-      git commit -m "Automatic update"
 
       echo --- Current revisions
       echo "local: $(git rev-parse HEAD)"
