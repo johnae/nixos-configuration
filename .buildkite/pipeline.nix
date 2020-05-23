@@ -40,7 +40,7 @@ let
                   agents.queue = "linux";
                   label = ":nix: Cache pkgs: ${concatStringsSep " " pkgs}";
                   command = withBuildEnv ''
-                    nix-shell --run "build -A ${concatStringsSep " -A " pkgs}" | cachix push insane
+                    build -A ${concatStringsSep " -A " pkgs} | cachix push insane
                   '';
                 };
               }
@@ -89,7 +89,7 @@ in
       env.NIX_TEST = "yep"; ## uses dummy secrets
       command = withBuildEnv ''
         cachix use nixpkgs-wayland
-        nix-shell --run "build -A machines"
+        build -A machines
       '';
     };
   };
