@@ -17,7 +17,6 @@
       options = "--delete-older-than 30d";
     };
   };
-
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.kernelPackages = pkgs.linuxPackages_latest;
@@ -31,7 +30,7 @@
 
   nixpkgs.config.allowUnfree = true;
   nixpkgs.pkgs = (import ../nix { });
-
+  nix.nixPath = [ "nixpkgs=${./..}/nix" ];
   environment.shells = [ pkgs.bashInteractive pkgs.zsh pkgs.fish ];
 
   programs.fish.enable = true;
