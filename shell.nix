@@ -208,7 +208,7 @@ let
     ${updateRustAnalyzer}/bin/update-rust-analyzer
     ${updateK3s}/bin/update-k3s
     ${updateNixpkgsDockerImage}/bin/update-nixpkgs-docker-image
-    ${updateBuildkiteVersion}/bin/update-buildkite
+    ${updateBuildkite}/bin/update-buildkite
   '';
 
 in
