@@ -51,6 +51,12 @@ in
     settings.block = [
 
       {
+        block = "focused_window";
+        max_width = 50;
+        show_marks = "visible";
+      }
+
+      {
         block = "custom";
         interval = 600;
         command = "${checkNixosVersion}/bin/check-nixos-version";

@@ -30,7 +30,7 @@ with (import ./util { inherit lib; });
         for change in $(git diff-index HEAD | awk '{print $NF}'); do
           git add "$change"
           if ! git diff --quiet --staged --exit-code; then
-            echo --- Committing changes to "$1"
+            echo Committing changes to "$1"
             git diff --staged
             git commit -m "Auto updated $1"
             return 0
@@ -72,6 +72,7 @@ with (import ./util { inherit lib; });
 
       ## just because I'm stubborn and want to use the git repo for nixpkgs rather
       ## than the channel... so this hack enables use of command-not-found
+      echo --- Updating programs database
       update-programs-sqlite
       gitCommitUpdate programs.sqlite || echo no update
 
