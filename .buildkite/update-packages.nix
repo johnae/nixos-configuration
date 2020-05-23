@@ -56,7 +56,7 @@ with (import ./util { inherit lib; });
           niv update "$pkg"
           if gitCommitUpdate "$pkg"; then
             if nix eval -f default.nix packages."$pkg".cargoSha256 > /dev/null 2>&1; then
-              update-rust-package-cargo '$pkg'
+              update-rust-package-cargo "$pkg"
               gitCommitUpdate "$pkg cargo dependencies"
             fi
             build -A packages."$pkg" | cachix push insane
