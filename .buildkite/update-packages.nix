@@ -55,7 +55,7 @@ with (import ./util { inherit lib; });
         if [ -d "pkgs/$pkg" ]; then
           niv update "$pkg"
           if gitCommitUpdate "$pkg"; then
-            if nix eval -f default.nix packages."$pkg".cargoSha256 2>&1 > /dev/null; then
+            if nix eval -f default.nix packages."$pkg".cargoSha256 > /dev/null 2>&1; then
               nix-shell --run "update-rust-package-cargo '$pkg'"
               gitCommitUpdate "$pkg cargo dependencies"
             fi
