@@ -119,6 +119,16 @@ let
   altdiskname = "testdiskalt.img";
   isoname = "result-iso";
 
+  updateProgramsSqlite = pkgs.writeStrictShellScriptBin "update-programs-sqlite" ''
+    export PATH=${pkgs.curl}/bin:${pkgs.gnutar}/bin:${pkgs.xz}:$PATH
+    dir="$(pwd)"
+    cd /tmp
+    curl -o nixexprs.tar.xz -L -sS https://channels.nixos.org/nixos-unstable/nixexprs.tar.xz
+    tar xJf nixexprs.tar.xz
+    cp nixos-*/programs.sqlite "$dir"/
+    rm -rf nixos-* nixexprs.tar.xz
+  '';
+
   updateK3s = pkgs.writeStrictShellScriptBin "update-k3s" ''
     export PATH=${latestRelease}/bin:${pkgs.niv}/bin:$PATH
     VERSION=''${1:-}
@@ -230,6 +240,7 @@ pkgs.mkShell {
     updateRemoteSystem
     updateNixpkgsDockerImage
     updateBuildkite
+    updateProgramsSqlite
     latestRelease
     insane-lib.strict-bash
   ];

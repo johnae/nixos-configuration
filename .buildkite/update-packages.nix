@@ -68,6 +68,11 @@ with (import ./util { inherit lib; });
         fi
       done
 
+      ## just because I'm stubborn and want to use the git repo for nixpkgs rather
+      ## than the channel... so this hack enables use of command-not-found
+      update-programs-sqlite
+      gitCommitUpdate programs.sqlite || echo no update
+
       echo --- Current revisions
       echo "local: $(git rev-parse HEAD)"
       echo "remote: $(git rev-parse "$remote/$branch")"
