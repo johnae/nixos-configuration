@@ -128,7 +128,7 @@ let
     niv update k3s -v "$VERSION"
   '';
 
-  updateBuildkiteVersion = pkgs.writeStrictShellScriptBin "update-buildkite-version" ''
+  updateBuildkite = pkgs.writeStrictShellScriptBin "update-buildkite" ''
     export PATH=${latestRelease}/bin:${pkgs.niv}/bin:$PATH
     VERSION=''${1:-}
     if [ -z "$VERSION" ]; then
@@ -208,7 +208,7 @@ let
     ${updateRustAnalyzer}/bin/update-rust-analyzer
     ${updateK3s}/bin/update-k3s
     ${updateNixpkgsDockerImage}/bin/update-nixpkgs-docker-image
-    ${updateBuildkiteVersion}/bin/update-buildkite-version
+    ${updateBuildkiteVersion}/bin/update-buildkite
   '';
 
 in
@@ -227,7 +227,7 @@ pkgs.mkShell {
     updateSystem
     updateRemoteSystem
     updateNixpkgsDockerImage
-    updateBuildkiteVersion
+    updateBuildkite
     latestRelease
     insane-lib.strict-bash
   ];
