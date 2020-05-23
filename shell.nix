@@ -148,6 +148,7 @@ let
   '';
 
   latestRelease = pkgs.writeStrictShellScriptBin "latest-release" ''
+    export PATH=${pkgs.curl}/bin:${pkgs.jq}/bin:$PATH
     REPO=''${1:-}
     curl -sS https://api.github.com/repos/"$REPO"/releases | \
              jq -r 'map(select(.tag_name | contains("rc") | not) | select(.tag_name != null)) | max_by(.tag_name | [splits("[-.a-zA-Z+]")] | map(select(length > 0)) | map(tonumber)) | .tag_name'
