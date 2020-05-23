@@ -1,27 +1,18 @@
-{ stdenv, lib, fetchFromGitHub, rustPlatform }:
+{ stdenv, lib, rustPlatform, sources }:
 
 with rustPlatform;
-let
-  metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
-in
 buildRustPackage rec {
-  pname = metadata.repo;
-  version = metadata.rev;
+  pname = sources.persway.repo;
+  version = sources.persway.rev;
 
-  src = fetchFromGitHub {
-    owner = metadata.owner;
-    repo = pname;
-    rev = "${version}";
-    sha256 = metadata.sha256;
-  };
+  src = sources.persway;
 
   cargoSha256 = "0pqhqsiv1n9kw5xq9pyrkcr2yd6vdhy64r2az46imymds7phs2wq";
 
   outputs = [ "out" ];
 
   meta = with stdenv.lib; {
-    description = "Small Sway IPC Daemon";
-    homepage = "https://github.com/johnae/persway";
+    inherit (sources.persway) description homepage;
     license = licenses.mit;
     maintainers = [
       {

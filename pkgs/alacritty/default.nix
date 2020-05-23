@@ -20,6 +20,7 @@
 , wayland
 , libxkbcommon
 , libxcb
+, sources
 }:
 
 with rustPlatform;
@@ -36,14 +37,13 @@ let
     libXi
   ] ++ lib.optionals stdenv.isLinux [ wayland libxkbcommon libxcb ];
 
-  metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
 in
 buildRustPackage rec {
-  pname = metadata.repo;
-  version = metadata.rev;
+  pname = sources.alacritty.repo;
+  version = sources.alacritty.rev;
   doCheck = false;
 
-  src = fetchFromGitHub metadata;
+  src = sources.alacritty;
   cargoSha256 = "1kpjyl3lyslg4jfy0xjdp0wahy9x6ffs5vrrzb88zf2da7yi3w9d";
 
   nativeBuildInputs = [ cmake makeWrapper pkgconfig ncurses gzip python3 ];
@@ -68,8 +68,8 @@ buildRustPackage rec {
       install -D extra/linux/Alacritty.desktop -t $out/share/applications/
       install -D extra/logo/alacritty-term.svg $out/share/icons/hicolor/scalable/apps/Alacritty.svg
       patchelf --set-rpath "${
-    stdenv.lib.makeLibraryPath rpathLibs
-    }" $out/bin/alacritty
+        stdenv.lib.makeLibraryPath rpathLibs
+      }" $out/bin/alacritty
     ''
   ) + ''
 
@@ -91,10 +91,8 @@ buildRustPackage rec {
   dontPatchELF = true;
 
   meta = with stdenv.lib; {
-    description = "GPU-accelerated terminal emulator";
-    homepage = "https://github.com/jwilm/alacritty";
+    inherit (sources.alacritty) description homepage;
     license = with licenses; [ asl20 ];
-    maintainers = with maintainers; [ mic92 ];
     platforms = [ "x86_64-linux" "x86_64-darwin" ];
   };
 }

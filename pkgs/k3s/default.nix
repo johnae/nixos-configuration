@@ -1,11 +1,11 @@
-{ stdenv, fetchurl }:
-let
-  metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
-in
+{ stdenv, fetchurl, sources }:
+
 stdenv.mkDerivation rec {
-  inherit (metadata) version;
+  inherit (sources.k3s) version;
   name = "k3s-${version}";
-  src = fetchurl { inherit (metadata) hash url; };
+
+  src = sources.k3s;
+
   installPhase = ''
     mkdir -p $out/bin
     cp ${src} $out/bin/k3s

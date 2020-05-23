@@ -1,5 +1,4 @@
 { stdenv
-, fetchFromGitHub
 , meson
 , ninja
 , pkgconfig
@@ -9,19 +8,18 @@
 , wayland-protocols
 , cairo
 , gdk_pixbuf
+, sources
 , buildDocs ? true
 }:
-let
-  metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
-in
-stdenv.mkDerivation rec {
-  name = "${metadata.repo}-${version}";
-  version = metadata.rev;
 
-  src = fetchFromGitHub metadata;
+stdenv.mkDerivation rec {
+  name = "${sources.swaybg.repo}-${version}";
+  version = sources.swaybg.rev;
+
+  src = sources.swaybg;
 
   nativeBuildInputs = [ meson ninja pkgconfig git ]
-  ++ stdenv.lib.optional buildDocs [ scdoc ];
+    ++ stdenv.lib.optional buildDocs [ scdoc ];
   buildInputs = [ wayland wayland-protocols cairo gdk_pixbuf ];
 
   mesonFlags = [ "-Dauto_features=enabled" ];
@@ -29,8 +27,7 @@ stdenv.mkDerivation rec {
   enableParallelBuilding = true;
 
   meta = with stdenv.lib; {
-    description = "Sway's idle management daemon.";
-    homepage = "http://swaywm.org";
+    inherit (sources.swaybg) description homepage;
     license = licenses.mit;
     platforms = platforms.linux;
     maintainers = with maintainers; [

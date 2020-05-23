@@ -14,15 +14,14 @@
 , git
 , systemd
 , librsvg
+, sources
 }:
-let
-  metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
-in
-stdenv.mkDerivation rec {
-  name = "${metadata.repo}-${version}";
-  version = metadata.rev;
 
-  src = fetchFromGitHub metadata;
+stdenv.mkDerivation rec {
+  name = "${sources.mako.repo}-${version}";
+  version = sources.mako.rev;
+
+  src = sources.mako;
 
   nativeBuildInputs = [ meson ninja pkgconfig git scdoc makeWrapper ];
 

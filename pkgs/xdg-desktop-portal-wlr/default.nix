@@ -1,5 +1,4 @@
 { stdenv
-, fetchFromGitHub
 , meson
 , ninja
 , pkgconfig
@@ -15,15 +14,14 @@
 , libdrm
 , systemd
 , gdk_pixbuf
+, sources
 }:
-let
-  metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
-in
-stdenv.mkDerivation rec {
-  name = "${metadata.repo}-${version}";
-  version = metadata.rev;
 
-  src = fetchFromGitHub metadata;
+stdenv.mkDerivation rec {
+  name = "${sources.xdg-desktop-portal-wlr.repo}-${version}";
+  version = sources.xdg-desktop-portal-wlr.rev;
+
+  src = sources.xdg-desktop-portal-wlr;
 
   nativeBuildInputs = [ meson ninja pkgconfig git scdoc makeWrapper ];
 
@@ -39,8 +37,7 @@ stdenv.mkDerivation rec {
   ];
 
   meta = with stdenv.lib; {
-    description = "screen sharing for wayland";
-    homepage = "https://github.com/emersion/xdg-desktop-portal-wlr";
+    inherit (sources.xdg-desktop-portal-wlr) description homepage;
     license = licenses.mit;
     platforms = platforms.linux;
   };

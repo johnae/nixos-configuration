@@ -2,39 +2,40 @@
 , fetchurl
 , lib
 , unzip
-# To select only certain fonts, put a list of strings to `fonts`: every key in
-# ./shas.nix is an optional font
-, fonts ? []
+  # To select only certain fonts, put a list of strings to `fonts`: every key in
+  # ./shas.nix is an optional font
+, fonts ? [ "JetBrainsMono" "DroidSansMono" ]
 }:
-
 let
   # both of these files are generated via ./update.sh
   version = import ./version.nix;
   fontsShas = import ./shas.nix;
   knownFonts = builtins.attrNames fontsShas;
-  selectedFonts = if (fonts == []) then
-    knownFonts
-  else
-    let unknown = lib.subtractLists knownFonts fonts; in
-    if (unknown != []) then
-      throw "Unknown font(s): ${lib.concatStringsSep " " unknown}"
+  selectedFonts =
+    if (fonts == [ ]) then
+      knownFonts
     else
-      fonts
+      let unknown = lib.subtractLists knownFonts fonts; in
+      if (unknown != [ ]) then
+        throw "Unknown font(s): ${lib.concatStringsSep " " unknown}"
+      else
+        fonts
   ;
   selectedFontsShas = lib.attrsets.genAttrs selectedFonts (
     fName:
     fontsShas."${fName}"
   );
-  srcs = lib.attrsets.mapAttrsToList (
-    fName:
-    fSha:
-    (fetchurl {
-      url = "https://github.com/ryanoasis/nerd-fonts/releases/download/v${version}/${fName}.zip";
-      sha256 = fSha;
-    })
-  ) selectedFontsShas;
+  srcs = lib.attrsets.mapAttrsToList
+    (
+      fName:
+      fSha:
+      (fetchurl {
+        url = "https://github.com/ryanoasis/nerd-fonts/releases/download/v${version}/${fName}.zip";
+        sha256 = fSha;
+      })
+    )
+    selectedFontsShas;
 in
-
 stdenv.mkDerivation rec {
   inherit version;
   inherit srcs;
@@ -63,6 +64,6 @@ stdenv.mkDerivation rec {
     homepage = "https://nerdfonts.com/";
     license = licenses.mit;
     maintainers = with maintainers; [ doronbehar ];
-    hydraPlatforms = []; # 'Output limit exceeded' on Hydra
+    hydraPlatforms = [ ]; # 'Output limit exceeded' on Hydra
   };
 }

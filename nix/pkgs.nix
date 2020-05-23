@@ -1,26 +1,5 @@
 self: super:
-let
-  toIgnoreOptions = ignore: super.lib.concatStringsSep " "
-    (map (option: "--ignore=${option}") ignore);
-in
 rec {
-
-  firejailed = { package, ignore ? [ ] }: super.stdenv.mkDerivation {
-    name = "firejail-wrapped-${package.name}";
-    buildCommand = ''
-      mkdir -p $out/bin
-      for bin in ${package}/bin/*; do
-      cat <<_EOF >$out/bin/"$(basename "$bin")"
-      #!${super.stdenv.shell} -e
-      /run/wrappers/bin/firejail ${toIgnoreOptions ignore} "$bin" "\$@"
-      _EOF
-      chmod 0755 $out/bin/"$(basename "$bin")"
-      done
-    '';
-    meta = {
-      description = "Jailed ${package.name}";
-    };
-  };
 
   pushDockerArchive = with self.lib; with builtins; { image, tag ? null }:
     let
@@ -80,9 +59,6 @@ rec {
 
   argocd = super.callPackage ../pkgs/argocd { };
 
-  fish-kubectl-completions = super.callPackage ../pkgs/fish-kubectl-completions { };
-  google-cloud-sdk-fish-completion = super.callPackage ../pkgs/google-cloud-sdk-fish-completion { };
-
   wayvnc = super.callPackage ../pkgs/wayvnc { };
   aml = super.callPackage ../pkgs/aml { };
   neatvnc = super.callPackage ../pkgs/neatvnc { };
@@ -90,8 +66,6 @@ rec {
   argocd-ui = super.callPackage ../pkgs/argocd-ui { };
 
   pipewire = super.callPackage ../pkgs/pipewire { };
-
-  ion-latest = super.callPackage ../pkgs/ion-latest { };
 
   insane = super.recurseIntoAttrs (super.callPackage ../pkgs/insane { });
   inherit (insane) insane-lib buildkite;

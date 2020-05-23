@@ -9,20 +9,17 @@
 , libjpeg
 , git
 , systemd
+, scdoc
+, sources
 }:
 
 stdenv.mkDerivation rec {
-  name = "grim-${version}";
-  version = "bced8c88165bd15cf97d3b55a9241b0a6ee1fe3c";
+  name = "grim-${sources.grim.rev}";
+  version = sources.grim.rev;
 
-  src = fetchFromGitHub {
-    owner = "emersion";
-    repo = "grim";
-    rev = version;
-    sha256 = "1cgqpw7y1yj0b4lcm7727i2xaah0j4bcg48n3xy1cl6pij2zajsd";
-  };
+  src = sources.grim;
 
-  nativeBuildInputs = [ meson ninja pkgconfig git ];
+  nativeBuildInputs = [ meson ninja pkgconfig git scdoc ];
   buildInputs = [ wayland wayland-protocols cairo libjpeg systemd ];
 
   meta = with stdenv.lib; {

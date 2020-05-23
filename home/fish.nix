@@ -17,10 +17,10 @@ let
 in
 {
 
-  xdg.configFile."fish/functions/gcloud_sdk_argcomplete.fish".source = "${pkgs.google-cloud-sdk-fish-completion}/functions/gcloud_sdk_argcomplete.fish";
-  xdg.configFile."fish/completions/gcloud.fish".source = "${pkgs.google-cloud-sdk-fish-completion}/completions/gcloud.fish";
-  xdg.configFile."fish/completions/gsutil.fish".source = "${pkgs.google-cloud-sdk-fish-completion}/completions/gsutil.fish";
-  xdg.configFile."fish/completions/kubectl.fish".source = "${pkgs.fish-kubectl-completions}/completions/kubectl.fish";
+  xdg.configFile."fish/functions/gcloud_sdk_argcomplete.fish".source = "${pkgs.sources.google-cloud-sdk-fish-completion}/functions/gcloud_sdk_argcomplete.fish";
+  xdg.configFile."fish/completions/gcloud.fish".source = "${pkgs.sources.google-cloud-sdk-fish-completion}/completions/gcloud.fish";
+  xdg.configFile."fish/completions/gsutil.fish".source = "${pkgs.sources.google-cloud-sdk-fish-completion}/completions/gsutil.fish";
+  xdg.configFile."fish/completions/kubectl.fish".source = "${pkgs.sources.fish-kubectl-completions}/completions/kubectl.fish";
 
   programs.fish = {
     enable = true;

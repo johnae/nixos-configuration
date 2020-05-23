@@ -1,13 +1,10 @@
-{ stdenv, rustPlatform, fetchFromGitHub, pkgconfig, dbus, libpulseaudio }:
-let
-  metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
-in
+{ stdenv, rustPlatform, pkgconfig, dbus, libpulseaudio, sources }:
 rustPlatform.buildRustPackage rec {
-  pname = metadata.repo;
-  version = metadata.rev;
+  pname = sources.i3status-rust.repo;
+  version = sources.i3status-rust.rev;
 
-  src = fetchFromGitHub metadata;
-  cargoSha256 = "065n38v49k1qbnybnvaklgmjh6nfbz3m7i55p2x1ljfpqg6kmbv3";
+  src = sources.i3status-rust;
+  cargoSha256 = "1a6pcdd4wjp8gr7nqlvwqlasisbmcc5h3hfw5bd43bnb1mj7klxi";
 
   nativeBuildInputs = [ pkgconfig ];
 

@@ -1,9 +1,8 @@
-{ system ? null, config ? { }, ... }:
-
-import ./nixpkgs.nix (
+{ system ? null, config ? { }, sources ? import ./sources.nix, ... }:
+import sources.nixpkgs (
   {
-    overlays = (import ./nixpkgs-overlays.nix);
-  }
-  // (if system != null then { inherit system; } else { })
-  // { inherit config; }
+    overlays = (import ./overlays/overlays.nix { inherit sources; });
+    inherit config;
+  } //
+  (if system != null then { inherit system; } else { })
 )

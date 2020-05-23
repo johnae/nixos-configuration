@@ -8,9 +8,6 @@
 with builtins;
 with lib;
 with (import ./util { inherit lib; });
-let
-  skipPackages = [ ];
-in
 {
   steps.commands.update-packages = {
     label = "Update packages";
@@ -27,50 +24,43 @@ in
       git checkout "$branch"
       git reset --hard "$remote/$branch"
 
-      echo --- Updating packages
-      nix-shell --run update-k3s
-      nix-shell --run update-rust-analyzer
-      nix-shell --run update-user-nixpkgs
-
-      SKIP="${concatStringsSep " " skipPackages}"
-      for change in $(git diff-index --name-only HEAD); do
-        pkg="$(echo "$change" | awk -F'/' '{print $2}')"
-        for skip in $SKIP; do
-          if [ "$skip" = "$pkg" ]; then
-            echo --- Skipping package "$pkg" because of skiplist
-            git checkout "pkgs/$pkg"
+      gitCommitUpdate() {
+        for change in $(git diff-index HEAD | awk '{print $NF}'); do
+          git add "$change"
+          if ! git diff --quiet --staged --exit-code; then
+            echo --- Committing changes to "$1"
+            git diff --staged
+            git commit -m "Auto updated $1"
+            return 0
           fi
         done
-      done
-      for change in $(git diff-index --name-only HEAD); do
-        pkg="$(echo "$change" | awk -F'/' '{print $2}')"
-        git add "pkgs/$pkg"
-        if ! git diff --quiet --staged --exit-code; then
-          echo --- Building and caching pkg "pkgs/$pkg"
-          git diff --staged
-          nix-shell --run "build -A packages.$pkg" | cachix push insane
-          echo --- Committing changes to pkg "pkgs/$pkg"
-          git commit -m "Auto updated $pkg"
-        fi
-      done
+        return 1
+      }
 
-      echo --- Updating home-manager
-      nix-shell --run update-home-manager
-      echo --- Updating nixos-hardware
+      echo --- Updating packages
+
+      nix-shell --run update-k3s
+      gitCommitUpdate k3s
+
+      nix-shell --run update-rust-analyzer
+      gitCommitUpdate rust-analyzer
+
+      nix-shell --run update-buildkite
+      gitCommitUpdate buildkite
+
       nix-shell --run update-nixos-hardware
-      echo --- Updating overlays
-      nix-shell --run update-overlays
-      echo --- Updating nixos
-      nix-shell --run update-nixos
+      gitCommitUpdate nixos-hardware
 
-      for change in $(git diff-index HEAD | awk '{print $NF}'); do
-        pkg="$(basename "$change" .json)"
-
-        git add "$change"
-        if ! git diff --quiet --staged --exit-code; then
-          echo --- Committing changes to "$pkg"
-          git diff --staged
-          git commit -m "Auto updated $pkg"
+      for pkg in $(jq -r '. | keys | .[]' nix/sources.json); do
+        if [ -d "pkgs/$pkg" ]; then
+          niv update "$pkg"
+          if gitCommitUpdate "$pkg"; then
+            if nix eval -f default.nix packages."$pkg".cargoSha256 2>&1 > /dev/null; then
+              nix-shell --run "update-rust-package-cargo '$pkg'"
+              gitCommitUpdate "$pkg cargo dependencies"
+            fi
+            nix-shell --run "build -A packages.$pkg" | cachix push insane
+          fi
         fi
       done
 

@@ -9,15 +9,13 @@
 , libdrm
 , libjpeg_turbo
 , zlib
+, sources
 }:
-let
-  metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
-in
 stdenv.mkDerivation rec {
   pname = "neatvnc-${version}";
-  version = metadata.rev;
+  version = sources.neatvnc.rev;
 
-  src = fetchFromGitHub metadata;
+  src = sources.neatvnc;
 
   nativeBuildInputs = [ meson pkg-config ninja ];
   buildInputs = [

@@ -17,7 +17,6 @@
       options = "--delete-older-than 30d";
     };
   };
-
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.kernelPackages = pkgs.linuxPackages_latest;
@@ -30,8 +29,8 @@
   time.timeZone = "Europe/Stockholm";
 
   nixpkgs.config.allowUnfree = true;
-  nixpkgs.overlays = [ (import ../overlays/pkgs.nix) ];
-
+  nixpkgs.pkgs = (import ../nix { });
+  nix.nixPath = [ "nixpkgs=${./..}/nix" ];
   environment.shells = [ pkgs.bashInteractive pkgs.zsh pkgs.fish ];
 
   programs.fish.enable = true;
@@ -48,5 +47,5 @@
   ## to run properly on boot.
   services.nix-dirs.enable = true;
 
-  system.stateVersion = "20.03";
+  system.nixos.versionSuffix = "git.${builtins.substring 0 11 pkgs.sources.nixpkgs.rev}";
 }

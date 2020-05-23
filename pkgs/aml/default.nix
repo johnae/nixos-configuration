@@ -3,15 +3,13 @@
 , meson
 , ninja
 , pkgconfig
+, sources
 }:
-let
-  metadata = builtins.fromJSON (builtins.readFile ./metadata.json);
-in
 stdenv.mkDerivation rec {
-  name = "${metadata.repo}-${version}";
-  version = metadata.rev;
+  name = "${sources.aml.repo}-${version}";
+  version = sources.aml.rev;
 
-  src = fetchFromGitHub metadata;
+  src = sources.aml;
 
   nativeBuildInputs = [ meson ninja pkgconfig ];
 
