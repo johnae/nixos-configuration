@@ -40,16 +40,16 @@ with (import ./util { inherit lib; });
       echo --- Updating packages
 
       update-k3s
-      gitCommitUpdate k3s
+      gitCommitUpdate k3s || echo no update
 
       update-rust-analyzer
-      gitCommitUpdate rust-analyzer
+      gitCommitUpdate rust-analyzer || echo no update
 
       update-buildkite
-      gitCommitUpdate buildkite
+      gitCommitUpdate buildkite || echo no updateb
 
       update-nixos-hardware
-      gitCommitUpdate nixos-hardware
+      gitCommitUpdate nixos-hardware || echo no update
 
       for pkg in $(jq -r '. | keys | .[]' nix/sources.json); do
         if [ -d "pkgs/$pkg" ]; then
@@ -57,7 +57,7 @@ with (import ./util { inherit lib; });
           if gitCommitUpdate "$pkg"; then
             if nix eval -f default.nix packages."$pkg".cargoSha256 > /dev/null 2>&1; then
               update-rust-package-cargo "$pkg"
-              gitCommitUpdate "$pkg cargo dependencies"
+              gitCommitUpdate "$pkg cargo dependencies" || echo no update
             fi
             build -A packages."$pkg" | cachix push insane
           fi
