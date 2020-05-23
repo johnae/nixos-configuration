@@ -129,10 +129,10 @@ let
   '';
 
   updateBuildkite = pkgs.writeStrictShellScriptBin "update-buildkite" ''
-    export PATH=${latestRelease}/bin:${pkgs.niv}/bin:$PATH
+    export PATH=${latestRelease}/bin:${pkgs.niv}/bin:${pkgs.gnused}/bin:$PATH
     VERSION=''${1:-}
     if [ -z "$VERSION" ]; then
-      VERSION="$(latest-release buildkite/agent)"
+      VERSION="$(latest-release buildkite/agent | sed 's|^v||g')"
     fi
     niv update buildkite-darwin -v "$VERSION"
     niv update buildkite-linux -v "$VERSION"
@@ -148,7 +148,7 @@ let
   '';
 
   latestRelease = pkgs.writeStrictShellScriptBin "latest-release" ''
-    export PATH=${pkgs.curl}/bin:${pkgs.jq}/bin:$PATH
+    export PATH=${pkgs.curl}/bin:${pkgs.niv}/bin:$PATH
     REPO=''${1:-}
     curl -sS https://api.github.com/repos/"$REPO"/releases | \
              jq -r 'map(select(.tag_name | contains("rc") | not) | select(.tag_name != null)) | max_by(.tag_name | [splits("[-.a-zA-Z+]")] | map(select(length > 0)) | map(tonumber)) | .tag_name'
