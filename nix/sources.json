@@ -225,10 +225,10 @@
         "homepage": "https://www.nushell.sh/",
         "owner": "nushell",
         "repo": "nushell",
-        "rev": "460daf029b6d60f503977c563c075025c854c85d",
-        "sha256": "1qryympf3s3ls0069si6d0jcy6hg75k5mxmri496xbh50a2w2vd6",
+        "rev": "aadbcf5ce8bd4be0a5e84fc989a7a420204b20f3",
+        "sha256": "06b1y5cv8b2cj0p3l02w2as9brj3xdw8hkml3qwnf87jbw749yca",
         "type": "tarball",
-        "url": "https://github.com/nushell/nushell/archive/460daf029b6d60f503977c563c075025c854c85d.tar.gz",
+        "url": "https://github.com/nushell/nushell/archive/aadbcf5ce8bd4be0a5e84fc989a7a420204b20f3.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "persway": {
