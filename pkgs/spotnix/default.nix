@@ -5,7 +5,7 @@ rustPlatform.buildRustPackage rec {
   version = sources.spotnix.rev;
 
   src = sources.spotnix;
-  cargoSha256 = "0103f0fz66flqn29wjiay6lgq46m4vc6lz4sv4igr2xh99ki5rk0";
+  cargoSha256 = "0p0jvd2f0x5hx1lzk83x00ayvg7ac127cdxnv7mzhr9qpvk6059s";
 
   nativeBuildInputs = [ pkgconfig ];
 
