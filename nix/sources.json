@@ -237,10 +237,10 @@
         "homepage": "",
         "owner": "johnae",
         "repo": "persway",
-        "rev": "f387e20a01b5a5270cd46491d012c4b647040a7e",
-        "sha256": "1hn4a9w2qfr226icgkr0srx887bx4n6dz0r7ln7wih7i59i3krqm",
+        "rev": "7dff041be9965ff43bda2869e62c92f13335bf61",
+        "sha256": "1krjbjdx0080gdivc9gy9by47bnwz9ac5y5k8vpaq90s5ln47rcg",
         "type": "tarball",
-        "url": "https://github.com/johnae/persway/archive/f387e20a01b5a5270cd46491d012c4b647040a7e.tar.gz",
+        "url": "https://github.com/johnae/persway/archive/7dff041be9965ff43bda2869e62c92f13335bf61.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "rust-analyzer": {
