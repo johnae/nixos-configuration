@@ -114,9 +114,9 @@ in
           hideEdgeBorders = "smart";
           #popupDuringFullscreen = "smart";
           commands = [
-            { inherit command;criteria = { class = "sk-window"; }; }
-            { inherit command;criteria = { title = "sk-window"; }; }
-            { inherit command;criteria = { app_id = "sk-window"; }; }
+            { inherit command; criteria = { class = "sk-window"; }; }
+            { inherit command; criteria = { title = "sk-window"; }; }
+            { inherit command; criteria = { app_id = "sk-window"; }; }
             { command = floatCommand; criteria = { class = "input-window"; }; }
             { command = floatCommand; criteria = { class = "gcr-prompter"; }; }
             { command = "inhibit_idle fullscreen"; criteria = { shell = ".*"; }; }
@@ -319,7 +319,7 @@ in
   };
 
   systemd.user.services = {
-    persway = swayservice "Small Sway IPC Deamon" "${pkgs.persway}/bin/persway -a -w";
+    persway = swayservice "Small Sway IPC Deamon" "${pkgs.persway}/bin/persway -w";
     rotating-background = swayservice "Rotating background service for Sway" "${rotating-background}/bin/rotating-background art";
     swayidle = swayservice "Sway Idle Service - lock screen etc" swayidleCommand;
   };
