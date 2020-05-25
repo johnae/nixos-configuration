@@ -165,10 +165,10 @@
         "homepage": null,
         "owner": "johnae",
         "repo": "netns-exec",
-        "rev": "415a0f09f9354d171063fd055f25a4db61c14e29",
-        "sha256": "1zbsssy6g1mzpqmzyq1055asp1jr5cyckxyhysvmbi0xhgfb5f6y",
+        "rev": "3d4c7b8b4b59146f8d9fe5138cdd893072791145",
+        "sha256": "0q7dl53aymwq4631vv32ma19jr65ac7dicf5n3zir70bw32x25d6",
         "type": "tarball",
-        "url": "https://github.com/johnae/netns-exec/archive/415a0f09f9354d171063fd055f25a4db61c14e29.tar.gz",
+        "url": "https://github.com/johnae/netns-exec/archive/3d4c7b8b4b59146f8d9fe5138cdd893072791145.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "niv": {
