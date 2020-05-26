@@ -52,11 +52,7 @@ let
 
   ## this exists because we must refer to what is
   ## actually in config
-  keysOf = attr:
-    with cfg.steps;
-    mapAttrsToList
-      (name: _: commands."${name}")
-      attr;
+  keysOf = mapAttrsToList (name: _: cfg.steps.commands."${name}");
 
 in
 {
