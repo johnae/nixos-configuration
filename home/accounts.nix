@@ -47,6 +47,12 @@ in
         passwordCommand = genGmailPasswordCommand address;
         inherit imapnotify flavor mbsync realName;
       };
+      professional = rec {
+        address = "john@instabox.se";
+        maildir.path = "professional";
+        passwordCommand = genGmailPasswordCommand address;
+        inherit imapnotify flavor mbsync realName;
+      };
       work = rec {
         address = "john@karma.life";
         maildir.path = "work";

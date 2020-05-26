@@ -825,7 +825,7 @@
 )
 
 (setq user-mail-address "john@insane.se"
-      mu4e-user-mail-address-list '("john@insane.se" "john@.karma.life" "john@karma.ly")
+      mu4e-user-mail-address-list '("john@insane.se" "john@.karma.life" "john@karma.ly" "john@instabox.se")
       message-kill-buffers-on-exit t
       user-full-name "John Axel Eriksson"
       send-mail-function 'smtpmail-send-it
@@ -853,6 +853,19 @@
      (mu4e-trash-folder "/personal/[Gmail]/Trash")
      (mu4e-refile-folder "/personal/[Gmail]/All Mail")
      )
+    ("professional"
+     ;;(mu4e-sent-folder "/Gmail/sent")
+     (user-mail-address "john@instabox.se")
+     (smtpmail-smtp-user "john@instabox.se")
+     (smtpmail-local-domain "instabox.se")
+     (smtpmail-default-smtp-server "smtp.gmail.com")
+     (smtpmail-smtp-server "smtp.gmail.com")
+     (smtpmail-smtp-service 587)
+     (mu4e-sent-folder "/professional/[Gmail]/Sent Mail")
+     (mu4e-drafts-folder "/professional/[Gmail]/Drafts")
+     (mu4e-trash-folder "/professional/[Gmail]/Trash")
+     (mu4e-refile-folder "/professional/[Gmail]/All Mail")
+    )
     ("work"
      ;;(mu4e-sent-folder "/Gmail/sent")
      (user-mail-address "john@karma.life")
