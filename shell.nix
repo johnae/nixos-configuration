@@ -38,7 +38,8 @@ let
   build = pkgs.writeStrictShellScriptBin "build" ''
     unset NIX_PATH NIXPKGS_CONFIG
     NIX_PATH=nixpkgs="${nixpkgsPath}"
-    export NIX_PATH
+    NIXPKGS_ALLOW_UNFREE=1
+    export NIX_PATH NIXPKGS_ALLOW_UNFREE
     export PATH=${pkgs.git}/bin:$PATH
 
     NIX_OUTLINK=''${NIX_OUTLINK:-}
