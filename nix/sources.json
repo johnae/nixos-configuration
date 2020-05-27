@@ -340,10 +340,10 @@
         "homepage": "",
         "owner": "any1",
         "repo": "wayvnc",
-        "rev": "ff1223e4f9a2525fb03b471ea93c53b40c209479",
-        "sha256": "0n80bb047x5i4i7n0nkrq58bdw9dgikvxhq2qsj3f08viby66imy",
+        "rev": "ff882b77740535395d97b0d3415b71a6c216cdf1",
+        "sha256": "1a1prmwh7n90cvm4k949cyqhhiw51lrr2g5pm5sl4clhixzgla8h",
         "type": "tarball",
-        "url": "https://github.com/any1/wayvnc/archive/ff1223e4f9a2525fb03b471ea93c53b40c209479.tar.gz",
+        "url": "https://github.com/any1/wayvnc/archive/ff882b77740535395d97b0d3415b71a6c216cdf1.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "wf-recorder": {
