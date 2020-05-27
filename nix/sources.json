@@ -388,10 +388,10 @@
         "homepage": null,
         "owner": "emersion",
         "repo": "xdg-desktop-portal-wlr",
-        "rev": "1e92d603a889e7f7181860545e72680460771dc3",
-        "sha256": "07fc6svxkj771ywg8j09llif53adpiy2hk30smsmlwqk7z8rv8zs",
+        "rev": "bc89778fdc2f20323a9201bb5d17be639c181268",
+        "sha256": "1bc7cr6iifng9aii2qg7f6vjnghm80fspxsf06n53mxpmwpaq0w8",
         "type": "tarball",
-        "url": "https://github.com/emersion/xdg-desktop-portal-wlr/archive/1e92d603a889e7f7181860545e72680460771dc3.tar.gz",
+        "url": "https://github.com/emersion/xdg-desktop-portal-wlr/archive/bc89778fdc2f20323a9201bb5d17be639c181268.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }
