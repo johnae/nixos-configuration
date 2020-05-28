@@ -376,10 +376,10 @@
         "homepage": "https://swaywm.org",
         "owner": "swaywm",
         "repo": "wlroots",
-        "rev": "59471606309b2f4f9b215dd0abd49f2af4b38abc",
-        "sha256": "0iw0i2y0acfz44901n57bwfddvhxg2sx1z6z97il7jnl1jblcais",
+        "rev": "d66b9966e9a7e5e48d07f55c2fe64b11d1d1d7a1",
+        "sha256": "0mlla66a2bzlffafnw8p7s1cafqx0fn0q1fv3d2mdd17fcy33f05",
         "type": "tarball",
-        "url": "https://github.com/swaywm/wlroots/archive/59471606309b2f4f9b215dd0abd49f2af4b38abc.tar.gz",
+        "url": "https://github.com/swaywm/wlroots/archive/d66b9966e9a7e5e48d07f55c2fe64b11d1d1d7a1.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "xdg-desktop-portal-wlr": {
