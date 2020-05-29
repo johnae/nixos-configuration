@@ -57,6 +57,12 @@ ADDITIONAL_DISK="${ADDITIONAL_DISK:-}"
 ## allow giving the disk password as an env var. Not safe yadda yadda.
 DISK_PASSWORD="${DISK_PASSWORD:-}"
 
+if [ -d /sys/firmware/efi/efivars ]; then
+    BOOTMODE="UEFI"
+else
+    BOOTMODE="Legacy"
+fi
+
 DEVRANDOM=/dev/urandom
 
 if [ "$(systemd-detect-virt)" = "none" ]; then
@@ -86,6 +92,7 @@ if [ "$(stat -c %s "$CRYPTKEYFILE")" -lt 2 ]; then
 fi
 
 DISK=/dev/nvme0n1
+DISK2=/dev/nvme1n1 ## possibly another disk on servers - use it to setup raid1
 
 if [ ! -b "$DISK" ]; then
     echo "$DISK" is not a block device
@@ -98,6 +105,10 @@ if [ ! -b "$DISK" ]; then
     exit 1
 fi
 
+if [ ! -b "$DISK2" ]; then
+    unset DISK2
+fi
+
 PARTITION_PREFIX=""
 if echo "$DISK" | grep -q "nvme"; then
     PARTITION_PREFIX="p"
@@ -108,35 +119,78 @@ echo "Formatting disk '$DISK'"
 # clear out the disk completely
 wipefs -fa "$DISK"
 sgdisk -Z "$DISK"
+partprobe "$DISK"
 
-efi_space=500M # EF00 EFI Partition
+if [ -n "$DISK2" ]; then
+    wipefs -fa "$DISK2"
+    sgdisk -Z "$DISK2"
+    partprobe "$DISK2"
+fi
+
+efi_space=500M # EF00 EFI Partition or EF02 BIOS Boot Partition - if we're Legacy booting
 luks_key_space=20M # 8300
 # set to half amount of RAM
-swap_space="$(($(free --giga | tail -n+2 | head -1 | awk '{print $2}') / 2))"G
+swap_space="$(($(free --giga | tail -n+2 | head -1 | awk '{print $2}') / 2))"
 # special case when there's very little ram
-if [ "$swap_space" = "0G" ]; then
-    swap_space="1G"
+if [ "$swap_space" = "0" ]; then
+    swap_space="1"
+elif [ "$swap_space" -ge "17" ]; then
+    swap_space="8" ## this is likely a server so we don't want so much swap
 fi
+swap_space="$swap_space"G
 # rest (eg. root) will use the remaining space (btrfs) 8300
 
 # now ensure there's a fresh GPT on there
 sgdisk -og "$DISK"
+partprobe "$DISK"
 
+if [ -n "$DISK2" ]; then
+  sgdisk -og "$DISK2"
+  partprobe "$DISK2"
+fi
+
+partnum=0
+
+if [ "$BOOTMODE" = "Legacy" ]; then
+  partnum=$((partnum + 1))
+  sgdisk -n 0:0:+20M -t 0:ef02 -c 0:"biosboot" -u 0:"21686148-6449-6E6F-744E-656564454649" "$DISK" # 1
+fi
 sgdisk -n 0:0:+$efi_space -t 0:ef00 -c 0:"efi" "$DISK" # 1
 sgdisk -n 0:0:+$luks_key_space -t 0:8300 -c 0:"cryptkey" "$DISK" # 2
 sgdisk -n 0:0:+$swap_space -t 0:8300 -c 0:"swap" "$DISK" # 3
 sgdisk -n 0:0:0 -t 0:8300 -c 0:"root" "$DISK" # 4
+partprobe "$DISK"
+
+if [ -n "$DISK2" ]; then
+  if [ "$BOOTMODE" = "Legacy" ]; then
+    sgdisk -n 0:0:+20M -t 0:ef02 -c 0:"biosboot" -u 0:"21686148-6449-6E6F-744E-656564454649" "$DISK" # 1
+  fi
+  sgdisk -n 0:0:+$efi_space -t 0:ef00 -c 0:"efi" "$DISK" # 1
+  sgdisk -n 0:0:+$luks_key_space -t 0:8300 -c 0:"cryptkey" "$DISK2" # 2
+  sgdisk -n 0:0:+$swap_space -t 0:8300 -c 0:"swap" "$DISK2" # 3
+  sgdisk -n 0:0:0 -t 0:8300 -c 0:"root" "$DISK2" # 4
+  partprobe "$DISK2"
+fi
 
 DISK_EFI_LABEL=boot
-DISK_EFI="$DISK$PARTITION_PREFIX"1
+partnum=$((partnum + 1))
+DISK_EFI="$DISK$PARTITION_PREFIX$partnum"
 ENC_DISK_CRYPTKEY_LABEL=cryptkey
-DISK_CRYPTKEY="$DISK$PARTITION_PREFIX"2
+partnum=$((partnum + 1))
+DISK_CRYPTKEY="$DISK$PARTITION_PREFIX$partnum"
 DISK_SWAP_LABEL=swap
 ENC_DISK_SWAP_LABEL=encrypted_swap
-DISK_SWAP="$DISK$PARTITION_PREFIX"3
+partnum=$((partnum + 1))
+DISK_SWAP="$DISK$PARTITION_PREFIX$partnum"
 DISK_ROOT_LABEL=root
 ENC_DISK_ROOT_LABEL=encrypted_root
-DISK_ROOT="$DISK$PARTITION_PREFIX"4
+partnum=$((partnum + 1))
+DISK_ROOT="$DISK$PARTITION_PREFIX$partnum"
+if [ -n "$DISK2" ]; then
+  DISK_ROOT2_LABEL=root2
+  ENC_DISK_ROOT2_LABEL=encrypted_root2
+  DISK_ROOT2="$DISK2$PARTITION_PREFIX$partnum"
+fi
 DISK_EXTRA_LABEL=extra
 ENC_DISK_EXTRA_LABEL=encrypted_extra
 DISK_EXTRA=
@@ -146,6 +200,12 @@ sgdisk -p "$DISK"
 # make sure everything knows about the new partition table
 partprobe "$DISK"
 fdisk -l "$DISK"
+
+if [ -n "$DISK2" ]; then
+  sgdisk -p "$DISK2"
+  partprobe "$DISK2"
+  fdisk -l "$DISK2"
+fi
 
 debug "$DISK wiped and formatted"
 
@@ -188,6 +248,12 @@ retryDefault cryptsetup luksFormat --label="$ENC_DISK_SWAP_LABEL" -q --key-file=
 echo Creating encrypted root
 retryDefault cryptsetup luksFormat --label="$ENC_DISK_ROOT_LABEL" -q --key-file=/dev/mapper/"$ENC_DISK_CRYPTKEY_LABEL" "$DISK_ROOT"
 
+if [ -n "$DISK2" ]; then
+  # create the encrypted root 2 partition
+  echo Creating encrypted root 2
+  retryDefault cryptsetup luksFormat --label="$ENC_DISK_ROOT2_LABEL" -q --key-file=/dev/mapper/"$ENC_DISK_CRYPTKEY_LABEL" "$DISK_ROOT2"
+fi
+
 # open those crypt volumes now
 echo Opening encrypted swap using keyfile
 retryDefault cryptsetup luksOpen --key-file=/dev/mapper/"$ENC_DISK_CRYPTKEY_LABEL" "$DISK_SWAP" "$ENC_DISK_SWAP_LABEL"
@@ -196,10 +262,20 @@ retryDefault mkswap -L "$DISK_SWAP_LABEL" /dev/mapper/"$ENC_DISK_SWAP_LABEL"
 echo Opening encrypted root using keyfile
 retryDefault cryptsetup luksOpen --key-file=/dev/mapper/"$ENC_DISK_CRYPTKEY_LABEL" "$DISK_ROOT" "$ENC_DISK_ROOT_LABEL"
 
+if [ -n "$DISK2" ]; then
+  echo Opening encrypted root2 using keyfile
+  retryDefault cryptsetup luksOpen --key-file=/dev/mapper/"$ENC_DISK_CRYPTKEY_LABEL" "$DISK_ROOT2" "$ENC_DISK_ROOT2_LABEL"
+fi
+
 debug "$DISK_SWAP and $DISK_ROOT wiped and formatted"
 
-echo Creating btrfs filesystem on /dev/mapper/"$DISK_ROOT_LABEL"
-retryDefault mkfs.btrfs -L "$DISK_ROOT_LABEL" /dev/mapper/"$ENC_DISK_ROOT_LABEL"
+if [ -n "$DISK2" ]; then
+  echo Creating btrfs RAID1 filesystem on /dev/mapper/"$ENC_DISK_ROOT_LABEL" and /dev/mapper/"$ENC_DISK_ROOT2_LABEL"
+  retryDefault mkfs.btrfs -L "$DISK_ROOT_LABEL" -d raid1 -m raid1 /dev/mapper/"$ENC_DISK_ROOT_LABEL" /dev/mapper/"$ENC_DISK_ROOT2_LABEL"
+else
+  echo Creating btrfs filesystem on /dev/mapper/"$ENC_DISK_ROOT_LABEL"
+  retryDefault mkfs.btrfs -L "$DISK_ROOT_LABEL" /dev/mapper/"$ENC_DISK_ROOT_LABEL"
+fi
 
 # and create the efi boot partition
 echo Creating vfat disk at "$DISK_EFI"
@@ -210,8 +286,6 @@ partprobe /dev/mapper/"$ENC_DISK_SWAP_LABEL" ## in case partprobe failed (it mig
 # enable swap on the decrypted swap device
 echo Enabling swap on "/dev/disk/by-label/$DISK_SWAP_LABEL"
 swapon /dev/disk/by-label/"$DISK_SWAP_LABEL"
-
-partprobe /dev/mapper/"$ENC_DISK_ROOT_LABEL" ## ditto above for swap
 
 # mount the decrypted cryptroot to /mnt (btrfs)
 echo Mounting root fs from "/dev/disk/by-label/$DISK_ROOT_LABEL" to /mnt
@@ -341,6 +415,12 @@ mount /dev/disk/by-label/"$DISK_EFI_LABEL" /mnt/boot
 debug "Mounted the boot volumes from $DISK_EFI_LABEL"
 
 #nix copy --from file:///etc/system $(cat /etc/system-closure-path) --option binary-caches "" --no-check-sigs
-nixos-install --no-root-passwd --option binary-caches "" --system "$(cat /etc/system-closure-path)"
+if [ -z "$SKIP_INSTALL" ]; then
+  nixos-install --no-root-passwd --option binary-caches "" --system "$(cat /etc/system-closure-path)"
+fi
 
 debug "Install completed, exiting..."
+
+mkdir -p /mnt/etc/nixos
+
+## SKIP_INSTALL DISK_PASSWORD=12345 ADDITIONAL_VOLUMES=y ./install.sh
