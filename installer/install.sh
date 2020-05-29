@@ -16,6 +16,7 @@ debug() {
 ## solve the problem but makes it generally fine
 retry() {
     n=${1:-1}
+    sleepwait=5
     shift
     if [ "$n" -le 0 ]; then
        echo "\"$*\"" failed - giving up
