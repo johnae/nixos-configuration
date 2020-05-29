@@ -26,6 +26,7 @@ in
     fd
     lsof
     fish
+    wireguard
   ];
 
   services.myk3s.enable = true;
