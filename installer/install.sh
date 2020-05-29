@@ -66,8 +66,13 @@ else
 fi
 
 if [ -n "$DISK_PASSWORD" ]; then
-    echo -n "$DISK_PASSWORD" > /disk_password
-    CRYPTKEYFILE=/disk_password
+    if [ -d "/ramdisk" ]; then
+        umount /ramdisk || true
+    fi
+    mkdir -p /ramdisk
+    mount -t tmpfs -o size=64m tmpfs /ramdisk
+    CRYPTKEYFILE=/ramdisk/disk_password
+    echo -n "$DISK_PASSWORD" > "$CRYPTKEYFILE"
 fi
 
 if [ ! -e "$CRYPTKEYFILE" ]; then
