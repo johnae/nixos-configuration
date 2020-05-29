@@ -61,6 +61,14 @@ in
       '';
     };
 
+    cniPackage = mkOption {
+      type = with types; nullOr package;
+      default = null;
+      description = ''
+        The cni package to user. If set to null, the defaults are used.
+      '';
+    };
+
     extraManifests = mkOption {
       type = types.listOf types.path;
       default = [ ];
@@ -88,29 +96,35 @@ in
     services.k3s.token = cfg.clusterSecret;
     services.k3s.docker = cfg.docker;
     services.k3s.package = pkgs.k3s;
-    services.k3s.extraFlags = lib.concatStringsSep " \\\n "
-      (
-        if isAgent then
-          [
-            ''--kubelet-arg "volume-plugin-dir=${k3sDir}/libexec/kubernetes/kubelet-plugins/volume/exec"''
-            ''--kubelet-arg "cni-bin-dir=${k3sDir}/opt/cni/bin"''
-            ''--node-name "$(cat /etc/k3s-node-name)"''
-            (lib.concatStringsSep " "
-              (map (v: "--node-label ${v}") (cfg.labels ++ [ "hostname=${cfg.nodeName}" ])))
-          ]
-        else
-          [
-            ''--no-deploy=traefik --no-deploy=servicelb --no-deploy=local-storage -d ${k3sDataDir}''
-            ''-o /kubeconfig.yml''
-            ''--flannel-backend=${cfg.flannelBackend}''
-            ''--kubelet-arg "volume-plugin-dir=${k3sDir}/libexec/kubernetes/kubelet-plugins/volume/exec"''
-            ''--kubelet-arg "cni-bin-dir=${k3sDir}/opt/cni/bin"''
-            ''--kube-controller-arg "flex-volume-plugin-dir=${k3sDir}/libexec/kubernetes/kubelet-plugins/volume/exec"''
-            ''--node-name "$(cat /etc/k3s-node-name)"''
-            (lib.concatStringsSep " "
-              (map (v: "--node-label ${v}") (cfg.labels ++ [ "hostname=${cfg.nodeName}" ])))
-          ]
-      );
+    services.k3s.extraFlags =
+      let
+        cniBinDir = if cfg.cniPackage != null then "${cfg.cniPackage}/bin" else "${k3sDir}/opt/cni/bin";
+      in
+      lib.concatStringsSep " \\\n "
+        (
+          if isAgent then
+            [
+              ''--kubelet-arg "volume-plugin-dir=${k3sDir}/libexec/kubernetes/kubelet-plugins/volume/exec"''
+              ''--kubelet-arg "cni-bin-dir=${cniBinDir}"''
+              ''--node-name "$(cat /etc/k3s-node-name)"''
+              (lib.concatStringsSep " "
+                (map (v: "--node-label ${v}") (cfg.labels ++ [ "hostname=${cfg.nodeName}" ]))
+              )
+            ]
+          else
+            [
+              ''--no-deploy=traefik --no-deploy=servicelb --no-deploy=local-storage -d ${k3sDataDir}''
+              ''-o /kubeconfig.yml''
+              ''--flannel-backend=${cfg.flannelBackend}''
+              ''--kubelet-arg "volume-plugin-dir=${k3sDir}/libexec/kubernetes/kubelet-plugins/volume/exec"''
+              ''--kubelet-arg "cni-bin-dir=${cniBinDir}"''
+              ''--kube-controller-arg "flex-volume-plugin-dir=${k3sDir}/libexec/kubernetes/kubelet-plugins/volume/exec"''
+              ''--node-name "$(cat /etc/k3s-node-name)"''
+              (lib.concatStringsSep " "
+                (map (v: "--node-label ${v}") (cfg.labels ++ [ "hostname=${cfg.nodeName}" ]))
+              )
+            ]
+        );
 
 
     systemd.services.k3s = {
@@ -125,10 +139,10 @@ in
           ${lib.concatStringsSep "\n" (
             map (
                 m:
-                    "${pkgs.kubectl}/bin/kubectl --kubeconfig /kubeconfig.yml apply -f ${m}"
-              )
-                cfg.extraManifests
-          )}
+                "${pkgs.kubectl}/bin/kubectl --kubeconfig /kubeconfig.yml apply -f ${m}"
+                )
+            cfg.extraManifests
+            )}
         '' else
           ""
       );
@@ -141,17 +155,22 @@ in
         TasksMax = "infinity";
         TimeoutStartSec = 0;
         Restart = "always";
-        ExecStart = with lib; mkForce
-          (pkgs.writeStrictShellScript "unit-script-k3s-start"
-            (concatStringsSep " \\\n "
+        ExecStart = with lib;
+          mkForce (
+            pkgs.writeStrictShellScript "unit-script-k3s-start"
               (
-                [
-                  "exec ${k3s.package}/bin/k3s ${k3s.role}"
-                ] ++ (optional k3s.docker "--docker")
-                ++ (optional k3s.disableAgent "--disable-agent")
-                ++ (optional (k3s.role == "agent") "--server ${k3s.serverAddr} --token ${k3s.token}")
-                ++ [ k3s.extraFlags ]
-              )));
+                concatStringsSep " \\\n "
+                  (
+                    [
+                      "export PATH=${pkgs.wireguard}/bin:${pkgs.bash}/bin\${PATH:+:}$PATH \n"
+                      "exec ${k3s.package}/bin/k3s ${k3s.role}"
+                    ] ++ (optional k3s.docker "--docker")
+                    ++ (optional k3s.disableAgent "--disable-agent")
+                    ++ (optional (k3s.role == "agent") "--server ${k3s.serverAddr} --token ${k3s.token}")
+                    ++ [ k3s.extraFlags ]
+                  )
+              )
+          );
       };
 
     };
