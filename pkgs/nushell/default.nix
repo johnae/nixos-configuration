@@ -16,7 +16,7 @@ rustPlatform.buildRustPackage rec {
 
   src = sources.nushell;
 
-  cargoSha256 = "1svs8znwfxvg1r0hbxp3s7jdhvvfspr865f3ddpjhx4z6fhfgpia";
+  cargoSha256 = "07dr8yrs46rwfkfrb5ik0acin9mdpwzy5rynhmh0qw36vd2lbab7";
 
   nativeBuildInputs = [ pkg-config python3 ];
 
