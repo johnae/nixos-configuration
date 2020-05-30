@@ -48,6 +48,9 @@ with (import ./util { inherit lib; });
 
       echo --- Updating packages
 
+      niv update nixpkgs
+      gitCommitUpdate nixpkgs || echo no update
+
       update-k3s
       gitCommitUpdate k3s || echo no update
 
