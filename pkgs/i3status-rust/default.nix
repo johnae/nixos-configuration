@@ -4,7 +4,7 @@ rustPlatform.buildRustPackage rec {
   version = sources.i3status-rust.rev;
 
   src = sources.i3status-rust;
-  cargoSha256 = "11jj97x894700ywbv3y9k8kh67mzq11x38iis8kylqp2h6v8iwl1";
+  cargoSha256 = "1ywr5rr81czhp3fl05f0mhmyc9jslmgi1a25vs0xsga5q5q5bfw8";
 
   nativeBuildInputs = [ pkgconfig ];
 
