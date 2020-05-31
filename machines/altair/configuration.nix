@@ -1,0 +1,98 @@
+{ config, pkgs, lib, ... }:
+let
+  hostName = "altair";
+
+  loadSecretMetadata = path: with builtins;
+    if getEnv "NIX_TEST" != ""
+    then extraBuiltins.loadYAML (path + "/meta.test.yaml")
+    else extraBuiltins.sops (path + "/meta.yaml");
+
+  hostKeyPath = path: with builtins;
+    if getEnv "NIX_TEST" != ""
+    then "/dev/null"
+    else extraBuiltins.sopsPath path;
+
+  ## some of the important values come from secrets as they are
+  ## sensitive - otherwise works like any module.
+  secretConfig = loadSecretMetadata ../../metadata/altair;
+
+  initrd_ssh_host_ed25519_key = hostKeyPath ../../metadata/altair/initrd_ssh_host_ed25519_key;
+  initrd_ssh_host_dsa_key = hostKeyPath ../../metadata/altair/initrd_ssh_host_dsa_key;
+  initrd_ssh_host_rsa_key = hostKeyPath ../../metadata/altair/initrd_ssh_host_rsa_key;
+
+  ## determine what username we're using so we define it in one
+  ## place
+  userName = with lib;
+    head (
+      attrNames (
+        filterAttrs
+          (_: value: hasAttr "uid" value && value.uid == 1337)
+          secretConfig.users.extraUsers
+      )
+    );
+in
+{
+  imports =
+    [ ../../defaults/server.nix ./hardware-configuration.nix secretConfig ];
+
+  nix.trustedUsers = [ "root" userName ];
+
+  networking = {
+    inherit hostName;
+    extraHosts = "127.0.1.1 ${hostName}";
+  };
+
+  services.myk3s = {
+    nodeName = hostName;
+    flannelBackend = "wireguard";
+    cniPackage = pkgs.cni-plugins;
+  };
+
+  boot = with secretConfig;
+    let
+      address = (builtins.head networking.interfaces.eth0.ipv4.addresses).address;
+      subnet = "255.255.255.192"; ## fixme
+      defaultGateway = networking.defaultGateway;
+    in
+    {
+
+      loader.systemd-boot.enable = lib.mkForce false;
+      loader.efi.canTouchEfiVariables = lib.mkForce false;
+
+      loader.grub.enable = true;
+      loader.grub.devices = [ "/dev/nvme0n1" "/dev/nvme1n1" ];
+      loader.grub.enableCryptodisk = true;
+      kernelParams = [
+        "ip=${address}::${defaultGateway}:${subnet}:${hostName}:eth0:none"
+      ];
+
+
+      initrd.extraUtilsCommandsTest = lib.mkForce "";
+      initrd.availableKernelModules = [ "r8169" ];
+      initrd.network = {
+        enable = true;
+        ssh = {
+          enable = true;
+          port = 2222;
+          hostKeys = with builtins; [
+            initrd_ssh_host_dsa_key
+            initrd_ssh_host_rsa_key
+            initrd_ssh_host_ed25519_key
+          ];
+          authorizedKeys = users.extraUsers."${userName}".openssh.authorizedKeys.keys;
+        };
+        postCommands = ''
+          echo 'cryptsetup-askpass' >> /root/.profile
+        '';
+      };
+    };
+
+  hardware.cpu.intel.updateMicrocode = lib.mkForce false;
+  hardware.cpu.amd.updateMicrocode = true;
+
+  users.defaultUserShell = pkgs.fish;
+  users.mutableUsers = false;
+  users.groups."${userName}".gid = 1337;
+  users.extraUsers."${userName}" = { shell = pkgs.fish; };
+
+}
