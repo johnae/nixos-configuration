@@ -14,6 +14,7 @@ in
     maxCacheTtlSsh = defaultCacheTtlSsh * 8;
     enableSshSupport = true;
     enableScDaemon = true;
+    enableExtraSocket = true;
     pinentryFlavor = "gnome3";
     extraConfig = ''
       allow-emacs-pinentry
