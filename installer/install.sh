@@ -72,12 +72,11 @@ else
 fi
 
 if [ -n "$DISK_PASSWORD" ]; then
-    if [ -d "/ramdisk" ]; then
-        umount /ramdisk || true
+    if [ ! -d "/secrets" ]; then
+      mkdir -p /secrets
+      mount -t tmpfs -o size=64m tmpfs /secrets
     fi
-    mkdir -p /ramdisk
-    mount -t tmpfs -o size=64m tmpfs /ramdisk
-    CRYPTKEYFILE=/ramdisk/disk_password
+    CRYPTKEYFILE=/secrets/disk_password
     echo -n "$DISK_PASSWORD" > "$CRYPTKEYFILE"
 fi
 
@@ -414,13 +413,8 @@ mount /dev/disk/by-label/"$DISK_EFI_LABEL" /mnt/boot
 
 debug "Mounted the boot volumes from $DISK_EFI_LABEL"
 
-#nix copy --from file:///etc/system $(cat /etc/system-closure-path) --option binary-caches "" --no-check-sigs
 if [ -z "$SKIP_INSTALL" ]; then
   nixos-install --no-root-passwd --option binary-caches "" --system "$(cat /etc/system-closure-path)"
 fi
 
 debug "Install completed, exiting..."
-
-mkdir -p /mnt/etc/nixos
-
-## SKIP_INSTALL DISK_PASSWORD=12345 ADDITIONAL_VOLUMES=y ./install.sh
