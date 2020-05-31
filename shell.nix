@@ -16,6 +16,14 @@ let
     nix-instantiate --eval -E "builtins.fromJSON (builtins.readFile \"$OUTPUT\")"
   '';
 
+  ## allows decrypting a file to an output path for reading into a nix expression
+  nixSopsPath = pkgs.writeStrictShellScriptBin "nix-sops-path" ''
+    export SOPS_PGP_FP="${SOPS_PGP_FP}"
+    OUTPUT="$(${pkgs.coreutils}/bin/mktemp /tmp/sops.XXXXXXXXXX)"
+    ${pkgs.sops}/bin/sops -d "$1" > "$OUTPUT"
+    nix-instantiate --eval -E "$OUTPUT"
+  '';
+
   nixFromYaml = pkgs.writeStrictShellScriptBin "nix-from-yaml" ''
     OUTPUT="$(${pkgs.coreutils}/bin/mktemp /tmp/.remarshal.XXXXXXXXXX.json)"
     trap 'rm -f "$OUTPUT"' EXIT
@@ -27,6 +35,7 @@ let
   extraBuiltins = pkgs.writeText "extra-builtins.nix" ''
     { exec, ... }: {
       sops = path: exec [ ${nixSops}/bin/nix-sops path ];
+      sopsPath = path: exec [ ${nixSopsPath}/bin/nix-sops-path path ];
       loadYAML = path: exec [ ${nixFromYaml}/bin/nix-from-yaml path ];
     }
   '';
