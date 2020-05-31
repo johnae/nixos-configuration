@@ -9,7 +9,7 @@ let
 
   hostKeyPath = path: with builtins;
     if getEnv "NIX_TEST" != ""
-    then "/dev/null"
+    then path + "_dummy"
     else extraBuiltins.sopsPath path;
 
   ## some of the important values come from secrets as they are
