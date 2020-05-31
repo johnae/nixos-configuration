@@ -73,6 +73,7 @@ rec {
     rhea = buildConfig ./machines/rhea/configuration.nix;
     titan = buildConfig ./machines/titan/configuration.nix;
     hyperion = buildConfig ./machines/hyperion/configuration.nix;
+    altair = buildConfig ./machines/altair/configuration.nix;
   };
   containers = pkgs.recurseIntoAttrs {
     buildkite-agent = pkgs.callPackage ./containers/buildkite-agent { };
@@ -103,5 +104,6 @@ rec {
     rhea = buildIso ./machines/rhea/configuration.nix;
     titan = buildIso ./machines/titan/configuration.nix;
     hyperion = buildIso ./machines/hyperion/configuration.nix;
+    altair = buildIso ./machines/altair/configuration.nix;
   };
 }
