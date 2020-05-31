@@ -1,5 +1,22 @@
 { pkgs, config, lib, options }:
 let
+  secretHosts = with builtins;
+    mapAttrs
+      (_: value:
+        value // {
+          forwardAgent = true;
+          extraOptions = {
+            inherit remoteCommand;
+            requestTTY = "yes";
+          };
+        }
+      )
+      (
+        if getEnv "NIX_TEST" != ""
+        then { }
+        else extraBuiltins.sops ../metadata/ssh-hosts/hosts.yaml
+      );
+
   ## runs tmux with theme etc on remote nix machines
   remoteCommand = builtins.replaceStrings [ "\n" ] [ " " ] ''
     nix-shell -E '
@@ -43,7 +60,7 @@ in
     serverAliveInterval = 60;
     controlMaster = "auto";
     controlPersist = "30m";
-    matchBlocks = {
+    matchBlocks = secretHosts // {
       "*.compute.amazonaws.com" = {
         extraOptions = {
           strictHostKeyChecking = "no";
