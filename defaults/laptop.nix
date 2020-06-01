@@ -13,7 +13,7 @@ in
   ];
 
 
-  nix.buildMachines = loadBuildMachines;
+  #nix.buildMachines = loadBuildMachines;
   nix.distributedBuilds = true;
   nix.extraOptions = ''
     builders-use-substitutes = true
