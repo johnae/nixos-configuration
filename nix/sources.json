@@ -129,11 +129,11 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "k3s": {
-        "sha256": "18w96w38sjdwqg9dnw7rmzy1728xby2b56py9aw03b29lgga7f65",
+        "sha256": "1618d3vrmv2s4ifpvwgf9safxij7s77nf125hqynrly9zq60rb79",
         "type": "file",
-        "url": "https://github.com/rancher/k3s/releases/download/v1.18.2+k3s1/k3s",
+        "url": "https://github.com/rancher/k3s/releases/download/v1.18.3+k3s1/k3s",
         "url_template": "https://github.com/rancher/k3s/releases/download/<version>/k3s",
-        "version": "v1.18.2+k3s1"
+        "version": "v1.18.3+k3s1"
     },
     "mako": {
         "branch": "master",
