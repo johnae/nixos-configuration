@@ -5,10 +5,10 @@
         "homepage": "",
         "owner": "alacritty",
         "repo": "alacritty",
-        "rev": "f1bf481eb8eb79b82510fa2f26d983dc4d7067be",
-        "sha256": "0alq3wfyzd908qvcppiiz47ykrly74fid305hcp26yn49qgysqfg",
+        "rev": "1dacc99183373bffa3ba287aa3241f3b1da67016",
+        "sha256": "1sw472g36fsxp471537y6diqfzpf63cfqhy6fabwphggwx9pcx4i",
         "type": "tarball",
-        "url": "https://github.com/alacritty/alacritty/archive/f1bf481eb8eb79b82510fa2f26d983dc4d7067be.tar.gz",
+        "url": "https://github.com/alacritty/alacritty/archive/1dacc99183373bffa3ba287aa3241f3b1da67016.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "aml": {
