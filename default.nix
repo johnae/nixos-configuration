@@ -96,7 +96,7 @@ rec {
     in
     with pkgs;
     pkgs.recurseIntoAttrs (toCache // {
-      inherit gnupg mesa-iris;
+      #inherit gnupg mesa-iris;
     });
   installers = {
     europa = buildIso ./machines/europa/configuration.nix;
