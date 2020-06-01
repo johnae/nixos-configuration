@@ -223,12 +223,12 @@
         "branch": "master",
         "description": "A new type of shell",
         "homepage": "https://www.nushell.sh/",
-        "owner": "johnae",
+        "owner": "nushell",
         "repo": "nushell",
-        "rev": "f7d0cba99bbe7c8b3789fa111e306f1a0ce5d642",
-        "sha256": "17wlx4smkqjjmvnssajqi1fdrfk8j7dhdad3ncfwc5w3p1p1xa3y",
+        "rev": "ef4eefa96a6e5cc1d900e286b03ea8471d794844",
+        "sha256": "08yw85g4dj8wgpq8zb8w0xyb59ap1ryfigl7l2y3m2pq1amxp8v9",
         "type": "tarball",
-        "url": "https://github.com/johnae/nushell/archive/f7d0cba99bbe7c8b3789fa111e306f1a0ce5d642.tar.gz",
+        "url": "https://github.com/nushell/nushell/archive/ef4eefa96a6e5cc1d900e286b03ea8471d794844.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "persway": {
