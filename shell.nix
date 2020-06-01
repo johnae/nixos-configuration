@@ -125,9 +125,115 @@ let
     SSH
   '';
 
-  diskname = "testdisk.img";
-  altdiskname = "testdiskalt.img";
-  isoname = "result-iso";
+  ## This bootstraps and installs a remote system over ssh, the requirement would
+  ## be that the remote system is booted via pxe or from ISO with a working ssh
+  ## server. We're not managing all dependencies through Nix here, at least not yet.
+  ## So we assume there's sufficient tooling basically until we hit the install script.
+  installRemoteSystem = pkgs.writeStrictShellScriptBin "install-remote-system" ''
+    ## This script can be used when pxe booting a machine into some
+    ## distro from where you can do an install.
+
+    installscript=${./. + "/installer/install.sh"}
+
+    address=''${1:-}
+    machine=''${2:-}
+
+    SKIP_INSTALL=''${SKIP_INSTALL:-}
+    DISK_PASSWORD=''${DISK_PASSWORD:-}
+    ADDITIONAL_VOLUMES=''${ADDITIONAL_VOLUMES:-}
+
+    export NIX_SSHOPTS="-T -o RemoteCommand=none"
+
+    ## Bootstrap start - this will prep remote system with some
+    ## encrypted ram disk volumes used during install for security.
+    ssh "$address" -t -o RemoteCommand=none bash <<'SSH'
+    set -euo pipefail
+    set -x
+
+    ## We don't really care about this, only used during install
+    tmpdiskpass="$(openssl rand -hex 32)"
+
+    ## We want swap to be disabled so that any tmpfs doesn't run the
+    ## risk of being swapped to disk.
+    if [ "$(swapon -s | wc -l)" != "0" ]; then
+        echo "Swap is turned on, please disable it during install"
+        exit 1
+    fi
+
+    echo Preparing machine for installation
+
+    mkdir -p /ramdisk
+
+    ## Use a ramdisk for this for security
+    mount -t tmpfs -o size=32g tmpfs /ramdisk
+
+    ## Writing random bytes would be better but
+    ## it's just too slow - even with /dev/urandom.
+    ## Since it's all in RAM anyway I believe this
+    ## should be secure enough, especially given
+    ## the encryption.
+    fallocate -l 32G /ramdisk/installdata.img
+
+    echo "$tmpdiskpass" | cryptsetup luksFormat /ramdisk/installdata.img -d -
+    echo "$tmpdiskpass" | cryptsetup open /ramdisk/installdata.img installdata -d -
+    mkfs.btrfs /dev/mapper/installdata
+
+    mkdir -p /srv
+    mount -o rw,noatime,compress=zstd,ssd,space_cache /dev/mapper/installdata /srv
+    btrfs subvolume create /srv/@etcnix
+    btrfs subvolume create /srv/@secrets
+    btrfs subvolume create /srv/@nix
+    umount /srv
+
+    mkdir -p /etc/nix /secrets
+    mkdir -p -m 0755 /nix
+
+    mount -o rw,noatime,compress=zstd,ssd,space_cache,subvol=@nix /dev/mapper/installdata /nix
+    mount -o rw,noatime,compress=zstd,ssd,space_cache,subvol=@etcnix /dev/mapper/installdata /etc/nix
+    mount -o rw,noatime,compress=zstd,ssd,space_cache,subvol=@secrets /dev/mapper/installdata /secrets
+    chown root /nix
+
+    echo "build-users-group =" > /etc/nix/nix.conf
+    curl https://nixos.org/nix/install | sh
+    . $HOME/.nix-profile/etc/profile.d/nix.sh
+
+    nix-channel --add https://nixos.org/channels/nixos-unstable nixpkgs
+    nix-channel --update
+
+    nix-env -iE "_: with import <nixpkgs/nixos> { configuration = {}; }; with config.system.build; [ nixos-generate-config nixos-install nixos-enter manual.manpages ]"
+
+    echo '. $HOME/.nix-profile/etc/profile.d/nix.sh' >> $HOME/.bashrc
+
+    SSH
+    ## Bootstrap end
+
+    ## Now build the system locally
+    pathToConfig="$(build -A machines."$machine")"
+
+    ## Transfer the closure to the remote (encrypted) nix store
+    nix-copy-closure "$address" "$pathToConfig"
+
+    ## Transfer the install script
+    scp "$installscript" "$address":install.sh
+
+    ## Start install process
+    # shellcheck disable=SC2087
+    ssh "$address" -t -o RemoteCommand=none bash <<SSH
+    set -euo pipefail
+    set -x
+
+    chmod +x ./install.sh
+    ## The install.sh expects this file to contain the path to the closure
+    echo "$pathToConfig" > /etc/system-closure-path
+
+    ## Run the install propagating a few variables that may have been given
+    ## locally.
+    SKIP_INSTALL="$SKIP_INSTALL" DISK_PASSWORD="$DISK_PASSWORD" ADDITIONAL_VOLUMES="$ADDITIONAL_VOLUMES" ./install.sh
+
+    reboot
+
+    SSH
+  '';
 
   updateProgramsSqlite = pkgs.writeStrictShellScriptBin "update-programs-sqlite" ''
     export PATH=${pkgs.curl}/bin:${pkgs.gnutar}/bin:${pkgs.xz}:$PATH
@@ -248,6 +354,7 @@ pkgs.mkShell {
     build
     updateSystem
     updateRemoteSystem
+    installRemoteSystem
     updateNixpkgsDockerImage
     updateBuildkite
     updateProgramsSqlite
