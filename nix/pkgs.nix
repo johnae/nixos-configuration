@@ -57,6 +57,8 @@ rec {
     fonts = [ "JetBrainsMono" "DroidSansMono" ];
   };
 
+  tmux-thumbs = super.callPackage ../pkgs/tmux-thumbs { };
+
   argocd = super.callPackage ../pkgs/argocd { };
 
   wayvnc = super.callPackage ../pkgs/wayvnc { };

@@ -334,6 +334,18 @@
         "url": "https://github.com/swaywm/swaylock/archive/a6b3a0956b2fe53b291abe01433a4cea2c88e35a.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
+    "tmux-thumbs": {
+        "branch": "master",
+        "description": "A lightning fast version of tmux-fingers written in Rust, copy/pasting tmux like vimium/vimperator",
+        "homepage": "",
+        "owner": "fcsonline",
+        "repo": "tmux-thumbs",
+        "rev": "794621f52657bb8fa2cf1c63ca6227994e112c52",
+        "sha256": "1pa3ca8wa2968xq54659b250q9wcp2277ksp2qgjia6if8dnc95k",
+        "type": "tarball",
+        "url": "https://github.com/fcsonline/tmux-thumbs/archive/794621f52657bb8fa2cf1c63ca6227994e112c52.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "wayvnc": {
         "branch": "master",
         "description": "A VNC server for wlroots based Wayland compositors",
