@@ -1,5 +1,5 @@
 #!/usr/bin/env nix-shell
-#!nix-shell -i bash -p jq
+#!nix-shell -i bash -p btrfs-progs -p mount -p utillinux -p parted -p gptfdisk -p cryptsetup -p procps -p e2fsprogs -p coreutils
 # shellcheck shell=bash
 
 set -euo pipefail
@@ -162,9 +162,9 @@ partprobe "$DISK"
 
 if [ -n "$DISK2" ]; then
   if [ "$BOOTMODE" = "Legacy" ]; then
-    sgdisk -n 0:0:+20M -t 0:ef02 -c 0:"biosboot" -u 0:"21686148-6449-6E6F-744E-656564454649" "$DISK" # 1
+    sgdisk -n 0:0:+20M -t 0:ef02 -c 0:"biosboot" -u 0:"21686148-6449-6E6F-744E-656564454649" "$DISK2" # 1
   fi
-  sgdisk -n 0:0:+$efi_space -t 0:ef00 -c 0:"efi" "$DISK" # 1
+  sgdisk -n 0:0:+$efi_space -t 0:ef00 -c 0:"efi" "$DISK2" # 1
   sgdisk -n 0:0:+$luks_key_space -t 0:8300 -c 0:"cryptkey" "$DISK2" # 2
   sgdisk -n 0:0:+$swap_space -t 0:8300 -c 0:"swap" "$DISK2" # 3
   sgdisk -n 0:0:0 -t 0:8300 -c 0:"root" "$DISK2" # 4
@@ -186,7 +186,6 @@ ENC_DISK_ROOT_LABEL=encrypted_root
 partnum=$((partnum + 1))
 DISK_ROOT="$DISK$PARTITION_PREFIX$partnum"
 if [ -n "$DISK2" ]; then
-  DISK_ROOT2_LABEL=root2
   ENC_DISK_ROOT2_LABEL=encrypted_root2
   DISK_ROOT2="$DISK2$PARTITION_PREFIX$partnum"
 fi
