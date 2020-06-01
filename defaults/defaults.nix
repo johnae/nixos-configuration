@@ -1,5 +1,4 @@
 { config, lib, pkgs, ... }:
-
 {
 
   imports = [ ../modules ];
@@ -11,12 +10,18 @@
       }/lib/nix/plugins/libnix-extra-builtins.so
     '';
 
+    nixPath = [ "nixpkgs=${./..}/nix" ];
+
     gc = {
       automatic = true;
       dates = "daily";
       options = "--delete-older-than 30d";
     };
   };
+
+  nixpkgs.config.allowUnfree = true;
+  nixpkgs.pkgs = (import ../nix { });
+
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.kernelPackages = pkgs.linuxPackages_latest;
@@ -28,9 +33,6 @@
   console.keyMap = "us";
   time.timeZone = "Europe/Stockholm";
 
-  nixpkgs.config.allowUnfree = true;
-  nixpkgs.pkgs = (import ../nix { });
-  nix.nixPath = [ "nixpkgs=${./..}/nix" ];
   environment.shells = [ pkgs.bashInteractive pkgs.zsh pkgs.fish ];
 
   programs.fish.enable = true;
