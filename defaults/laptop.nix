@@ -1,12 +1,23 @@
 { config, lib, pkgs, ... }:
 let
   nixos-hardware = import ../nix/nixos-hardware.nix;
+  loadBuildMachines = with builtins;
+    if getEnv "NIX_TEST" != ""
+    then [ ]
+    else (extraBuiltins.sops ../metadata/builders/hosts.yaml).buildMachines;
 in
 {
   imports = [
     "${nixos-hardware}/common/pc/ssd"
     ./defaults.nix
   ];
+
+
+  nix.buildMachines = loadBuildMachines;
+  nix.distributedBuilds = true;
+  nix.extraOptions = ''
+    builders-use-substitutes = true
+  '';
 
   boot.kernel.sysctl = {
     "vm.dirty_writeback_centisecs" = 1500;
