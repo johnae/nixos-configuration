@@ -20,7 +20,6 @@ rec {
   btr-snap = super.callPackage ../pkgs/btr-snap { };
 
   netns-dbus-proxy = super.callPackage ../pkgs/netns-dbus-proxy { };
-  nushell = super.callPackage ../pkgs/nushell { };
   nixpkgs-fmt = super.callPackage ../pkgs/nixpkgs-fmt { };
   sway-unwrapped = super.callPackage ../pkgs/sway { };
   sway = super.callPackage

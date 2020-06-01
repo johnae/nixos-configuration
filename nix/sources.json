@@ -219,18 +219,6 @@
         "url": "https://github.com/mozilla/nixpkgs-mozilla/archive/e912ed483e980dfb4666ae0ed17845c4220e5e7c.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
-    "nushell": {
-        "branch": "master",
-        "description": "A new type of shell",
-        "homepage": "https://www.nushell.sh/",
-        "owner": "nushell",
-        "repo": "nushell",
-        "rev": "ef4eefa96a6e5cc1d900e286b03ea8471d794844",
-        "sha256": "08yw85g4dj8wgpq8zb8w0xyb59ap1ryfigl7l2y3m2pq1amxp8v9",
-        "type": "tarball",
-        "url": "https://github.com/nushell/nushell/archive/ef4eefa96a6e5cc1d900e286b03ea8471d794844.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    },
     "persway": {
         "branch": "master",
         "description": "Small Sway IPC Daemon",
