@@ -91,8 +91,8 @@ in
   };
 
   xsession.pointerCursor = {
-    package = pkgs.gnome3.defaultIconTheme;
-    name = "Adwaita";
+    package = pkgs.arc-icon-theme;
+    name = "Arc";
   };
 
   xdg.enable = true;
@@ -107,7 +107,7 @@ in
     (pkgs.callPackage ../pkgs/my-emacs/config.nix { }).emacsConfig;
 
   home.file.".icons/default" = {
-    source = "${pkgs.gnome3.defaultIconTheme}/share/icons/Adwaita";
+    source = "${pkgs.arc-icon-theme}/share/icons/Arc";
   };
 
   home.file."Pictures/default-background.jpg" = {
