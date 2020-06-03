@@ -33,7 +33,15 @@ in
   services.myk3s.docker = true;
 
   services.openssh.enable = true;
-  networking.firewall.enable = false;
+  services.openssh.passwordAuthentication = false;
+
+  networking.firewall.allowedTCPPortRanges = [
+    {
+      from = 10250;
+      to = 10252;
+    }
+  ];
+  networking.firewall.allowedTCPPorts = [ 22 6443 ];
 
   programs.fish.enable = true;
   security.sudo.wheelNeedsPassword = false;
