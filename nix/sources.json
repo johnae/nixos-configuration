@@ -280,10 +280,10 @@
         "homepage": "https://swaywm.org/",
         "owner": "swaywm",
         "repo": "sway",
-        "rev": "84ec8f92a69feb303e0e521f482b75b2cd12c4aa",
-        "sha256": "13b75rbn2dj2q9rp8fpmh7i2w3gzzs568c67nns2k05ir1v18wxg",
+        "rev": "d7900c6e5e82406c1ed6a6df2ff3d1896149deff",
+        "sha256": "0iwnv9qbrn2gjiz5jrlmq3b8c6f0zqkk31mlnivbas0ri8v8hp1p",
         "type": "tarball",
-        "url": "https://github.com/swaywm/sway/archive/84ec8f92a69feb303e0e521f482b75b2cd12c4aa.tar.gz",
+        "url": "https://github.com/swaywm/sway/archive/d7900c6e5e82406c1ed6a6df2ff3d1896149deff.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "swaybg": {
