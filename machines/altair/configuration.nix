@@ -30,6 +30,8 @@ let
           secretConfig.users.extraUsers
       )
     );
+
+  transmission = config.services.transmission;
 in
 {
   imports =
@@ -46,6 +48,23 @@ in
     nodeName = hostName;
     flannelBackend = "wireguard";
     cniPackage = pkgs.cni-plugins;
+  };
+
+  services.transmission = {
+    enable = true;
+    downloadDirPermissions = "775";
+  };
+
+  systemd.services.transmission = {
+    serviceConfig.ExecStart = lib.mkForce "/run/wrappers/bin/netns-exec private ${pkgs.transmission}/bin/transmission-daemon -f --port ${toString config.services.transmission.port} --config-dir ${config.services.transmission.home}/.config/transmission-daemon";
+  };
+
+  systemd.services.transmission-forwarder = {
+    enable = true;
+    after = [ "transmission.service" ];
+    script = ''
+      ${pkgs.socat}/bin/socat tcp-listen:9091,fork,reuseaddr,bind=127.0.0.1  exec:'/run/wrappers/bin/netns-exec private ${pkgs.socat}/bin/socat STDIO "tcp-connect:127.0.0.1:9091"',nofork
+    '';
   };
 
   boot = with secretConfig;
