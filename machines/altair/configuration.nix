@@ -46,6 +46,13 @@ in
     downloadDirPermissions = "775";
   };
 
+  services.plex = {
+    enable = true;
+    openFirewall = true;
+    user = "transmission";
+    group = "transmission";
+  };
+
   systemd.services.transmission = {
     serviceConfig.ExecStart = lib.mkForce "/run/wrappers/bin/netns-exec private ${pkgs.transmission}/bin/transmission-daemon -f --port ${toString config.services.transmission.port} --config-dir ${config.services.transmission.home}/.config/transmission-daemon";
   };
@@ -53,6 +60,7 @@ in
   systemd.services.transmission-forwarder = {
     enable = true;
     after = [ "transmission.service" ];
+    bindsTo = [ "transmission.service" ];
     script = ''
       ${pkgs.socat}/bin/socat tcp-listen:9091,fork,reuseaddr,bind=127.0.0.1  exec:'/run/wrappers/bin/netns-exec private ${pkgs.socat}/bin/socat STDIO "tcp-connect:127.0.0.1:9091"',nofork
     '';
