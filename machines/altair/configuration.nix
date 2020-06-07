@@ -7,18 +7,9 @@ let
     then extraBuiltins.loadYAML (path + "/meta.test.yaml")
     else extraBuiltins.sops (path + "/meta.yaml");
 
-  hostKeyPath = path: with builtins;
-    if getEnv "NIX_TEST" != ""
-    then path + "_dummy"
-    else extraBuiltins.sopsPath path;
-
   ## some of the important values come from secrets as they are
   ## sensitive - otherwise works like any module.
   secretConfig = loadSecretMetadata ../../metadata/altair;
-
-  initrd_ssh_host_ed25519_key = hostKeyPath ../../metadata/altair/initrd_ssh_host_ed25519_key;
-  initrd_ssh_host_dsa_key = hostKeyPath ../../metadata/altair/initrd_ssh_host_dsa_key;
-  initrd_ssh_host_rsa_key = hostKeyPath ../../metadata/altair/initrd_ssh_host_rsa_key;
 
   ## determine what username we're using so we define it in one
   ## place
@@ -93,10 +84,10 @@ in
         ssh = {
           enable = true;
           port = 2222;
-          hostKeys = with builtins; [
-            initrd_ssh_host_dsa_key
-            initrd_ssh_host_rsa_key
-            initrd_ssh_host_ed25519_key
+          hostKeys = [
+            "/etc/nixos/initrd_keys/dsa_key"
+            "/etc/nixos/initrd_keys/rsa_key"
+            "/etc/nixos/initrd_keys/ed25519_key"
           ];
           authorizedKeys = users.extraUsers."${userName}".openssh.authorizedKeys.keys;
         };
