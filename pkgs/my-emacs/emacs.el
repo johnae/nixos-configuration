@@ -666,10 +666,11 @@
   :bind* ("C-x C-z" . zoom-window-zoom))
 
 
-;; Highlight the part of a line that goes beyond 80 chars
+;; Highlight the part of a line that goes beyond 100 chars
 (use-package column-enforce-mode
   :config
   (setq column-enforce-comments nil)
+  (setq column-enforce-column 100)
   (add-hook 'prog-mode-hook 'column-enforce-mode))
 
 
