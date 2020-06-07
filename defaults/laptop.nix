@@ -97,8 +97,6 @@ in
   services.pasuspender.enable = true;
   services.rbsnapper.enable = true;
 
-  security.wrappers.netns-exec.source = "${pkgs.netns-exec}/bin/netns-exec";
-
   fonts.fonts = with pkgs; [
     google-fonts
     #source-code-pro

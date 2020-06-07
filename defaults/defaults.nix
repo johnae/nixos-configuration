@@ -46,6 +46,10 @@
   networking.firewall.enable = true;
   services.sshguard.enable = true;
 
+  services.btrfs.autoScrub.enable = true;
+
+  security.wrappers.netns-exec.source = "${pkgs.netns-exec}/bin/netns-exec";
+
   ## This just auto-creates /nix/var/nix/{profiles,gcroots}/per-user/<USER>
   ## for all extraUsers setup on the system. Without this home-manager refuses
   ## to run on boot when setup as a nix module and the user has yet to install
