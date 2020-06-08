@@ -232,11 +232,11 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "rust-analyzer": {
-        "sha256": "1sr486hbw5dj9j9xvqcz1bap0gyabzpg7j3mzf0w8kdbxip3azxj",
+        "sha256": "0m8w4rgd44fxfcnh2ma0nlaa933kx0ispmfnis8g1vz7ggx1hdjx",
         "type": "file",
-        "url": "https://github.com/rust-analyzer/rust-analyzer/releases/download/2020-06-01/rust-analyzer-linux",
+        "url": "https://github.com/rust-analyzer/rust-analyzer/releases/download/2020-06-08/rust-analyzer-linux",
         "url_template": "https://github.com/rust-analyzer/rust-analyzer/releases/download/<version>/rust-analyzer-linux",
-        "version": "2020-06-01"
+        "version": "2020-06-08"
     },
     "slurp": {
         "branch": "master",
