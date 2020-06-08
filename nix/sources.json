@@ -120,12 +120,12 @@
         "branch": "master",
         "description": "Very resourcefriendly and feature-rich replacement for i3status, written in pure Rust",
         "homepage": null,
-        "owner": "johnae",
+        "owner": "greshake",
         "repo": "i3status-rust",
-        "rev": "7762a5c7ad668272fb8bb8409f12242094b032b8",
+        "rev": "e7415caeab88c6ad21f7c9190eacc0b3c6986a08",
         "sha256": "1dm0aj6qww7n8jp08g081h45y8z7wswlymwvf98cnym9zpd2ni9a",
         "type": "tarball",
-        "url": "https://github.com/johnae/i3status-rust/archive/7762a5c7ad668272fb8bb8409f12242094b032b8.tar.gz",
+        "url": "https://github.com/greshake/i3status-rust/archive/e7415caeab88c6ad21f7c9190eacc0b3c6986a08.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "k3s": {
