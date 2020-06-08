@@ -122,10 +122,10 @@
         "homepage": null,
         "owner": "greshake",
         "repo": "i3status-rust",
-        "rev": "e7415caeab88c6ad21f7c9190eacc0b3c6986a08",
-        "sha256": "1dm0aj6qww7n8jp08g081h45y8z7wswlymwvf98cnym9zpd2ni9a",
+        "rev": "17f947a56e135dd417ff0dd10646f19615ae291e",
+        "sha256": "1d3j1gk3kc1lh3pvcdnjcgswj2rlsnn3bpjmiig9gd5khgi66cp6",
         "type": "tarball",
-        "url": "https://github.com/greshake/i3status-rust/archive/e7415caeab88c6ad21f7c9190eacc0b3c6986a08.tar.gz",
+        "url": "https://github.com/greshake/i3status-rust/archive/17f947a56e135dd417ff0dd10646f19615ae291e.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "k3s": {
