@@ -3,6 +3,7 @@ let
 
   nixpkgsPath = toString ./nix;
   pkgs = import nixpkgsPath { };
+  metadata = toString ./metadata;
 
   #nixosChannelPath = toString ./nix/nixos-channel;
   nixosChannel = pkgs.sources.nixpkgs.url;
@@ -65,12 +66,27 @@ let
 
   ## this updates the local system, assuming the machine attribute to be the hostname
   updateSystem = pkgs.writeStrictShellScriptBin "update-system" ''
+    machine="$(${pkgs.hostname}/bin/hostname)"
+
     profile=/nix/var/nix/profiles/system
-    pathToConfig="$(${build}/bin/build -A machines."$(${pkgs.hostname}/bin/hostname)")"
+    pathToConfig="$(${build}/bin/build -A machines."$machine")"
 
     echo Ensuring nix-channel set in git repo is used
     sudo nix-channel --add "${nixosChannel}" nixos
     sudo nix-channel --update
+
+    if [ -d "${metadata}/$machine/root" ]; then
+      roottmp="$(mktemp -d /tmp/roottmp.XXXXXXXX)"
+      trap 'sudo rm -rf "$roottmp"' EXIT
+      cp -a ${metadata}/"$machine"/root/* "$roottmp"/
+      for file in $(${pkgs.fd}/bin/fd . --type f "$roottmp"); do
+        echo Decrypting "$file"
+        ${pkgs.sops}/bin/sops -d -i "$file"
+      done
+      sudo chown -R root:root "$roottmp"/*
+      sudo cp -a "$roottmp"/* /
+      sudo rm -rf "$roottmp"
+    fi
 
     echo Updating system profile
     sudo nix-env -p "$profile" --set "$pathToConfig"
@@ -102,11 +118,28 @@ let
     echo Copying closure to remote
     nix-copy-closure "$machine" "$pathToConfig"
 
+    if [ -d "${metadata}/$machine/root" ]; then
+      roottmp="$(mktemp -d /tmp/roottmp.XXXXXXXX)"
+      trap 'sudo rm -rf "$roottmp"' EXIT
+      cp -a ${metadata}/"$machine"/root/* "$roottmp"/
+      for file in $(${pkgs.fd}/bin/fd . --type f "$roottmp"); do
+        echo Decrypting "$file"
+        ${pkgs.sops}/bin/sops -d -i "$file"
+      done
+      scp -r "$roottmp" "$machine:roottmp"
+    fi
+
     ## below requires sudo without password on remote, also requires an ssh config
     ## where the given machines are configured so they can be accessed via their
     ## names
     # shellcheck disable=SC2087
     ssh "$machine" -t -o RemoteCommand=none nix-shell -p bash --run bash <<SSH
+
+    if [ -d roottmp ]; then
+      sudo chown -R root:root roottmp/*
+      sudo cp -a roottmp/* /
+      sudo rm -rf roottmp
+    fi
 
     echo Ensuring nix-channel set in git repo is used
     sudo nix-channel --add '$CHANNEL' nixos && sudo nix-channel --update
