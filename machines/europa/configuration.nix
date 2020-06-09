@@ -35,6 +35,9 @@ let
     services.throttled.enable = lib.mkDefault true;
     services.thermald.enable = true;
   };
+
+  fwsvccfg = config.systemd.services.firewall;
+  fwcfg = config.networking.firewall;
 in
 with lib; {
   imports = [
@@ -53,6 +56,22 @@ with lib; {
     wireguard.interfaces.vpn.postSetup = ''
       printf "nameserver 193.138.218.74" | ${pkgs.openresolv}/bin/resolvconf -a vpn -m 0
     '';
+  };
+
+  systemd.services.firewall-private = {
+    inherit (fwsvccfg) wantedBy wants before reloadIfChanged;
+    unitConfig = {
+      inherit (fwsvccfg.unitConfig) ConditionCapability DefaultDependencies;
+    };
+    path = [ fwcfg.package ];
+    description = fwsvccfg.description + " in netns private";
+    after = fwsvccfg.after ++ [ "wireguard-vpn.service" ];
+    serviceConfig = with fwsvccfg.serviceConfig; {
+      inherit Type RemainAfterExit;
+      ExecStart = "${pkgs.iproute}/bin/ip netns exec private " + (lib.last (lib.splitString "@" ExecStart));
+      ExecReload = "${pkgs.iproute}/bin/ip netns exec private " + (lib.last (lib.splitString "@" ExecReload));
+      ExecStop = "${pkgs.iproute}/bin/ip netns exec private " + (lib.last (lib.splitString "@" ExecStop));
+    };
   };
 
   boot.btrfsCleanBoot = {
