@@ -59,7 +59,8 @@ with lib; {
   };
 
   systemd.services.firewall-private = {
-    inherit (fwsvccfg) wantedBy wants before reloadIfChanged;
+    inherit (fwsvccfg) wantedBy reloadIfChanged;
+    wants = [ "wireguard-vpn.service" ];
     unitConfig = {
       inherit (fwsvccfg.unitConfig) ConditionCapability DefaultDependencies;
     };
