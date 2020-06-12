@@ -256,10 +256,10 @@
         "homepage": "",
         "owner": "spotifyd",
         "repo": "spotifyd",
-        "rev": "bf77d9543dba84cadb9abc14e7d45ac4e1e04b1c",
-        "sha256": "11jq5nc7flivwhakpkxw3b06g9nfskqn7ggfcmvs5y092gvgbb5r",
+        "rev": "3c3eda0c7df5a923ac3a3c510385ca9578baa076",
+        "sha256": "08wivvm597fsyvd92c3ms94h6pqj5idbi43wjirhsp7181rb46zk",
         "type": "tarball",
-        "url": "https://github.com/spotifyd/spotifyd/archive/bf77d9543dba84cadb9abc14e7d45ac4e1e04b1c.tar.gz",
+        "url": "https://github.com/spotifyd/spotifyd/archive/3c3eda0c7df5a923ac3a3c510385ca9578baa076.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "spotnix": {
