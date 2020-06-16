@@ -44,7 +44,7 @@ buildRustPackage rec {
   doCheck = false;
 
   src = sources.alacritty;
-  cargoSha256 = "1s3nd6apmjhl4sih1fwzq6ib8pvwapn25sxddm7k7fq8dfmwcb82";
+  cargoSha256 = "0nv4k33hf36ai5849y4ww8r0q3z72vyf4v088p0sxrggl01xv6c3";
 
   nativeBuildInputs = [ cmake makeWrapper pkgconfig ncurses gzip python3 ];
 
