@@ -30,7 +30,6 @@ rec {
   swaylock-dope = super.callPackage ../pkgs/swaylock-dope { };
   blur = super.callPackage ../pkgs/blur { };
   wlroots = super.callPackage ../pkgs/wlroots { };
-  alacritty = super.callPackage ../pkgs/alacritty { };
   fire = super.callPackage ../pkgs/fire { };
   grim = super.callPackage ../pkgs/grim { };
   i3status-rust = super.callPackage ../pkgs/i3status-rust { };
