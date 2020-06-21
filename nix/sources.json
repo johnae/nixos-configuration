@@ -1,16 +1,4 @@
 {
-    "alacritty": {
-        "branch": "master",
-        "description": "A cross-platform, GPU-accelerated terminal emulator",
-        "homepage": "",
-        "owner": "alacritty",
-        "repo": "alacritty",
-        "rev": "d526649ee67237a1bedad8228f1f017035ddad3f",
-        "sha256": "1lqjdg5caryz5smn81n1ckgq05zsd07g2i9sr1av4vdi46ax0127",
-        "type": "tarball",
-        "url": "https://github.com/alacritty/alacritty/archive/d526649ee67237a1bedad8228f1f017035ddad3f.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    },
     "aml": {
         "branch": "master",
         "description": "Another Main Loop",
@@ -364,10 +352,10 @@
         "homepage": "https://swaywm.org",
         "owner": "swaywm",
         "repo": "wlroots",
-        "rev": "d3d1bac1c290e5a383aca7cb857cc33702aeda78",
-        "sha256": "0dii00kvswmfm5m0hryns2z6q2v2zc3pmvm0ff07b4dnsw17pphf",
+        "rev": "d5530b26d7dfc142ee1f37020436d11696864fd3",
+        "sha256": "0yxcxc1k21mpvn3a0aw09dz8s02dc37ha81h3gb8f200b7674jc4",
         "type": "tarball",
-        "url": "https://github.com/swaywm/wlroots/archive/d3d1bac1c290e5a383aca7cb857cc33702aeda78.tar.gz",
+        "url": "https://github.com/swaywm/wlroots/archive/d5530b26d7dfc142ee1f37020436d11696864fd3.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "xdg-desktop-portal-wlr": {
