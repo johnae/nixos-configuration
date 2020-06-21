@@ -6,11 +6,9 @@ buildGoModule rec {
 
   src = sources.argo-cd;
 
-  modSha256 = "024xsx2ia26p89ql0k7rqsrf55fz6gqaivw4pdzcvk5f4cza8mi5";
+  vendorSha256 = "sha256-TUWLW/AsxeJ84jcvYm3ECs1do5hy2ZaFvtW3bmEkUsQ=";
 
   nativeBuildInputs = [ packr ];
-
-  patches = [ ./use-go-module.patch ];
 
   CGO_ENABLED = 0;
 

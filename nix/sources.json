@@ -12,11 +12,11 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "argo-cd": {
-        "sha256": "12p5sqsj1cfw21kag9vhmsn4qc53vg46qwim0mq0pmf7ngabqb3k",
+        "sha256": "15bcdsdh3si786s3p25s96z599v8crs8njsy4ln8w63indwqlq9p",
         "type": "tarball",
-        "url": "https://github.com/argoproj/argo-cd/archive/v1.5.0.tar.gz",
+        "url": "https://github.com/argoproj/argo-cd/archive/v1.6.1.tar.gz",
         "url_template": "https://github.com/argoproj/argo-cd/archive/v<version>.tar.gz",
-        "version": "1.5.0"
+        "version": "1.6.1"
     },
     "blur": {
         "branch": "master",
