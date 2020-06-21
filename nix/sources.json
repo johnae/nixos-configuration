@@ -129,10 +129,10 @@
         "homepage": "https://wayland.emersion.fr/mako",
         "owner": "emersion",
         "repo": "mako",
-        "rev": "1c9638c1a00df8ef08f2a19af3acbe2eb3c157a1",
-        "sha256": "1sn7bw9zhz9qkiw3y4dq4cps27jzbkr2xc1j9r1ll67fip01ng6b",
+        "rev": "42982e0a43f21c2a1db7e88a1b1cb49a872c501e",
+        "sha256": "1mdrb3llivz8418v2xgbzj3xmb0jdik2bgqiirkq6qq7s9c07x5h",
         "type": "tarball",
-        "url": "https://github.com/emersion/mako/archive/1c9638c1a00df8ef08f2a19af3acbe2eb3c157a1.tar.gz",
+        "url": "https://github.com/emersion/mako/archive/42982e0a43f21c2a1db7e88a1b1cb49a872c501e.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "neatvnc": {
