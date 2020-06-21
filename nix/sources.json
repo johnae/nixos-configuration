@@ -31,18 +31,18 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "buildkite-darwin": {
-        "sha256": "1026p6fn7glqgjm7ad2n4gmhmmmynz8w7wqmllvbx94ivhnzzf4f",
+        "sha256": "13qyi9vr8ccrnr86iv7wyhi7hzah7j5wx6ra3qfrj60b397z6q4z",
         "type": "tarball",
-        "url": "https://github.com/buildkite/agent/releases/download/v3.22.0/buildkite-agent-darwin-amd64-3.22.0.tar.gz",
+        "url": "https://github.com/buildkite/agent/releases/download/v3.22.1/buildkite-agent-darwin-amd64-3.22.1.tar.gz",
         "url_template": "https://github.com/buildkite/agent/releases/download/v<version>/buildkite-agent-darwin-amd64-<version>.tar.gz",
-        "version": "3.22.0"
+        "version": "3.22.1"
     },
     "buildkite-linux": {
-        "sha256": "13zilyjivlmqr4nw4ln3pkmjwij472xa1ng20y4pj1ydyn76caqy",
+        "sha256": "0y2sisrh7xvx2n3ckw45ak0xf7xylr424n79h868j1zlawf4pdxy",
         "type": "tarball",
-        "url": "https://github.com/buildkite/agent/releases/download/v3.22.0/buildkite-agent-linux-amd64-3.22.0.tar.gz",
+        "url": "https://github.com/buildkite/agent/releases/download/v3.22.1/buildkite-agent-linux-amd64-3.22.1.tar.gz",
         "url_template": "https://github.com/buildkite/agent/releases/download/v<version>/buildkite-agent-linux-amd64-<version>.tar.gz",
-        "version": "3.22.0"
+        "version": "3.22.1"
     },
     "emacs-overlay": {
         "branch": "master",
