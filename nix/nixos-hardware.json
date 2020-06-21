@@ -1,7 +1,7 @@
 {
     "owner": "nixos",
     "repo": "nixos-hardware",
-    "rev": "2f2c2d9ef5dcc663a504819ad73cc98a4cd26458",
-    "sha256": "159qnxmy720jqhg4zm8di0my1r56ya94m6kd117n8kng8hdsmvgi",
+    "rev": "a78b8b647692919fe871f5726b7b5e01dd725a88",
+    "sha256": "0lcfj18wbi4a7nv6fc1pvq28m210laviy00d4dngklrppihykj40",
     "fetchSubmodules": false
 }
