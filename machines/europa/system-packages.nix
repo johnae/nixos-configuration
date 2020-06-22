@@ -47,4 +47,10 @@ with pkgs; [
   fd
   wireguard
   iwd
+
+  du-dust
+  hyperfine
+  procs
+  sd
+  ytop
 ]

@@ -29,7 +29,6 @@ in
   hardware.opengl.enable = true;
   hardware.opengl.driSupport = true;
   hardware.opengl.driSupport32Bit = true;
-  hardware.u2f.enable = true;
 
   #environment.variables = {
   #  MESA_LOADER_DRIVER_OVERRIDE = "iris";
