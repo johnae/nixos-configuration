@@ -98,10 +98,10 @@
         "homepage": "https://wayland.emersion.fr/grim",
         "owner": "emersion",
         "repo": "grim",
-        "rev": "55a6ff24eca0554e9bef719470be263137fbb222",
-        "sha256": "04qib5gffjpi95cfcq3qxamzxmklxmirr7cl9d3fbn5mcd74cg88",
+        "rev": "fd01cf8215ad8c91ce580efd17d66127112b3a39",
+        "sha256": "1i4vwq0wlsvkk3h4vgcxm3ghhqs41zlvgwnwq0l3xjkp7hdbgn5s",
         "type": "tarball",
-        "url": "https://github.com/emersion/grim/archive/55a6ff24eca0554e9bef719470be263137fbb222.tar.gz",
+        "url": "https://github.com/emersion/grim/archive/fd01cf8215ad8c91ce580efd17d66127112b3a39.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "i3status-rust": {
