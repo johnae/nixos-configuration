@@ -216,6 +216,15 @@ in
   programs.skim.enable = true;
 
   services.lorri.enable = true;
+  systemd.user.services.lorri.Service.Environment = with lib; mkForce
+    (
+      let
+        path = with pkgs;
+          makeSearchPath "bin" [ nixFlakes gitMinimal gnutar gzip ];
+      in
+      [ "PATH=${path}" ]
+    );
+
   services.syncthing.enable = true;
 
 }

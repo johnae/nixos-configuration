@@ -5,9 +5,7 @@
 
   nix = {
     extraOptions = ''
-      plugin-files = ${
-        pkgs.nix-plugins.override { nix = config.nix.package; }
-      }/lib/nix/plugins/libnix-extra-builtins.so
+      experimental-features = nix-command flakes ca-references
     '';
 
     nixPath = [ "nixpkgs=${./..}/nix" ];
@@ -18,6 +16,8 @@
       options = "--delete-older-than 30d";
     };
   };
+
+  nix.package = pkgs.nixFlakes;
 
   nixpkgs.config.allowUnfree = true;
   nixpkgs.pkgs = (import ../nix { });

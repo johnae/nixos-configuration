@@ -5,8 +5,20 @@ let
   pkgs = import nixpkgsPath { };
   metadata = toString ./metadata;
 
-  #nixosChannelPath = toString ./nix/nixos-channel;
   nixosChannel = pkgs.sources.nixpkgs.url;
+
+  nix = pkgs.nix;
+  nix-plugins = pkgs.nix-plugins;
+
+  NIX_CONF_DIR =
+    let
+      nixConf = pkgs.writeTextDir "opt/nix.conf" ''
+        # experimental-features = nix-command flakes ca-references
+        extra-builtins-file = ${extraBuiltins}
+        plugin-files = ${nix-plugins}/lib/nix/plugins/libnix-extra-builtins.so
+      '';
+    in
+    "${nixConf}/opt";
 
   ## enables reading from encrypted json within nix expressions
   nixSops = pkgs.writeStrictShellScriptBin "nix-sops" ''
@@ -51,6 +63,7 @@ let
     NIXPKGS_ALLOW_UNFREE=1
     export NIX_PATH NIXPKGS_ALLOW_UNFREE
     export PATH=${pkgs.git}/bin:$PATH
+    export NIX_CONF_DIR=${NIX_CONF_DIR}
 
     NIX_OUTLINK=''${NIX_OUTLINK:-}
     args=
@@ -61,19 +74,20 @@ let
     fi
 
     echo Building "$@" 1>&2
-    ${pkgs.nix}/bin/nix-build $args --arg overlays [] --option extra-builtins-file ${extraBuiltins} "$@"
+    ${nix}/bin/nix-build $args --arg overlays [] "$@"
   '';
 
   ## this updates the local system, assuming the machine attribute to be the hostname
   updateSystem = pkgs.writeStrictShellScriptBin "update-system" ''
+    export NIX_CONF_DIR=${NIX_CONF_DIR}
     machine="$(${pkgs.hostname}/bin/hostname)"
 
     profile=/nix/var/nix/profiles/system
     pathToConfig="$(${build}/bin/build -A machines."$machine")"
 
     echo Ensuring nix-channel set in git repo is used
-    sudo nix-channel --add "${nixosChannel}" nixos
-    sudo nix-channel --update
+    sudo -E nix-channel --add "${nixosChannel}" nixos
+    sudo -E nix-channel --update
 
     if [ -d "${metadata}/$machine/root" ]; then
       roottmp="$(mktemp -d /tmp/roottmp.XXXXXXXX)"
@@ -89,7 +103,7 @@ let
     fi
 
     echo Updating system profile
-    sudo nix-env -p "$profile" --set "$pathToConfig"
+    sudo -E nix-env -p "$profile" --set "$pathToConfig"
 
     echo Switching to new configuration
     if ! sudo "$pathToConfig"/bin/switch-to-configuration switch; then
