@@ -23,7 +23,8 @@ rec {
   nixpkgs-fmt = super.callPackage ../pkgs/nixpkgs-fmt { };
   sway-unwrapped = super.callPackage ../pkgs/sway { };
   sway = super.callPackage
-    (self.path + "/pkgs/applications/window-managers/sway/wrapper.nix") { };
+    (self.path + "/pkgs/applications/window-managers/sway/wrapper.nix")
+    { };
   swaybg = super.callPackage ../pkgs/swaybg { };
   swayidle = super.callPackage ../pkgs/swayidle { };
   swaylock = super.callPackage ../pkgs/swaylock { };
@@ -32,7 +33,6 @@ rec {
   wlroots = super.callPackage ../pkgs/wlroots { };
   fire = super.callPackage ../pkgs/fire { };
   grim = super.callPackage ../pkgs/grim { };
-  i3status-rust = super.callPackage ../pkgs/i3status-rust { };
   mako = super.callPackage ../pkgs/mako { };
   my-emacs = super.callPackage ../pkgs/my-emacs { };
   persway = super.callPackage ../pkgs/persway { };

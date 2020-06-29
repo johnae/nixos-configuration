@@ -104,18 +104,6 @@
         "url": "https://github.com/emersion/grim/archive/fd01cf8215ad8c91ce580efd17d66127112b3a39.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
-    "i3status-rust": {
-        "branch": "master",
-        "description": "Very resourcefriendly and feature-rich replacement for i3status, written in pure Rust",
-        "homepage": null,
-        "owner": "greshake",
-        "repo": "i3status-rust",
-        "rev": "6ea2d35ead06f2caffba89a2ed2e421c309a1252",
-        "sha256": "0kzmlzws68bgimn6y4nrb0b4knim5ars9cpqnwvrfjifdfqcdbsl",
-        "type": "tarball",
-        "url": "https://github.com/greshake/i3status-rust/archive/6ea2d35ead06f2caffba89a2ed2e421c309a1252.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    },
     "k3s": {
         "sha256": "140472asgahr4jkgmp4pkmkv96m5rspcbfnzy4xbpj3pvr6xc68c",
         "type": "file",
